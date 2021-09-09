@@ -73,8 +73,8 @@ public class XteaController
 	private static XteaKey entryToKey(XteaEntry xe)
 	{
 		XteaKey xteaKey = new XteaKey();
-		xteaKey.setRegion(xe.getRegion());
-		xteaKey.setKeys(new int[]
+		xteaKey.setMapsquare(xe.getRegion());
+		xteaKey.setKey(new int[]
 		{
 			xe.getKey1(),
 			xe.getKey2(),

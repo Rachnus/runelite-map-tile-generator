@@ -47,7 +47,7 @@ public class XteaKeyManager
 		{
 			for (XteaKey key : xteaClient.get())
 			{
-				keys.put(key.getRegion(), key.getKeys());
+				keys.put(key.getMapsquare(), key.getKey());
 			}
 		}
 		catch (IOException ex)

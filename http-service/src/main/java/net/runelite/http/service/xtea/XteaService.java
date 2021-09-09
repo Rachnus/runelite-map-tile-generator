@@ -98,8 +98,8 @@ public class XteaService
 		boolean cached = true;
 		for (XteaKey key : xteaRequest.getKeys())
 		{
-			int region = key.getRegion();
-			int[] keys = key.getKeys();
+			int region = key.getMapsquare();
+			int[] keys = key.getKey();
 
 			XteaCache xteaCache = keyCache.getIfPresent(region);
 			if (xteaCache == null
@@ -131,8 +131,8 @@ public class XteaService
 
 			for (XteaKey key : xteaRequest.getKeys())
 			{
-				int region = key.getRegion();
-				int[] keys = key.getKeys();
+				int region = key.getMapsquare();
+				int[] keys = key.getKey();
 
 				XteaEntry xteaEntry = findLatestXtea(con, region);
 

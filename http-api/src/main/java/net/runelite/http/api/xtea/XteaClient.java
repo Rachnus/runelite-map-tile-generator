@@ -92,9 +92,12 @@ public class XteaClient
 
 	public List<XteaKey> get() throws IOException
 	{
-		HttpUrl url = RuneLiteAPI.getApiBase().newBuilder()
+		/*HttpUrl url = RuneLiteAPI.getApiBase().newBuilder()
 			.addPathSegment("xtea")
 			.build();
+		*/
+
+		HttpUrl url = HttpUrl.parse("https://archive.runestats.com/osrs/xtea/2021-09-02-rev199.json");
 
 		Request request = new Request.Builder()
 			.url(url)
@@ -113,11 +116,11 @@ public class XteaClient
 		}
 	}
 
-	public XteaKey get(int region) throws IOException
+	public XteaKey get(int mapsquare) throws IOException
 	{
 		HttpUrl url = RuneLiteAPI.getApiBase().newBuilder()
 			.addPathSegment("xtea")
-			.addPathSegment(Integer.toString(region))
+			.addPathSegment(Integer.toString(mapsquare))
 			.build();
 
 		Request request = new Request.Builder()

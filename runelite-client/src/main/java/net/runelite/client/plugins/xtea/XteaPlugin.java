@@ -91,8 +91,8 @@ public class XteaPlugin extends Plugin
 			log.debug("Region {} keys {}, {}, {}, {}", region, keys[0], keys[1], keys[2], keys[3]);
 
 			XteaKey xteaKey = new XteaKey();
-			xteaKey.setRegion(region);
-			xteaKey.setKeys(keys);
+			xteaKey.setMapsquare(region);
+			xteaKey.setKey(keys);
 			xteaRequest.addKey(xteaKey);
 		}
 

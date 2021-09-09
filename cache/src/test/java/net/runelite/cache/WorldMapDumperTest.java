@@ -30,8 +30,9 @@ import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import net.runelite.cache.definitions.WorldMapDefinition;
+
 import net.runelite.cache.definitions.loaders.WorldMapLoader;
+import net.runelite.cache.definitions.WorldMapDefinition;
 import net.runelite.cache.fs.Archive;
 import net.runelite.cache.fs.ArchiveFiles;
 import net.runelite.cache.fs.FSFile;
