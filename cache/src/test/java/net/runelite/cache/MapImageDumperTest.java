@@ -61,7 +61,7 @@ public class MapImageDumperTest
 
 			for (int i = 0; i < Region.Z; ++i)
 			{
-				BufferedImage image = dumper.drawMap(i);
+				BufferedImage image = dumper.drawMap(i, false);
 
 				File imageFile = new File(outDir, "img-" + i + ".png");
 
@@ -92,7 +92,7 @@ public class MapImageDumperTest
 			for (Region region : regionLoader.getRegions())
 			{
 				File imageFile = new File(outDir, "img-" + z + "-" + region.getRegionID() + ".png");
-				BufferedImage image = dumper.drawRegion(region, z);
+				BufferedImage image = dumper.drawRegion(region, z, false);
 				ImageIO.write(image, "png", imageFile);
 			}
 		}

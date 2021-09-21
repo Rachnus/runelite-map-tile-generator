@@ -33,10 +33,15 @@ public class ColorPalette
 
 	public ColorPalette(double brightness, int var2, int var3)
 	{
-		colorPalette = buildColorPalettee(brightness, var2, var3);
+		colorPalette = buildColorPalettee(brightness, var2, var3, false);
 	}
 
-	private int[] buildColorPalettee(double brightness, int var2, int var3)
+	public ColorPalette(double brightness, int var2, int var3, boolean includealpha)
+	{
+		colorPalette = buildColorPalettee(brightness, var2, var3, includealpha);
+	}
+
+	private int[] buildColorPalettee(double brightness, int var2, int var3, boolean includealpha)
 	{
 		int[] colorPalette = new int[65536];
 		int var4 = var2 * 128;
@@ -129,17 +134,37 @@ public class ColorPalette
 					}
 				}
 
-				int var29 = (int) (var13 * 256.0D);
-				int var20 = (int) (var15 * 256.0D);
-				int var30 = (int) (var17 * 256.0D);
-				int var22 = var30 + (var20 << 8) + (var29 << 16);
-				var22 = adjustRGB(var22, brightness);
-				if (var22 == 0)
+				if(includealpha)
 				{
-					var22 = 1;
-				}
+					int red = (int) (var13 * 256.0D);
+					int green = (int) (var15 * 256.0D);
+					int blue = (int) (var17 * 256.0D);
+					int alpha = 255;//(int) (0.99 * 256.0D);
+					int color = blue + (green << 8) + (red << 16) + (alpha << 24);
 
-				colorPalette[var4++] = var22;
+					color = adjustARGB(color, brightness);
+					if (color == 0)
+					{
+						color = 1;
+					}
+
+					colorPalette[var4++] = color;
+				}
+				else
+				{
+					int var29 = (int) (var13 * 256.0D);
+					int var20 = (int) (var15 * 256.0D);
+					int var30 = (int) (var17 * 256.0D);
+					int var22 = var30 + (var20 << 8) + (var29 << 16);
+
+					var22 = adjustRGB(var22, brightness);
+					if (var22 == 0)
+					{
+						var22 = 1;
+					}
+
+					colorPalette[var4++] = var22;
+				}
 			}
 		}
 		return colorPalette;
@@ -157,5 +182,21 @@ public class ColorPalette
 		int var10 = (int) (var5 * 256.0D);
 		int var11 = (int) (var7 * 256.0D);
 		return var11 + (var10 << 8) + (var9 << 16);
+	}
+
+	private static int adjustARGB(int var0, double var1)
+	{
+		double oldAlpha = (double) (var0 >> 24 & 255) / 256.0D;
+		double oldRed = (double) (var0 >> 16 & 255) / 256.0D;
+		double oldGreen = (double) (var0 >> 8 & 255) / 256.0D;
+		double oldBlue = (double) (var0 & 255) / 256.0D;
+		oldRed = Math.pow(oldRed, var1);
+		oldGreen = Math.pow(oldGreen, var1);
+		oldBlue = Math.pow(oldBlue, var1);
+		int alpha = (int) (oldAlpha * 256.0D);
+		int red = (int) (oldRed * 256.0D);
+		int green = (int) (oldGreen * 256.0D);
+		int blue = (int) (oldBlue * 256.0D);
+		return blue + (green << 8) + (red << 16) + (alpha << 24);
 	}
 }
