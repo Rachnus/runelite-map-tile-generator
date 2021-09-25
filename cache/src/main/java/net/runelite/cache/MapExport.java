@@ -22,15 +22,32 @@ import net.runelite.cache.definitions.WorldMapDefinition;
 
 public class MapExport
 {
+    private static String cache = "C:/Users/Jimi/jagexcache/oldschool/LIVE/";
+
+    private static String basefolder = "C:/Users/Jimi/output/";
+
     public static void main(String[] args) throws Exception
     {
-        String cache = "C:/Users/Jimi/jagexcache_2021-09-02/";
+        for(int i = 0; i < args.length; i++)
+        {
+            switch(i)
+            {
+                case 0: // input folder (cache)
+                    cache = args[i] + "/";
+                    break;
+                case 1: //  output folder
+                    basefolder = args[i] + '/';
+                    break;
+
+            }
+            System.out.println(i + " - " + args[i]);
+        }
         Store store = new Store(new File(cache));
         store.load();
 
-
         writeWorldMap(store);
         //writeWorldMapDefinitions(store);
+        return;
     }
 
     private static void writeWorldMap(Store store) throws Exception
@@ -76,17 +93,15 @@ public class MapExport
                 chunkPos.add(new ChunkPos(x, y, plane));
 
                 // comment out the 5 lines under this comment to only export regionpos.json
-                String dirname = String.format("C:\\Users\\Jimi\\jagexcacheextract\\mapsTest\\");
                 String filename = String.format("%s_%s_%s.png", plane, x, y);
-                File outputfile = new File(dirname + filename);
+                File outputfile = new File(basefolder + filename);
                 System.out.println(outputfile);
                 ImageIO.write(reg, "png", outputfile);
             }
         }
 
         Gson gson = new Gson();
-        String outputfile = String.format("C:\\Users\\Jimi\\jagexcacheextract\\mapsTest\\regionpos.json");
-        PrintWriter out = new PrintWriter(outputfile);
+        PrintWriter out = new PrintWriter(basefolder + "regionpos.json");
         String json = gson.toJson(chunkPos);
         out.write(json);
         out.close();
@@ -107,8 +122,7 @@ public class MapExport
         }
 
         Gson gson = new Gson();
-        String outputfile = String.format("C:\\Users\\Jimi\\jagexcacheextract\\mapsTest\\mapdef.json");
-        PrintWriter out = new PrintWriter(outputfile);
+        PrintWriter out = new PrintWriter(basefolder + "mapdef.json");
         String json = gson.toJson(definitions);
         out.write(json);
         out.close();
