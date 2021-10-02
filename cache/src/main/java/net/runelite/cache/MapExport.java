@@ -18,7 +18,10 @@ import javax.imageio.*;
 import net.runelite.cache.region.Region;
 import net.runelite.cache.definitions.WorldMapDefinition;
 
+// Alot of code is copied from these repos
+//
 // https://github.com/leejt/mapgen/blob/master/cache/src/main/java/net/runelite/cache/MapExport.java
+// https://gitlab.com/weirdgloop/map-tile-generator/
 
 public class MapExport
 {
@@ -53,56 +56,64 @@ public class MapExport
     private static void writeWorldMap(Store store) throws Exception
     {
         MapImageDumper mapImageDumper = new MapImageDumper(store);
-        mapImageDumper.load();
 
         RegionLoader regionLoader = new RegionLoader(store);
         regionLoader.loadRegions();
 
-        List<ChunkPos> chunkPos = new ArrayList<ChunkPos>();
+        List<ChunkPos> regionPos = new ArrayList<ChunkPos>();
 
-        for (Region region : regionLoader.getRegions())
+        for(int zoomLayer = 0; zoomLayer < 3; zoomLayer++)
         {
-            int x = region.getRegionX();
-            int y = region.getRegionY();
+            int zoom = (int)Math.pow(2, zoomLayer);
+            mapImageDumper.setZoom(zoom);
+            mapImageDumper.load();
 
-            for (int plane = 0; plane < 4; plane++)
+            for (Region region : regionLoader.getRegions())
             {
-                BufferedImage reg = mapImageDumper.drawRegion(region, plane, plane > 0); // draw transparent planes if above 0
-                boolean isBlack = true;
-                for(int imgX = 0; imgX < reg.getWidth(); imgX++)
+                int x = region.getRegionX();
+                int y = region.getRegionY();
+
+                for (int plane = 0; plane < 4; plane++)
                 {
-                    for(int imgY = 0; imgY < reg.getHeight(); imgY++)
+                    BufferedImage reg = mapImageDumper.drawRegion(region, plane, plane > 0); // draw transparent planes if above 0
+                    boolean isBlack = true;
+                    for(int imgX = 0; imgX < reg.getWidth(); imgX++)
                     {
-                        int pixel = reg.getRGB(imgX, imgY);
-                        if(pixel != (plane>0?0x00000000:0xFF000000))
+                        for(int imgY = 0; imgY < reg.getHeight(); imgY++)
                         {
-                            isBlack = false;
-                            break;
+                            int pixel = reg.getRGB(imgX, imgY);
+                            if(pixel != (plane>0?0x00000000:0xFF000000))
+                            {
+                                isBlack = false;
+                                break;
+                            }
                         }
+                        if(!isBlack)
+                            break;
                     }
-                    if(!isBlack)
-                        break;
+
+                    if(isBlack)
+                    {
+                        System.out.println("IMAGE WAS EMPTY: " + String.format("%s_%s_%s.png", plane, x, y));
+                        continue;
+                    }
+
+                    // only add chunk pos
+                    if(zoomLayer == 0)
+                        regionPos.add(new ChunkPos(x, y, plane));
+
+                    // comment out the 5 lines under this comment to only export regionpos.json
+                    String filename = String.format("%s_%s_%s.png", plane, x, y);
+                    File outputfile = new File(basefolder + "/" + zoomLayer + "/" + filename);
+                    System.out.println(outputfile);
+                    ImageIO.write(reg, "png", outputfile);
                 }
-
-                if(isBlack)
-                {
-                    System.out.println("IMAGE WAS EMPTY: " + String.format("%s_%s_%s.png", plane, x, y));
-                    continue;
-                }
-
-                chunkPos.add(new ChunkPos(x, y, plane));
-
-                // comment out the 5 lines under this comment to only export regionpos.json
-                String filename = String.format("%s_%s_%s.png", plane, x, y);
-                File outputfile = new File(basefolder + filename);
-                System.out.println(outputfile);
-                ImageIO.write(reg, "png", outputfile);
             }
         }
 
         Gson gson = new Gson();
         PrintWriter out = new PrintWriter(basefolder + "regionpos.json");
-        String json = gson.toJson(chunkPos);
+        String json = gson.toJson(regionPos);
         out.write(json);
         out.close();
     }
