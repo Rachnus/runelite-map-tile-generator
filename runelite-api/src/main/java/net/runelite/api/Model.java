@@ -24,34 +24,18 @@
  */
 package net.runelite.api;
 
+import javax.annotation.Nonnull;
+
 /**
  * Represents the model of an object.
  */
-public interface Model extends Renderable
+public interface Model extends Mesh, Renderable
 {
-	int getVerticesCount();
-
-	int[] getVerticesX();
-
-	int[] getVerticesY();
-
-	int[] getVerticesZ();
-
-	int getTrianglesCount();
-
-	int[] getTrianglesX();
-
-	int[] getTrianglesY();
-
-	int[] getTrianglesZ();
-
 	int[] getFaceColors1();
 
 	int[] getFaceColors2();
 
 	int[] getFaceColors3();
-
-	byte[] getTriangleTransparencies();
 
 	int getSceneId();
 	void setSceneId(int sceneId);
@@ -62,27 +46,35 @@ public interface Model extends Renderable
 	int getUvBufferOffset();
 	void setUvBufferOffset(int bufferOffset);
 
-	int getModelHeight();
+	int getBottomY();
 
 	void calculateBoundsCylinder();
 
 	byte[] getFaceRenderPriorities();
 
 	int getRadius();
-
-	short[] getFaceTextures();
+	int getDiameter();
 
 	float[] getFaceTextureUVCoordinates();
 
+	/**
+	 * @see #getAABB(int)
+	 */
+	@Deprecated
 	void calculateExtreme(int orientation);
 
-	int getCenterX();
-	int getCenterY();
-	int getCenterZ();
-	int getExtremeX();
-	int getExtremeY();
-	int getExtremeZ();
+	@Nonnull
+	AABB getAABB(int orientation);
 
 	int getXYZMag();
 	boolean isClickable();
+
+	int[] getVertexNormalsX();
+	int[] getVertexNormalsY();
+	int[] getVertexNormalsZ();
+
+	byte getOverrideAmount();
+	byte getOverrideHue();
+	byte getOverrideSaturation();
+	byte getOverrideLuminance();
 }

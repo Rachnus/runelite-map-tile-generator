@@ -46,7 +46,6 @@ import net.runelite.api.InventoryID;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
-import net.runelite.api.MenuAction;
 import net.runelite.api.NPC;
 import net.runelite.api.Varbits;
 import net.runelite.api.coords.LocalPoint;
@@ -64,14 +63,12 @@ import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.Notifier;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.events.OverlayMenuClicked;
 import net.runelite.client.game.FishingSpot;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.xptracker.XpTrackerPlugin;
 import net.runelite.client.ui.overlay.OverlayManager;
-import net.runelite.client.ui.overlay.OverlayMenuEntry;
 
 @PluginDescriptor(
 	name = "Fishing",
@@ -161,16 +158,9 @@ public class FishingPlugin extends Plugin
 		}
 	}
 
-	@Subscribe
-	public void onOverlayMenuClicked(OverlayMenuClicked overlayMenuClicked)
+	void reset()
 	{
-		OverlayMenuEntry overlayMenuEntry = overlayMenuClicked.getEntry();
-		if (overlayMenuEntry.getMenuAction() == MenuAction.RUNELITE_OVERLAY
-			&& overlayMenuClicked.getEntry().getOption().equals(FishingOverlay.FISHING_RESET)
-			&& overlayMenuClicked.getOverlay() == overlay)
-		{
-			session.setLastFishCaught(null);
-		}
+		session.setLastFishCaught(null);
 	}
 
 	@Subscribe
@@ -387,7 +377,7 @@ public class FishingPlugin extends Plugin
 			return;
 		}
 
-		int trawlerContribution = client.getVar(Varbits.FISHING_TRAWLER_ACTIVITY);
+		int trawlerContribution = client.getVarbitValue(Varbits.FISHING_TRAWLER_ACTIVITY);
 		trawlerContributionWidget.setText("Contribution: " + trawlerContribution);
 	}
 
@@ -445,7 +435,7 @@ public class FishingPlugin extends Plugin
 
 		if (seconds < 10)
 		{
-			trawlerText.append("0");
+			trawlerText.append('0');
 		}
 
 		trawlerText.append(seconds);
@@ -462,14 +452,14 @@ public class FishingPlugin extends Plugin
 
 		final LocalPoint cameraPoint = new LocalPoint(client.getCameraX(), client.getCameraY());
 		fishingSpots.sort(
-			Comparator.comparing(
+			Comparator.comparingInt(
 				// Negate to have the furthest first
 				(NPC npc) -> -npc.getLocalLocation().distanceTo(cameraPoint))
 				// Order by position
-				.thenComparing(NPC::getLocalLocation, Comparator.comparing(LocalPoint::getX)
-					.thenComparing(LocalPoint::getY))
+				.thenComparing(NPC::getLocalLocation, Comparator.comparingInt(LocalPoint::getX)
+					.thenComparingInt(LocalPoint::getY))
 				// And then by id
-				.thenComparing(NPC::getId)
+				.thenComparingInt(NPC::getId)
 		);
 	}
 }

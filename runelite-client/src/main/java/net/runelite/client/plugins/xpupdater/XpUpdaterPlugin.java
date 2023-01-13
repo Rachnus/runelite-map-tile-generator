@@ -29,7 +29,6 @@ package net.runelite.client.plugins.xpupdater;
 import com.google.inject.Provides;
 import java.io.IOException;
 import java.util.EnumSet;
-import java.util.Objects;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -44,11 +43,11 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.FormBody;
 import okhttp3.Response;
 
 @PluginDescriptor(
@@ -74,7 +73,7 @@ public class XpUpdaterPlugin extends Plugin
 	@Inject
 	private OkHttpClient okHttpClient;
 
-	private String lastUsername;
+	private long lastAccount;
 	private boolean fetchXp;
 	private long lastXp;
 
@@ -88,6 +87,7 @@ public class XpUpdaterPlugin extends Plugin
 	protected void startUp()
 	{
 		fetchXp = true;
+		lastAccount = -1L;
 	}
 
 	@Subscribe
@@ -96,9 +96,9 @@ public class XpUpdaterPlugin extends Plugin
 		GameState state = gameStateChanged.getGameState();
 		if (state == GameState.LOGGED_IN)
 		{
-			if (!Objects.equals(client.getUsername(), lastUsername))
+			if (lastAccount != client.getAccountHash())
 			{
-				lastUsername = client.getUsername();
+				lastAccount = client.getAccountHash();
 				fetchXp = true;
 			}
 		}
@@ -114,8 +114,8 @@ public class XpUpdaterPlugin extends Plugin
 			// Don't submit update unless xp threshold is reached
 			if (Math.abs(totalXp - lastXp) > XP_THRESHOLD)
 			{
-				log.debug("Submitting update for {}", local.getName());
-				update(local.getName());
+				log.debug("Submitting update for {} accountHash {}", local.getName(), lastAccount);
+				update(lastAccount, local.getName());
 				lastXp = totalXp;
 			}
 		}
@@ -131,13 +131,13 @@ public class XpUpdaterPlugin extends Plugin
 		}
 	}
 
-	private void update(String username)
+	private void update(long accountHash, String username)
 	{
 		EnumSet<WorldType> worldTypes = client.getWorldType();
 		username = username.replace(" ", "_");
 		updateCml(username, worldTypes);
-		updateTempleosrs(username, worldTypes);
-		updateWom(username, worldTypes);
+		updateTempleosrs(accountHash, username, worldTypes);
+		updateWom(accountHash, username, worldTypes);
 	}
 
 	private void updateCml(String username, EnumSet<WorldType> worldTypes)
@@ -145,7 +145,8 @@ public class XpUpdaterPlugin extends Plugin
 		if (config.cml()
 			&& !worldTypes.contains(WorldType.SEASONAL)
 			&& !worldTypes.contains(WorldType.DEADMAN)
-			&& !worldTypes.contains(WorldType.NOSAVE_MODE))
+			&& !worldTypes.contains(WorldType.NOSAVE_MODE)
+			&& !worldTypes.contains(WorldType.FRESH_START_WORLD))
 		{
 			HttpUrl url = new HttpUrl.Builder()
 				.scheme("https")
@@ -165,47 +166,53 @@ public class XpUpdaterPlugin extends Plugin
 		}
 	}
 
-	private void updateTempleosrs(String username, EnumSet<WorldType> worldTypes)
+	private void updateTempleosrs(long accountHash, String username, EnumSet<WorldType> worldTypes)
 	{
 		if (config.templeosrs()
 			&& !worldTypes.contains(WorldType.SEASONAL)
 			&& !worldTypes.contains(WorldType.DEADMAN)
 			&& !worldTypes.contains(WorldType.NOSAVE_MODE))
 		{
-			HttpUrl url = new HttpUrl.Builder()
+			HttpUrl.Builder url = new HttpUrl.Builder()
 				.scheme("https")
 				.host("templeosrs.com")
 				.addPathSegment("php")
 				.addPathSegment("add_datapoint.php")
 				.addQueryParameter("player", username)
-				.build();
+				.addQueryParameter("accountHash", Long.toString(accountHash));
+
+			if (worldTypes.contains(WorldType.FRESH_START_WORLD))
+			{
+				url.addQueryParameter("worldType", "fsw");
+			}
 
 			Request request = new Request.Builder()
 				.header("User-Agent", "RuneLite")
-				.url(url)
+				.url(url.build())
 				.build();
 
 			sendRequest("TempleOSRS", request);
 		}
 	}
 
-	private void updateWom(String username, EnumSet<WorldType> worldTypes)
+	private void updateWom(long accountHash, String username, EnumSet<WorldType> worldTypes)
 	{
 		if (config.wiseoldman()
-			&& !worldTypes.contains(WorldType.SEASONAL)
 			&& !worldTypes.contains(WorldType.DEADMAN)
 			&& !worldTypes.contains(WorldType.NOSAVE_MODE))
 		{
 			HttpUrl url = new HttpUrl.Builder()
 				.scheme("https")
-				.host("wiseoldman.net")
-				.addPathSegment("api")
+				.host(
+					worldTypes.contains(WorldType.SEASONAL) ? "seasonal.api.wiseoldman.net" :
+						"api.wiseoldman.net")
+				.addPathSegment("v2")
 				.addPathSegment("players")
-				.addPathSegment("track")
+				.addPathSegment(username)
 				.build();
 
 			RequestBody formBody = new FormBody.Builder()
-				.add("username", username)
+				.add("accountHash", Long.toString(accountHash))
 				.build();
 
 			Request request = new Request.Builder()

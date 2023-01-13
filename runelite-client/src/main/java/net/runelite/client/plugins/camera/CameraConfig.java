@@ -69,8 +69,8 @@ public interface CameraConfig extends Config
 
 	@ConfigItem(
 		keyName = "relaxCameraPitch",
-		name = "Vertical camera",
-		description = "Relax the camera's upper pitch limit",
+		name = "Expand pitch limit",
+		description = "Relax the camera's upper and lower pitch limits. Allows vertical and horizontal camera movement.",
 		position = 3
 	)
 	default boolean relaxCameraPitch()
@@ -146,17 +146,6 @@ public interface CameraConfig extends Config
 	default boolean middleClickMenu()
 	{
 		return false;
-	}
-
-	@ConfigItem(
-		keyName = "compassLook",
-		name = "Compass options",
-		description = "Adds Look South, East, and West options to the compass",
-		position = 10
-	)
-	default boolean compassLook()
-	{
-		return true;
 	}
 
 	@ConfigItem(

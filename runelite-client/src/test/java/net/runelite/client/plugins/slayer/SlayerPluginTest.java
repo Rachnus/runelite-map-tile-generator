@@ -37,6 +37,7 @@ import static net.runelite.api.ChatMessageType.GAMEMESSAGE;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.Hitsplat;
+import net.runelite.api.HitsplatID;
 import net.runelite.api.MessageNode;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
@@ -52,20 +53,23 @@ import net.runelite.api.events.StatChanged;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.Notifier;
+import net.runelite.client.chat.ChatClient;
 import net.runelite.client.chat.ChatCommandManager;
-import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.npcoverlay.NpcOverlayService;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
-import net.runelite.http.api.chat.ChatClient;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.Mock;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -117,6 +121,10 @@ public class SlayerPluginTest
 	private static final String TASK_COMPLETE = "You need something new to hunt.";
 	private static final String TASK_CANCELED = "Your task has been cancelled.";
 
+	private static final String TASK_CANCELED_LEFT_FIGHT_CAVES = "You no longer have a slayer task as you left the fight cave.";
+	private static final String TASK_CANCELED_LEFT_INFERNO = "You no longer have a slayer task as you left the Inferno.";
+	private static final String TASK_CANCELED_FAILED_INFERNO = "You no longer have a slayer task.";
+
 	private static final String SUPERIOR_MESSAGE = "A superior foe has appeared...";
 
 	private static final String BRACLET_SLAUGHTER = "Your bracelet of slaughter prevents your slayer count from decreasing. It has 9 charges left.";
@@ -144,6 +152,10 @@ public class SlayerPluginTest
 
 	@Mock
 	@Bind
+	TargetWeaknessOverlay targetWeaknessOverlay;
+
+	@Mock
+	@Bind
 	InfoBoxManager infoBoxManager;
 
 	@Mock
@@ -153,10 +165,6 @@ public class SlayerPluginTest
 	@Mock
 	@Bind
 	Notifier notifier;
-
-	@Mock
-	@Bind
-	ChatMessageManager chatMessageManager;
 
 	@Mock
 	@Bind
@@ -248,6 +256,24 @@ public class SlayerPluginTest
 
 		assertEquals("goblins", slayerPlugin.getTaskName());
 		assertEquals(17, slayerPlugin.getAmount());
+		verify(configManager).setRSProfileConfiguration(SlayerConfig.GROUP_NAME, SlayerConfig.STREAK_KEY, 0);
+		verify(configManager).setRSProfileConfiguration(SlayerConfig.GROUP_NAME, SlayerConfig.POINTS_KEY, 0);
+	}
+
+	@Test
+	public void testFirstTaskWithPoints()
+	{
+		when(configManager.getRSProfileConfiguration(SlayerConfig.GROUP_NAME, SlayerConfig.POINTS_KEY, int.class)).thenReturn(30);
+
+		Widget npcDialog = mock(Widget.class);
+		when(npcDialog.getText()).thenReturn(TASK_NEW_FIRST);
+		when(client.getWidget(WidgetInfo.DIALOG_NPC_TEXT)).thenReturn(npcDialog);
+		slayerPlugin.onGameTick(new GameTick());
+
+		assertEquals("goblins", slayerPlugin.getTaskName());
+		assertEquals(17, slayerPlugin.getAmount());
+		verify(configManager).setRSProfileConfiguration(SlayerConfig.GROUP_NAME, SlayerConfig.STREAK_KEY, 0);
+		verify(configManager, never()).setRSProfileConfiguration(eq(SlayerConfig.GROUP_NAME), eq(SlayerConfig.POINTS_KEY), anyInt());
 	}
 
 	@Test
@@ -566,6 +592,45 @@ public class SlayerPluginTest
 	}
 
 	@Test
+	public void testCancelledOnFightCaveLeave()
+	{
+		slayerPlugin.setTaskName("cows");
+		slayerPlugin.setAmount(42);
+
+		ChatMessage chatMessageEvent = new ChatMessage(null, GAMEMESSAGE, "Perterter", TASK_CANCELED_LEFT_FIGHT_CAVES, null, 0);
+		slayerPlugin.onChatMessage(chatMessageEvent);
+
+		assertEquals("", slayerPlugin.getTaskName());
+		assertEquals(0, slayerPlugin.getAmount());
+	}
+
+	@Test
+	public void testCancelledOnInfernoLeave()
+	{
+		slayerPlugin.setTaskName("cows");
+		slayerPlugin.setAmount(42);
+
+		ChatMessage chatMessageEvent = new ChatMessage(null, GAMEMESSAGE, "Perterter", TASK_CANCELED_LEFT_INFERNO, null, 0);
+		slayerPlugin.onChatMessage(chatMessageEvent);
+
+		assertEquals("", slayerPlugin.getTaskName());
+		assertEquals(0, slayerPlugin.getAmount());
+	}
+
+	@Test
+	public void testCancelledOnInfernoFail()
+	{
+		slayerPlugin.setTaskName("cows");
+		slayerPlugin.setAmount(42);
+
+		ChatMessage chatMessageEvent = new ChatMessage(null, GAMEMESSAGE, "Perterter", TASK_CANCELED_FAILED_INFERNO, null, 0);
+		slayerPlugin.onChatMessage(chatMessageEvent);
+
+		assertEquals("", slayerPlugin.getTaskName());
+		assertEquals(0, slayerPlugin.getAmount());
+	}
+
+	@Test
 	public void testSuperiorNotification()
 	{
 		ChatMessage chatMessageEvent = new ChatMessage(null, GAMEMESSAGE, "Superior", SUPERIOR_MESSAGE, null, 0);
@@ -784,14 +849,15 @@ public class SlayerPluginTest
 		when(slayerConfig.taskCommand()).thenReturn(true);
 		when(chatClient.getTask(anyString())).thenReturn(task);
 
+		MessageNode messageNode = mock(MessageNode.class);
 		ChatMessage setMessage = new ChatMessage();
 		setMessage.setType(ChatMessageType.PUBLICCHAT);
 		setMessage.setName("Adam");
-		setMessage.setMessageNode(mock(MessageNode.class));
+		setMessage.setMessageNode(messageNode);
 
 		slayerPlugin.taskLookup(setMessage, "!task");
 
-		verify(chatMessageManager).update(any(MessageNode.class));
+		verify(messageNode).setRuneLiteFormatMessage(anyString());
 	}
 
 	@Test
@@ -806,14 +872,15 @@ public class SlayerPluginTest
 		when(slayerConfig.taskCommand()).thenReturn(true);
 		when(chatClient.getTask(anyString())).thenReturn(task);
 
+		MessageNode messageNode = mock(MessageNode.class);
 		ChatMessage chatMessage = new ChatMessage();
 		chatMessage.setType(ChatMessageType.PUBLICCHAT);
 		chatMessage.setName("Adam");
-		chatMessage.setMessageNode(mock(MessageNode.class));
+		chatMessage.setMessageNode(messageNode);
 
 		slayerPlugin.taskLookup(chatMessage, "!task");
 
-		verify(chatMessageManager, never()).update(any(MessageNode.class));
+		verify(messageNode, never()).setRuneLiteFormatMessage(anyString());
 	}
 
 	@Test
@@ -899,7 +966,7 @@ public class SlayerPluginTest
 		slayerPlugin.onGameTick(new GameTick());
 
 		// Damage both npcs
-		Hitsplat hitsplat = new Hitsplat(Hitsplat.HitsplatType.DAMAGE_ME, 1, 1);
+		Hitsplat hitsplat = new Hitsplat(HitsplatID.DAMAGE_ME, 1, 1);
 		HitsplatApplied hitsplatApplied = new HitsplatApplied();
 		hitsplatApplied.setHitsplat(hitsplat);
 		hitsplatApplied.setActor(npc1);
@@ -924,5 +991,31 @@ public class SlayerPluginTest
 
 		assertEquals("Suqahs", slayerPlugin.getTaskName());
 		assertEquals(229, slayerPlugin.getAmount()); // 2 kills
+	}
+
+	@Test
+	public void npcMatching()
+	{
+		assertTrue(matches("Abyssal demon", Task.ABYSSAL_DEMONS));
+		assertTrue(matches("Baby blue dragon", Task.BLUE_DRAGONS));
+		assertTrue(matches("Duck", Task.BIRDS));
+		assertTrue(matches("Donny the Lad", Task.BANDITS));
+
+		assertFalse(matches("Rat", Task.PIRATES));
+		assertFalse(matches("Wolf", Task.WEREWOLVES));
+		assertFalse(matches("Scorpia's offspring", Task.SCORPIA));
+		assertFalse(matches("Jonny the beard", Task.BEARS));
+	}
+
+	private boolean matches(final String npcName, final Task task)
+	{
+		final NPC npc = mock(NPC.class);
+		final NPCComposition comp = mock(NPCComposition.class);
+		when(npc.getTransformedComposition()).thenReturn(comp);
+		when(comp.getName()).thenReturn(npcName);
+		when(comp.getActions()).thenReturn(new String[] { "Attack" });
+
+		slayerPlugin.setTask(task.getName(), 0, 0);
+		return slayerPlugin.isTarget(npc);
 	}
 }

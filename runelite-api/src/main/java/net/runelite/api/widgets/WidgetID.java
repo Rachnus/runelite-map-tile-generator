@@ -34,7 +34,7 @@ package net.runelite.api.widgets;
  * For a more direct group-child widget mapping, use the
  * {@link WidgetInfo} enum class.
  */
-public class WidgetID
+public final class WidgetID
 {
 	public static final int FAIRY_RING_PANEL_GROUP_ID = 381;
 	public static final int FAIRY_RING_GROUP_ID = 398;
@@ -168,6 +168,23 @@ public class WidgetID
 	public static final int TEMPOROSS_GROUP_ID = 437;
 	public static final int CLAN_GROUP_ID = 701;
 	public static final int CLAN_GUEST_GROUP_ID = 702;
+	public static final int GRAVESTONE_GROUP_ID = 672;
+	public static final int POH_TREASURE_CHEST_INVENTORY_GROUP_ID = 674;
+	public static final int GROUP_IRON_GROUP_ID = 726;
+	public static final int GROUP_STORAGE_INVENTORY_GROUP_ID = 725;
+	public static final int GROUP_STORAGE_GROUP_ID = 724;
+	public static final int WILDERNESS_LOOT_CHEST = 742;
+	public static final int TRADE_WINDOW_GROUP_ID = 335;
+	public static final int TOA_REWARD_GROUP_ID = 771;
+	/**
+	 * toa party interface in the raid lobby
+	 */
+	public static final int TOA_PARTY_GROUP_ID = 773;
+	/**
+	 * toa raid interface in the raid
+	 */
+	public static final int TOA_RAID_GROUP_ID = 481;
+	public static final int ACHIEVEMENT_DIARY_SCROLL_GROUP_ID = 741;
 
 	static class WorldMap
 	{
@@ -191,16 +208,14 @@ public class WidgetID
 
 	static class DialogNPC
 	{
-		static final int HEAD_MODEL = 6;
-		static final int NAME = 3;
-		static final int TEXT = 5;
+		static final int HEAD_MODEL = 2;
+		static final int NAME = 4;
+		static final int TEXT = 6;
 	}
 
 	static class DialogPlayer
 	{
-		static final int NAME = 3;
-		static final int TEXT = 5;
-		static final int HEAD_MODEL = 6;
+		static final int TEXT = 6;
 	}
 
 	static class LogoutPanel
@@ -276,30 +291,32 @@ public class WidgetID
 		static final int ITEM_COUNT_TOP = 5;
 		static final int ITEM_COUNT_BAR = 6;
 		static final int ITEM_COUNT_BOTTOM = 7;
-		static final int CONTENT_CONTAINER = 9;
-		static final int TAB_CONTAINER = 10;
-		static final int ITEM_CONTAINER = 12;
-		static final int SCROLLBAR = 13;
-		static final int SEARCH_BUTTON_BACKGROUND = 39;
-		static final int DEPOSIT_INVENTORY = 41;
-		static final int DEPOSIT_EQUIPMENT = 43;
-		static final int INCINERATOR = 45;
-		static final int INCINERATOR_CONFIRM = 46;
-		static final int EQUIPMENT_CONTENT_CONTAINER = 68;
-		static final int SETTINGS_BUTTON = 111;
-		static final int EQUIPMENT_BUTTON = 112;
+		static final int GROUP_STORAGE_BUTTON = 8;
+		static final int CONTENT_CONTAINER = 10;
+		static final int TAB_CONTAINER = 11;
+		static final int ITEM_CONTAINER = 13;
+		static final int SCROLLBAR = 14;
+		static final int SEARCH_BUTTON_BACKGROUND = 40;
+		static final int DEPOSIT_INVENTORY = 42;
+		static final int DEPOSIT_EQUIPMENT = 44;
+		static final int INCINERATOR = 46;
+		static final int INCINERATOR_CONFIRM = 47;
+		static final int EQUIPMENT_CONTENT_CONTAINER = 69;
+		static final int SETTINGS_BUTTON = 113;
+		static final int EQUIPMENT_BUTTON = 114;
+	}
+
+	static class GroupStorage
+	{
+		static final int UI = 2;
+		static final int ITEM_CONTAINER = 10;
 	}
 
 	static class GrandExchange
 	{
 		static final int WINDOW_CONTAINER = 0;
-		static final int WINDOW_BORDERS = 2;
-		static final int HISTORY_BUTTON = 3;
-		static final int BACK_BUTTON = 4;
-		static final int OFFER_CONTAINER = 24;
-		static final int OFFER_DESCRIPTION = 25;
-		static final int OFFER_PRICE = 26;
-		static final int OFFER_CONFIRM_BUTTON = 27;
+		static final int OFFER_CONTAINER = 25;
+		static final int OFFER_DESCRIPTION = 26;
 	}
 
 	static class GrandExchangeInventory
@@ -336,8 +353,9 @@ public class WidgetID
 	static class Emotes
 	{
 		static final int EMOTE_WINDOW = 0;
-		static final int EMOTE_CONTAINER = 1;
-		static final int EMOTE_SCROLLBAR = 2;
+		static final int EMOTE_SCROLL_CONTAINER = 1;
+		static final int EMOTE_CONTAINER = 2;
+		static final int EMOTE_SCROLLBAR = 4;
 	}
 
 	static class Cluescroll
@@ -348,76 +366,35 @@ public class WidgetID
 
 	static class Minimap
 	{
-		static final int XP_ORB = 1;
-		static final int HEALTH_ORB = 2;
-		static final int PRAYER_ORB = 13;
-		static final int QUICK_PRAYER_ORB = 15; // Has the "Quick-prayers" name
-		static final int PRAYER_ORB_TEXT = 16;
-		static final int RUN_ORB = 21;
-		static final int TOGGLE_RUN_ORB = 23; // Has the "Toggle run" name
-		static final int RUN_ORB_TEXT = 24;
-		static final int SPEC_ORB = 29;
-		static final int WORLDMAP_ORB = 43;
-		static final int WIKI_BANNER_PARENT = 44;
-		static final int WIKI_BANNER = 45;
-		static final int WORLDMAP_OPTIONS = 48;
+		static final int XP_ORB = 5;
+		static final int HEALTH_ORB = 6;
+		static final int PRAYER_ORB = 17;
+		static final int QUICK_PRAYER_ORB = 19; // Has the "Quick-prayers" name
+		static final int PRAYER_ORB_TEXT = 20;
+		static final int RUN_ORB = 25;
+		static final int TOGGLE_RUN_ORB = 27; // Has the "Toggle run" name
+		static final int RUN_ORB_TEXT = 28;
+		static final int SPEC_ORB = 33;
+		static final int WORLDMAP_ORB = 48;
+		static final int WIKI_BANNER_PARENT = 49;
+		static final int WIKI_BANNER = 50;
+		static final int WORLDMAP_OPTIONS = 53;
 	}
 
 	static class LoginClickToPlayScreen
 	{
-		static final int MESSAGE_OF_THE_DAY = 7;
+		static final int MESSAGE_OF_THE_DAY = 6;
 	}
 
 	static class FixedViewport
 	{
-		static final int MINIMAP = 3;
-		static final int MINIMAP_DRAW_AREA = 8;
-		static final int FIXED_VIEWPORT = 20;
-		static final int MULTICOMBAT_INDICATOR = 24;
-		static final int FRIENDS_CHAT_TAB = 39;
-		static final int FRIENDS_TAB = 41;
-		static final int IGNORES_TAB = 40;
-		static final int LOGOUT_TAB = 42;
-		static final int OPTIONS_TAB = 43;
-		static final int EMOTES_TAB = 44;
-		static final int MUSIC_TAB = 45;
-		static final int FRIENDS_CHAT_ICON = 46;
-		static final int FRIENDS_ICON = 48;
-		static final int IGNORES_ICON = 47;
-		static final int LOGOUT_ICON = 49;
-		static final int OPTIONS_ICON = 50;
-		static final int EMOTES_ICON = 51;
-		static final int MUSIC_ICON = 52;
-		static final int COMBAT_TAB = 56;
-		static final int STATS_TAB = 57;
-		static final int QUESTS_TAB = 58;
-		static final int INVENTORY_TAB = 59;
-		static final int EQUIPMENT_TAB = 60;
-		static final int PRAYER_TAB = 61;
-		static final int MAGIC_TAB = 62;
-		static final int COMBAT_ICON = 63;
-		static final int STATS_ICON = 64;
-		static final int QUESTS_ICON = 65;
-		static final int INVENTORY_ICON = 66;
-		static final int EQUIPMENT_ICON = 67;
-		static final int PRAYER_ICON = 68;
-		static final int MAGIC_ICON = 69;
-		static final int ROOT_INTERFACE_CONTAINER = 70;
-		static final int BANK_CONTAINER = 73;
-		static final int INTERFACE_CONTAINER = 74;
-		static final int INVENTORY_CONTAINER = 78;
-	}
-
-	static class ResizableViewport
-	{
-		static final int RESIZABLE_VIEWPORT_OLD_SCHOOL_BOX = 19;
-		static final int MULTICOMBAT_INDICATOR = 23;
-		static final int MINIMAP = 25;
-		static final int MINIMAP_DRAW_AREA = 34;
-		static final int MINIMAP_ORB_HOLDER = 37;
+		static final int MINIMAP = 8;
+		static final int MINIMAP_DRAW_AREA = 21;
+		static final int FIXED_VIEWPORT = 32;
+		static final int MULTICOMBAT_INDICATOR = 36;
 		static final int FRIENDS_CHAT_TAB = 46;
-		static final int IGNORES_TAB = 47;
 		static final int FRIENDS_TAB = 48;
+		static final int IGNORES_TAB = 47;
 		static final int LOGOUT_TAB = 49;
 		static final int OPTIONS_TAB = 50;
 		static final int EMOTES_TAB = 51;
@@ -443,34 +420,81 @@ public class WidgetID
 		static final int EQUIPMENT_ICON = 73;
 		static final int PRAYER_ICON = 74;
 		static final int MAGIC_ICON = 75;
-		static final int INTERFACE_CONTAINER = 76;
+		static final int ROOT_INTERFACE_CONTAINER = 16;
+		static final int BANK_CONTAINER = 77;
+		static final int INTERFACE_CONTAINER = 78;
 		static final int INVENTORY_CONTAINER = 82;
+	}
+
+	static class ResizableViewport
+	{
+		static final int RESIZABLE_VIEWPORT_OLD_SCHOOL_BOX = 15;
+		static final int MULTICOMBAT_INDICATOR = 19;
+		static final int MINIMAP = 93;
+		static final int MINIMAP_DRAW_AREA = 29;
+		static final int MINIMAP_ORB_HOLDER = 32;
+		static final int FRIENDS_CHAT_TAB = 42;
+		static final int IGNORES_TAB = 43;
+		static final int FRIENDS_TAB = 44;
+		static final int LOGOUT_TAB = 45;
+		static final int OPTIONS_TAB = 46;
+		static final int EMOTES_TAB = 47;
+		static final int MUSIC_TAB = 48;
+		static final int FRIENDS_CHAT_ICON = 49;
+		static final int FRIENDS_ICON = 51;
+		static final int IGNORES_ICON = 50;
+		static final int LOGOUT_ICON = 52;
+		static final int OPTIONS_ICON = 53;
+		static final int EMOTES_ICON = 54;
+		static final int MUSIC_ICON = 55;
+		static final int COMBAT_TAB = 58;
+		static final int STATS_TAB = 59;
+		static final int QUESTS_TAB = 60;
+		static final int INVENTORY_TAB = 61;
+		static final int EQUIPMENT_TAB = 62;
+		static final int PRAYER_TAB = 63;
+		static final int MAGIC_TAB = 64;
+		static final int COMBAT_ICON = 65;
+		static final int STATS_ICON = 66;
+		static final int QUESTS_ICON = 67;
+		static final int INVENTORY_ICON = 68;
+		static final int EQUIPMENT_ICON = 69;
+		static final int PRAYER_ICON = 70;
+		static final int MAGIC_ICON = 71;
+		static final int INTERFACE_CONTAINER = 72;
+		static final int INVENTORY_CONTAINER = 78;
+		static final int CHATBOX_PARENT = 94;
+		static final int INVENTORY_PARENT = 95;
 	}
 
 	static class ResizableViewportBottomLine
 	{
-		static final int RESIZABLE_VIEWPORT_BOTTOM_LINE = 19;
-		static final int MINIMAP = 25;
-		static final int MINIMAP_DRAW_AREA = 34;
-		static final int MINIMAP_ORB_HOLDER = 37;
-		static final int LOGOUT_BUTTON_OVERLAY = 38;
-		static final int MINIMAP_LOGOUT_BUTTON = 39;
-		static final int FC_ICON = 50;
-		static final int FRIEND_ICON = 52;
-		static final int SETTINGS_ICON = 53;
-		static final int EMOTE_ICON = 54;
-		static final int MUSIC_ICON = 55;
-		static final int INVENTORY_TAB = 62;
-		static final int PRAYER_TAB = 64;
-		static final int CMB_ICON = 66;
-		static final int SKILLS_ICON = 67;
-		static final int QUESTS_ICON = 68;
-		static final int INVENTORY_ICON = 69;
-		static final int EQUIP_ICON = 70;
-		static final int PRAYER_ICON = 71;
-		static final int MAGIC_ICON = 72;
-		static final int INTERFACE_CONTAINER = 75;
-		static final int INVENTORY_CONTAINER = 81;
+		static final int RESIZABLE_VIEWPORT_BOTTOM_LINE = 15;
+		static final int MINIMAP = 90;
+		static final int MINIMAP_DRAW_AREA = 29;
+		static final int MINIMAP_ORB_HOLDER = 32;
+		static final int LOGOUT_BUTTON_OVERLAY = 33;
+		static final int MINIMAP_LOGOUT_BUTTON = 34;
+		static final int FC_ICON = 43;
+		static final int FRIEND_ICON = 45;
+		static final int SETTINGS_ICON = 46;
+		static final int EMOTE_ICON = 47;
+		static final int MUSIC_ICON = 48;
+		static final int INVENTORY_TAB = 54;
+		static final int PRAYER_TAB = 56;
+		static final int CMB_ICON = 58;
+		static final int SKILLS_ICON = 59;
+		static final int QUESTS_ICON = 60;
+		static final int INVENTORY_ICON = 61;
+		static final int EQUIP_ICON = 62;
+		static final int PRAYER_ICON = 63;
+		static final int MAGIC_ICON = 64;
+		static final int INTERFACE_CONTAINER = 69;
+		static final int INVENTORY_CONTAINER = 75;
+		static final int CHATBOX_PARENT = 91;
+		static final int TABS1 = 92;
+		static final int TABS2 = 93;
+		static final int INVENTORY_PARENT = 94;
 	}
 
 	static class Chatbox
@@ -642,6 +666,17 @@ public class WidgetID
 		static final int POINTS_INFOBOX = 3;
 	}
 
+	static class Health
+	{
+		static final int HEALTHBAR_CONTAINER = 5;
+		static final int HEALTHBAR_TEXT = 20;
+	}
+
+	static class ChambersOfXericStorageUnitPrivate
+	{
+		static final int PRIVATE_CHEST_ITEM_CONTAINER = 6;
+	}
+
 	static class Tob
 	{
 		static final int PARTY_INTERFACE = 5;
@@ -718,6 +753,12 @@ public class WidgetID
 		static final int DIARY_TEXT = 3;
 	}
 
+	static class AchievementDiaryScroll
+	{
+		static final int TITLE = 2;
+		static final int TEXT = 3;
+	}
+
 	static class DestroyItem
 	{
 		static final int DESTROY_ITEM_NAME = 6;
@@ -748,28 +789,30 @@ public class WidgetID
 
 	static class Minigames
 	{
-		static final int TELEPORT_BUTTON = 26;
+		static final int TELEPORT_BUTTON = 30;
 	}
 
 	static class StandardSpellBook
 	{
-		static final int LUMBRIDGE_HOME_TELEPORT = 5;
+		static final int LUMBRIDGE_HOME_TELEPORT = 6;
 		static final int KOUREND_HOME_TELEPORT = 4;
+		static final int CATHERBY_HOME_TELEPORT = 5;
 	}
 
 	static class AncientSpellBook
 	{
-		static final int EDGEVILLE_HOME_TELEPORT = 99;
+		static final int EDGEVILLE_HOME_TELEPORT = 100;
 	}
 
 	static class LunarSpellBook
 	{
-		static final int LUNAR_HOME_TELEPORT = 100;
+		static final int LUNAR_HOME_TELEPORT = 101;
+		static final int FERTILE_SOIL = 126;
 	}
 
 	static class ArceuusSpellBook
 	{
-		static final int ARCEUUS_HOME_TELEPORT = 144;
+		static final int ARCEUUS_HOME_TELEPORT = 145;
 	}
 
 	static class Pvp
@@ -804,18 +847,15 @@ public class WidgetID
 	static class QuestList
 	{
 		static final int BOX = 0;
-		static final int SCROLLBAR = 4;
-		static final int CONTAINER = 5;
-		static final int FREE_CONTAINER = 6;
-		static final int MEMBERS_CONTAINER = 7;
-		static final int MINIQUEST_CONTAINER = 8;
+		static final int CONTAINER = 2;
 	}
 
 	static class Music
 	{
 		static final int CONTAINER = 0;
-		static final int LIST = 3;
-		static final int SCROLLBAR = 4;
+		static final int SCROLL_CONTAINER = 3;
+		static final int LIST = 5;
+		static final int SCROLLBAR = 6;
 	}
 
 	static class Barrows_Puzzle
@@ -845,10 +885,10 @@ public class WidgetID
 
 	static class SettingsSide
 	{
-		static final int CAMERA_ZOOM_SLIDER_TRACK = 98;
-		static final int MUSIC_SLIDER = 27;
-		static final int SOUND_EFFECT_SLIDER = 41;
-		static final int AREA_SOUND_SLIDER = 55;
+		static final int CAMERA_ZOOM_SLIDER_TRACK = 100;
+		static final int MUSIC_SLIDER = 29;
+		static final int SOUND_EFFECT_SLIDER = 43;
+		static final int AREA_SOUND_SLIDER = 57;
 	}
 
 	static class Settings
@@ -922,11 +962,20 @@ public class WidgetID
 
 	static class Clan
 	{
-		static final int MEMBERS = 8;
+		static final int LAYER = 0;
+		static final int HEADER = 1;
+		static final int MEMBERS = 6;
 	}
 
 	static class ClanGuest
 	{
-		static final int MEMBERS = 8;
+		static final int LAYER = 0;
+		static final int HEADER = 1;
+		static final int MEMBERS = 6;
+	}
+
+	static class Trade
+	{
+		static final int HEADER = 31;
 	}
 }

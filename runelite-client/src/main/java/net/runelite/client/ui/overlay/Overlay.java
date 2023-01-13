@@ -24,15 +24,19 @@
  */
 package net.runelite.client.ui.overlay;
 
+import com.google.common.base.Preconditions;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import net.runelite.api.MenuAction;
+import net.runelite.api.MenuEntry;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.ui.overlay.components.LayoutableRenderableEntity;
@@ -63,12 +67,25 @@ public abstract class Overlay implements LayoutableRenderableEntity
 	@Setter(AccessLevel.PROTECTED)
 	private boolean dragTargetable;
 
+	/**
+	 * Whether this overlay can be moved with alt
+	 */
+	@Setter(AccessLevel.PROTECTED)
+	private boolean movable = true;
+
+	/**
+	 * Whether this overlay can be moved to a snap corner
+	 * and have its preferredPosition changed
+	 */
+	@Setter(AccessLevel.PROTECTED)
+	private boolean snappable = true;
+
 	protected Overlay()
 	{
 		plugin = null;
 	}
 
-	protected Overlay(Plugin plugin)
+	protected Overlay(@Nullable Plugin plugin)
 	{
 		this.plugin = plugin;
 	}
@@ -83,11 +100,47 @@ public abstract class Overlay implements LayoutableRenderableEntity
 		return this.getClass().getSimpleName();
 	}
 
+	/**
+	 * Configure to draw this overlay after the given interface is drawn. Except
+	 * in rare circumstances, you probably also want to {@link #setLayer(OverlayLayer)} to
+	 * {@link OverlayLayer#MANUAL} to avoid the overlay being drawn a 2nd time during the
+	 * default {@link OverlayLayer#UNDER_WIDGETS} pass.
+	 * @param interfaceId The interface id
+	 * @see net.runelite.api.widgets.WidgetID
+	 */
 	protected void drawAfterInterface(int interfaceId)
 	{
 		drawHooks.add(interfaceId << 16 | 0xffff);
 	}
 
+	/**
+	 * Configure to draw this overlay after the given layer is drawn. Except
+	 * in rare circumstances, you probably also want to {@link #setLayer(OverlayLayer)} to
+	 * {@link OverlayLayer#MANUAL} to avoid the overlay being drawn a 2nd time during the
+	 * default {@link OverlayLayer#UNDER_WIDGETS} pass.
+	 *
+	 * The layer must be a widget of {@link net.runelite.api.widgets.WidgetType} {@link net.runelite.api.widgets.WidgetType#LAYER}
+	 * @param groupId The widget group id
+	 * @param childId The widget child id
+	 * @see net.runelite.api.widgets.WidgetID
+	 */
+	protected void drawAfterLayer(int groupId, int childId)
+	{
+		Preconditions.checkArgument(groupId >= 0 && groupId <= 0xffff, "groupId outside of valid range");
+		Preconditions.checkArgument(childId >= 0 && childId <= 0xffff, "childId outside of valid range");
+		drawHooks.add(groupId << 16 | childId);
+	}
+
+	/**
+	 * Configure to draw this overlay after the given layer is drawn. Except
+	 * in rare circumstances, you probably also want to {@link #setLayer(OverlayLayer)} to
+	 * {@link OverlayLayer#MANUAL} to avoid the overlay being drawn a 2nd time during the
+	 * default {@link OverlayLayer#UNDER_WIDGETS} pass.
+	 *
+	 * The layer must be a widget of {@link net.runelite.api.widgets.WidgetType} {@link net.runelite.api.widgets.WidgetType#LAYER}
+	 * @param layer The layer
+	 * @see WidgetInfo
+	 */
 	protected void drawAfterLayer(WidgetInfo layer)
 	{
 		drawHooks.add(layer.getId());
@@ -123,5 +176,44 @@ public abstract class Overlay implements LayoutableRenderableEntity
 
 	public void revalidate()
 	{
+	}
+
+	public void setPosition(OverlayPosition position)
+	{
+		this.position = position;
+
+		switch (position)
+		{
+			case TOOLTIP:
+			case DYNAMIC:
+				movable = false;
+				snappable = false;
+				break;
+			case DETACHED:
+				movable = true;
+				snappable = false;
+				break;
+			default:
+				movable = true;
+				snappable = true;
+		}
+	}
+
+	public OverlayMenuEntry addMenuEntry(MenuAction action, String option, String target)
+	{
+		return addMenuEntry(action, option, target, null);
+	}
+
+	public OverlayMenuEntry addMenuEntry(MenuAction action, String option, String target, Consumer<MenuEntry> callback)
+	{
+		OverlayMenuEntry menuEntry = new OverlayMenuEntry(action, option, target);
+		menuEntry.callback = callback;
+		menuEntries.add(menuEntry);
+		return menuEntry;
+	}
+
+	public void removeMenuEntry(MenuAction action, String option, String target)
+	{
+		menuEntries.remove(new OverlayMenuEntry(action, option, target));
 	}
 }

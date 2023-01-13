@@ -48,7 +48,6 @@ import net.runelite.api.InventoryID;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
-import net.runelite.api.MenuAction;
 import static net.runelite.api.ObjectID.BROKEN_STRUT;
 import static net.runelite.api.ObjectID.ORE_VEIN_26661;
 import static net.runelite.api.ObjectID.ORE_VEIN_26662;
@@ -61,13 +60,11 @@ import net.runelite.api.Varbits;
 import net.runelite.api.WallObject;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.events.ChatMessage;
-import net.runelite.api.events.GameObjectChanged;
 import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.VarbitChanged;
-import net.runelite.api.events.WallObjectChanged;
 import net.runelite.api.events.WallObjectDespawned;
 import net.runelite.api.events.WallObjectSpawned;
 import net.runelite.api.widgets.Widget;
@@ -75,12 +72,10 @@ import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.events.OverlayMenuClicked;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.task.Schedule;
 import net.runelite.client.ui.overlay.OverlayManager;
-import net.runelite.client.ui.overlay.OverlayMenuEntry;
 
 @PluginDescriptor(
 	name = "Motherlode Mine",
@@ -198,16 +193,9 @@ public class MotherlodePlugin extends Plugin
 		});
 	}
 
-	@Subscribe
-	public void onOverlayMenuClicked(OverlayMenuClicked overlayMenuClicked)
+	void reset()
 	{
-		OverlayMenuEntry overlayMenuEntry = overlayMenuClicked.getEntry();
-		if (overlayMenuEntry.getMenuAction() == MenuAction.RUNELITE_OVERLAY
-			&& overlayMenuClicked.getEntry().getOption().equals(MotherlodeOverlay.MINING_RESET)
-			&& overlayMenuClicked.getOverlay() == overlay)
-		{
-			session.resetRecent();
-		}
+		session.resetRecent();
 	}
 
 	@Subscribe
@@ -312,24 +300,6 @@ public class MotherlodePlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onWallObjectChanged(WallObjectChanged event)
-	{
-		if (!inMlm)
-		{
-			return;
-		}
-
-		WallObject previous = event.getPrevious();
-		WallObject wallObject = event.getWallObject();
-
-		veins.remove(previous);
-		if (MINE_SPOTS.contains(wallObject.getId()))
-		{
-			veins.add(wallObject);
-		}
-	}
-
-	@Subscribe
 	public void onWallObjectDespawned(WallObjectDespawned event)
 	{
 		if (!inMlm)
@@ -349,18 +319,6 @@ public class MotherlodePlugin extends Plugin
 			return;
 		}
 
-		addGameObject(event.getGameObject());
-	}
-
-	@Subscribe
-	public void onGameObjectChanged(GameObjectChanged event)
-	{
-		if (!inMlm)
-		{
-			return;
-		}
-
-		removeGameObject(event.getPrevious());
 		addGameObject(event.getGameObject());
 	}
 
@@ -490,8 +448,8 @@ public class MotherlodePlugin extends Plugin
 
 	private void refreshSackValues()
 	{
-		curSackSize = client.getVar(Varbits.SACK_NUMBER);
-		boolean sackUpgraded = client.getVar(Varbits.SACK_UPGRADED) == 1;
+		curSackSize = client.getVarbitValue(Varbits.SACK_NUMBER);
+		boolean sackUpgraded = client.getVarbitValue(Varbits.SACK_UPGRADED) == 1;
 		maxSackSize = sackUpgraded ? SACK_LARGE_SIZE : SACK_SIZE;
 	}
 

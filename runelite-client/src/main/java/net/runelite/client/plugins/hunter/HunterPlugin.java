@@ -37,6 +37,7 @@ import net.runelite.api.GameObject;
 import net.runelite.api.ObjectID;
 import net.runelite.api.Player;
 import net.runelite.api.Tile;
+import net.runelite.api.coords.Angle;
 import net.runelite.api.coords.Direction;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
@@ -76,9 +77,6 @@ public class HunterPlugin extends Plugin
 	@Getter
 	private final Map<WorldPoint, HunterTrap> traps = new HashMap<>();
 
-	@Getter
-	private Instant lastActionTime = Instant.ofEpochMilli(0);
-
 	private WorldPoint lastTickLocalPlayerLocation;
 
 	@Provides
@@ -98,7 +96,6 @@ public class HunterPlugin extends Plugin
 	protected void shutDown() throws Exception
 	{
 		overlayManager.remove(overlay);
-		lastActionTime = Instant.ofEpochMilli(0);
 		traps.clear();
 	}
 
@@ -124,7 +121,6 @@ public class HunterPlugin extends Plugin
 				{
 					log.debug("Trap placed by \"{}\" on {}", localPlayer.getName(), trapLocation);
 					traps.put(trapLocation, new HunterTrap(gameObject));
-					lastActionTime = Instant.now();
 				}
 				break;
 
@@ -140,7 +136,6 @@ public class HunterPlugin extends Plugin
 				{
 					log.debug("Trap placed by \"{}\" on {}", localPlayer.getName(), localPlayer.getWorldLocation());
 					traps.put(trapLocation, new HunterTrap(gameObject));
-					lastActionTime = Instant.now();
 				}
 				break;
 
@@ -153,7 +148,7 @@ public class HunterPlugin extends Plugin
 				{
 					// Net traps facing to the north and east must have their tile translated.
 					// As otherwise, the wrong tile is stored.
-					Direction trapOrientation = gameObject.getOrientation().getNearestDirection();
+					Direction trapOrientation = new Angle(gameObject.getOrientation()).getNearestDirection();
 					WorldPoint translatedTrapLocation = trapLocation;
 
 					switch (trapOrientation)
@@ -168,7 +163,6 @@ public class HunterPlugin extends Plugin
 
 					log.debug("Trap placed by \"{}\" on {} facing {}", localPlayer.getName(), translatedTrapLocation, trapOrientation);
 					traps.put(translatedTrapLocation, new HunterTrap(gameObject));
-					lastActionTime = Instant.now();
 				}
 				break;
 
@@ -201,7 +195,6 @@ public class HunterPlugin extends Plugin
 				{
 					myTrap.setState(HunterTrap.State.FULL);
 					myTrap.resetTimer();
-					lastActionTime = Instant.now();
 
 					if (config.maniacalMonkeyNotify() && myTrap.getObjectId() == ObjectID.MONKEY_TRAP)
 					{
@@ -222,7 +215,6 @@ public class HunterPlugin extends Plugin
 				{
 					myTrap.setState(HunterTrap.State.EMPTY);
 					myTrap.resetTimer();
-					lastActionTime = Instant.now();
 				}
 
 				break;

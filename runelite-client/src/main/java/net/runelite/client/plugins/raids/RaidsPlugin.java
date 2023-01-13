@@ -52,7 +52,6 @@ import net.runelite.api.Client;
 import net.runelite.api.Constants;
 import net.runelite.api.GameState;
 import net.runelite.api.InstanceTemplates;
-import net.runelite.api.MenuAction;
 import net.runelite.api.MessageNode;
 import net.runelite.api.NullObjectID;
 import static net.runelite.api.Perspective.SCENE_SIZE;
@@ -67,6 +66,7 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.chat.ChatClient;
 import net.runelite.client.chat.ChatColorType;
 import net.runelite.client.chat.ChatCommandManager;
 import net.runelite.client.chat.ChatMessageBuilder;
@@ -78,7 +78,6 @@ import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ChatInput;
 import net.runelite.client.events.ConfigChanged;
-import net.runelite.client.events.OverlayMenuClicked;
 import net.runelite.client.game.SpriteManager;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
@@ -93,12 +92,7 @@ import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.ImageCapture;
 import net.runelite.client.util.Text;
 import static net.runelite.client.util.Text.sanitize;
-import net.runelite.client.ws.PartyMember;
-import net.runelite.client.ws.PartyService;
-import net.runelite.client.ws.WSClient;
-import net.runelite.http.api.chat.ChatClient;
 import net.runelite.http.api.chat.LayoutRoom;
-import net.runelite.http.api.ws.messages.party.PartyChatMessage;
 
 @PluginDescriptor(
 	name = "Chambers Of Xeric",
@@ -152,12 +146,6 @@ public class RaidsPlugin extends Plugin
 
 	@Inject
 	private ClientThread clientThread;
-
-	@Inject
-	private PartyService party;
-
-	@Inject
-	private WSClient ws;
 
 	@Inject
 	private ChatCommandManager chatCommandManager;
@@ -263,12 +251,10 @@ public class RaidsPlugin extends Plugin
 	@Subscribe
 	public void onVarbitChanged(VarbitChanged event)
 	{
-		int tempPartyID = client.getVar(VarPlayer.IN_RAID_PARTY);
-		boolean tempInRaid = client.getVar(Varbits.IN_RAID) == 1;
-
 		// if the player's party state has changed
-		if (tempPartyID != raidPartyID)
+		if (event.getVarpId() == VarPlayer.IN_RAID_PARTY.getId())
 		{
+			boolean tempInRaid = client.getVarbitValue(Varbits.IN_RAID) == 1;
 			// if the player is outside of a raid when the party state changed
 			if (loggedIn
 				&& !tempInRaid)
@@ -276,12 +262,13 @@ public class RaidsPlugin extends Plugin
 				reset();
 			}
 
-			raidPartyID = tempPartyID;
+			raidPartyID = event.getValue();
 		}
 
 		// if the player's raid state has changed
-		if (tempInRaid != inRaidChambers)
+		if (event.getVarbitId() == Varbits.IN_RAID)
 		{
+			boolean tempInRaid = event.getValue() == 1;
 			// if the player is inside of a raid then check the raid
 			if (tempInRaid && loggedIn)
 			{
@@ -321,8 +308,8 @@ public class RaidsPlugin extends Plugin
 
 				if (config.pointsMessage())
 				{
-					int totalPoints = client.getVar(Varbits.TOTAL_POINTS);
-					int personalPoints = client.getVar(Varbits.PERSONAL_POINTS);
+					int totalPoints = client.getVarbitValue(Varbits.TOTAL_POINTS);
+					int personalPoints = client.getVarbitValue(Varbits.PERSONAL_POINTS);
 
 					double percentage = personalPoints / (totalPoints / 100.0);
 
@@ -349,25 +336,6 @@ public class RaidsPlugin extends Plugin
 						.build());
 				}
 			}
-		}
-	}
-
-	@Subscribe
-	public void onOverlayMenuClicked(final OverlayMenuClicked event)
-	{
-		if (!(event.getEntry().getMenuAction() == MenuAction.RUNELITE_OVERLAY
-			&& event.getOverlay() == overlay))
-		{
-			return;
-		}
-
-		if (event.getEntry().getOption().equals(RaidsOverlay.BROADCAST_ACTION))
-		{
-			sendRaidLayoutMessage();
-		}
-		else if (event.getEntry().getOption().equals(RaidsOverlay.SCREENSHOT_ACTION))
-		{
-			screenshotScoutOverlay();
 		}
 	}
 
@@ -425,7 +393,7 @@ public class RaidsPlugin extends Plugin
 			return;
 		}
 
-		inRaidChambers = client.getVar(Varbits.IN_RAID) == 1;
+		inRaidChambers = client.getVarbitValue(Varbits.IN_RAID) == 1;
 
 		if (!inRaidChambers)
 		{
@@ -481,21 +449,11 @@ public class RaidsPlugin extends Plugin
 			.append(raidData)
 			.build();
 
-		final PartyMember localMember = party.getLocalMember();
+		chatMessageManager.queue(QueuedMessage.builder()
+			.type(ChatMessageType.FRIENDSCHATNOTIFICATION)
+			.runeLiteFormattedMessage(layoutMessage)
+			.build());
 
-		if (party.getMembers().isEmpty() || localMember == null)
-		{
-			chatMessageManager.queue(QueuedMessage.builder()
-				.type(ChatMessageType.FRIENDSCHATNOTIFICATION)
-				.runeLiteFormattedMessage(layoutMessage)
-				.build());
-		}
-		else
-		{
-			final PartyChatMessage message = new PartyChatMessage(layoutMessage);
-			message.setMemberId(localMember.getMemberId());
-			ws.send(message);
-		}
 	}
 
 	private void updateInfoBoxState()
@@ -830,7 +788,6 @@ public class RaidsPlugin extends Plugin
 		log.debug("Setting response {}", response);
 		final MessageNode messageNode = chatMessage.getMessageNode();
 		messageNode.setRuneLiteFormatMessage(response);
-		chatMessageManager.update(messageNode);
 		client.refreshChat();
 	}
 
@@ -876,7 +833,7 @@ public class RaidsPlugin extends Plugin
 		}
 	};
 
-	private void screenshotScoutOverlay()
+	void screenshotScoutOverlay()
 	{
 		if (!overlay.isScoutOverlayShown())
 		{

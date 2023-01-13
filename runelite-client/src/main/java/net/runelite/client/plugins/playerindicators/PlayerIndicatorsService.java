@@ -33,11 +33,13 @@ import net.runelite.api.FriendsChatManager;
 import net.runelite.api.FriendsChatMember;
 import net.runelite.api.FriendsChatRank;
 import net.runelite.api.Player;
+import net.runelite.api.Varbits;
 import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.clan.ClanChannelMember;
 import net.runelite.api.clan.ClanRank;
 import net.runelite.api.clan.ClanSettings;
 import net.runelite.api.clan.ClanTitle;
+import net.runelite.client.party.PartyService;
 import net.runelite.client.util.Text;
 
 @Singleton
@@ -45,19 +47,28 @@ public class PlayerIndicatorsService
 {
 	private final Client client;
 	private final PlayerIndicatorsConfig config;
+	private final PartyService partyService;
 
 	@Inject
-	private PlayerIndicatorsService(Client client, PlayerIndicatorsConfig config)
+	private PlayerIndicatorsService(Client client, PlayerIndicatorsConfig config, PartyService partyService)
 	{
 		this.config = config;
 		this.client = client;
+		this.partyService = partyService;
 	}
 
 	public void forEachPlayer(final BiConsumer<Player, Color> consumer)
 	{
 		if (!config.highlightOwnPlayer() && !config.highlightFriendsChat()
 			&& !config.highlightFriends() && !config.highlightOthers()
-			&& !config.highlightClanMembers())
+			&& !config.highlightClanMembers() && !config.highlightPartyMembers())
+		{
+			return;
+		}
+
+		boolean inWilderness = client.getVarbitValue(Varbits.IN_WILDERNESS) == 1;
+		boolean inPvp = client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1;
+		if (!inWilderness && !inPvp && config.disableOutsidePvP())
 		{
 			return;
 		}
@@ -80,6 +91,10 @@ public class PlayerIndicatorsService
 				{
 					consumer.accept(player, config.getOwnPlayerColor());
 				}
+			}
+			else if (partyService.isInParty() && config.highlightPartyMembers() && partyService.getMemberByDisplayName(player.getName()) != null)
+			{
+				consumer.accept(player, config.getPartyMemberColor());
 			}
 			else if (config.highlightFriends() && player.isFriend())
 			{
