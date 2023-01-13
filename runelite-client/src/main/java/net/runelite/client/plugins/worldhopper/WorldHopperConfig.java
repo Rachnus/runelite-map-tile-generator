@@ -27,8 +27,6 @@ package net.runelite.client.plugins.worldhopper;
 
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.Collections;
-import java.util.Set;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -70,6 +68,17 @@ public interface WorldHopperConfig extends Config
 	default boolean quickhopOutOfDanger()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = "quickHopRegionFilter",
+		name = "Quick-hop region",
+		description = "Limit quick-hopping to worlds of a specific region",
+		position = 3
+	)
+	default RegionFilterMode quickHopRegionFilter()
+	{
+		return RegionFilterMode.NONE;
 	}
 
 	@ConfigItem(
@@ -118,7 +127,7 @@ public interface WorldHopperConfig extends Config
 
 	@ConfigItem(
 		keyName = "subscriptionFilter",
-		name = "Subscription filter",
+		name = "Show subscription types",
 		description = "Only show free worlds, member worlds, or both types of worlds in sidebar",
 		position = 8
 	)
@@ -129,31 +138,20 @@ public interface WorldHopperConfig extends Config
 
 	@ConfigItem(
 		keyName = "regionFilter",
-		name = "Region filter",
-		description = "Only show and quick-hop to worlds in specific regions",
-		position = 9
+		name = "Filter worlds by region",
+		description = "Restrict sidebar worlds to one region",
+		position = 8
 	)
-	default Set<RegionFilterMode> regionFilter()
+	default RegionFilterMode regionFilter()
 	{
-		return Collections.emptySet();
-	}
-
-	@ConfigItem(
-		keyName = "worldTypeFilter",
-		name = "World type filter",
-		description = "Only show worlds of specific types",
-		position = 10
-	)
-	default Set<WorldTypeFilter> worldTypeFilter()
-	{
-		return Collections.emptySet();
+		return RegionFilterMode.NONE;
 	}
 
 	@ConfigItem(
 		keyName = "displayPing",
 		name = "Display current ping",
 		description = "Displays ping to current game world",
-		position = 11
+		position = 9
 	)
 	default boolean displayPing()
 	{

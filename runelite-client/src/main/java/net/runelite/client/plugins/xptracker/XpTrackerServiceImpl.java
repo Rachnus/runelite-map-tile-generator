@@ -80,10 +80,4 @@ class XpTrackerServiceImpl implements XpTrackerService
 	{
 		return plugin.getSkillSnapshot(skill).getEndGoalXp();
 	}
-
-	@Override
-	public String getTimeTilGoal(Skill skill)
-	{
-		return plugin.getSkillSnapshot(skill).getTimeTillGoalShort();
-	}
 }

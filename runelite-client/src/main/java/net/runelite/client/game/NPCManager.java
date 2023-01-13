@@ -32,18 +32,21 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.http.api.npc.NpcInfo;
+import net.runelite.http.api.npc.NpcInfoClient;
+import okhttp3.OkHttpClient;
 
 @Singleton
 @Slf4j
 public class NPCManager
 {
-	private final NpcInfoClient npcInfoClient;
+	private final OkHttpClient okHttpClient;
 	private Map<Integer, NpcInfo> npcMap = Collections.emptyMap();
 
 	@Inject
-	private NPCManager(NpcInfoClient npcInfoClient, ScheduledExecutorService scheduledExecutorService)
+	private NPCManager(OkHttpClient okHttpClient, ScheduledExecutorService scheduledExecutorService)
 	{
-		this.npcInfoClient = npcInfoClient;
+		this.okHttpClient = okHttpClient;
 		scheduledExecutorService.execute(this::loadNpcs);
 	}
 
@@ -64,7 +67,7 @@ public class NPCManager
 	{
 		try
 		{
-			npcMap = npcInfoClient.getNpcs();
+			npcMap = new NpcInfoClient(okHttpClient).getNpcs();
 		}
 		catch (IOException e)
 		{

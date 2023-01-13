@@ -173,14 +173,9 @@ public enum ChatMessageType
 	 */
 	CLAN_CREATION_INVITATION(109),
 	/**
-	 * Challenge offer for the clan tab
+	 * Clan wars challenge for clans rather than FCs
 	 */
-	CHALREQ_CLANCHAT(110),
-
-	CLAN_GIM_FORM_GROUP(111),
-	CLAN_GIM_GROUP_WITH(112),
-	CLAN_GIM_CHAT(-1),
-	CLAN_GIM_MESSAGE(-1),
+	CLAN_CLAN_WARS_CHALLENGE(110),
 	/**
 	 * An unknown message type.
 	 */
@@ -194,10 +189,7 @@ public enum ChatMessageType
 	{
 		for (ChatMessageType chatMessageType : values())
 		{
-			if (chatMessageType.type != -1)
-			{
-				CHAT_MESSAGE_TYPES.put(chatMessageType.type, chatMessageType);
-			}
+			CHAT_MESSAGE_TYPES.put(chatMessageType.type, chatMessageType);
 		}
 	}
 

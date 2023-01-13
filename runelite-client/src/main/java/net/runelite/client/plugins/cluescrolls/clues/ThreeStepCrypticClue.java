@@ -28,7 +28,6 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +48,7 @@ import net.runelite.client.util.Text;
 
 @Getter
 @RequiredArgsConstructor
-public class ThreeStepCrypticClue extends ClueScroll implements ObjectClueScroll, NpcClueScroll, LocationsClueScroll
+public class ThreeStepCrypticClue extends ClueScroll implements TextClueScroll, ObjectClueScroll, NpcClueScroll, LocationsClueScroll
 {
 	public static ThreeStepCrypticClue forText(String plainText, String text)
 	{
@@ -103,8 +102,6 @@ public class ThreeStepCrypticClue extends ClueScroll implements ObjectClueScroll
 					.left(c.getSolution())
 					.leftColor(TITLED_CONTENT_COLOR)
 					.build());
-
-				c.renderOverlayNote(panelComponent, plugin);
 			}
 		}
 	}
@@ -176,7 +173,7 @@ public class ThreeStepCrypticClue extends ClueScroll implements ObjectClueScroll
 	}
 
 	@Override
-	public String[] getNpcs(ClueScrollPlugin plugin)
+	public String[] getNpcs()
 	{
 		return clueSteps.stream()
 			.filter(s -> !s.getValue())
@@ -190,15 +187,6 @@ public class ThreeStepCrypticClue extends ClueScroll implements ObjectClueScroll
 		return clueSteps.stream()
 			.filter(s -> !s.getValue())
 			.mapToInt(s -> s.getKey().getObjectId())
-			.toArray();
-	}
-
-	@Override
-	public int[] getConfigKeys()
-	{
-		return clueSteps.stream()
-			.map(Map.Entry::getKey)
-			.flatMapToInt(c -> Arrays.stream(c.getConfigKeys()))
 			.toArray();
 	}
 }

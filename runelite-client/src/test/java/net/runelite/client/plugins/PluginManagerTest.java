@@ -24,8 +24,6 @@
  */
 package net.runelite.client.plugins;
 
-import com.google.common.graph.GraphBuilder;
-import com.google.common.graph.MutableGraph;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ClassInfo;
 import com.google.inject.Guice;
@@ -42,20 +40,17 @@ import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import net.runelite.api.Client;
 import net.runelite.client.RuneLite;
 import net.runelite.client.RuneLiteModule;
-import net.runelite.client.RuntimeConfig;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.eventbus.EventBus;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -94,7 +89,7 @@ public class PluginManagerTest
 			.thenThrow(new RuntimeException("in plugin manager test"));
 
 		Injector injector = Guice.createInjector(Modules
-			.override(new RuneLiteModule(okHttpClient, () -> null, () -> mock(RuntimeConfig.class), true, false, false,
+			.override(new RuneLiteModule(okHttpClient, () -> null, true, false,
 				RuneLite.DEFAULT_SESSION_FILE,
 				RuneLite.DEFAULT_CONFIG_FILE))
 			.with(BoundFieldModule.of(this)));
@@ -213,23 +208,4 @@ public class PluginManagerTest
 		}
 	}
 
-	@Test
-	public void testTopologicalSort()
-	{
-		MutableGraph<Integer> graph = GraphBuilder
-			.directed()
-			.build();
-
-		graph.addNode(1);
-		graph.addNode(2);
-		graph.addNode(3);
-
-		graph.putEdge(1, 2);
-		graph.putEdge(1, 3);
-
-		List<Integer> sorted = PluginManager.topologicalSort(graph);
-
-		assertTrue(sorted.indexOf(1) < sorted.indexOf(2));
-		assertTrue(sorted.indexOf(1) < sorted.indexOf(3));
-	}
 }

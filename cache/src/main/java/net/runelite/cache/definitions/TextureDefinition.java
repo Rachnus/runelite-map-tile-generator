@@ -38,8 +38,8 @@ public class TextureDefinition
 	public int[] field1780;
 	public int[] field1781;
 	public int[] field1786;
-	public int animationSpeed;
-	public int animationDirection;
+	public int field1782;
+	public int field1783;
 
 	public transient int[] pixels;
 

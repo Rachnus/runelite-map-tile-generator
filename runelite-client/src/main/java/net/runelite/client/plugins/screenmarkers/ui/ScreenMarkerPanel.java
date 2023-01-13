@@ -53,7 +53,6 @@ import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.components.FlatTextField;
 import net.runelite.client.ui.components.colorpicker.RuneliteColorPicker;
-import net.runelite.client.util.ColorUtil;
 import net.runelite.client.util.ImageUtil;
 
 class ScreenMarkerPanel extends JPanel
@@ -74,10 +73,10 @@ class ScreenMarkerPanel extends JPanel
 	private static final ImageIcon NO_FILL_COLOR_ICON;
 	private static final ImageIcon NO_FILL_COLOR_HOVER_ICON;
 
-	private static final ImageIcon LABEL_ICON;
-	private static final ImageIcon LABEL_HOVER_ICON;
-	private static final ImageIcon NO_LABEL_ICON;
-	private static final ImageIcon NO_LABEL_HOVER_ICON;
+	private static final ImageIcon FULL_OPACITY_ICON;
+	private static final ImageIcon FULL_OPACITY_HOVER_ICON;
+	private static final ImageIcon NO_OPACITY_ICON;
+	private static final ImageIcon NO_OPACITY_HOVER_ICON;
 
 	private static final ImageIcon VISIBLE_ICON;
 	private static final ImageIcon VISIBLE_HOVER_ICON;
@@ -92,7 +91,7 @@ class ScreenMarkerPanel extends JPanel
 
 	private final JLabel borderColorIndicator = new JLabel();
 	private final JLabel fillColorIndicator = new JLabel();
-	private final JLabel labelIndicator = new JLabel();
+	private final JLabel opacityIndicator = new JLabel();
 	private final JLabel visibilityLabel = new JLabel();
 	private final JLabel deleteLabel = new JLabel();
 
@@ -105,7 +104,6 @@ class ScreenMarkerPanel extends JPanel
 	private final JSpinner thicknessSpinner = new JSpinner(spinnerModel);
 
 	private boolean visible;
-	private boolean showLabel;
 
 	static
 	{
@@ -125,13 +123,13 @@ class ScreenMarkerPanel extends JPanel
 		NO_FILL_COLOR_ICON = new ImageIcon(fillImgHover);
 		NO_FILL_COLOR_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(fillImgHover, -100));
 
-		final BufferedImage labelImg = ImageUtil.loadImageResource(ScreenMarkerPlugin.class, "label_icon.png");
-		final BufferedImage labelImgHover = ImageUtil.luminanceOffset(labelImg, -150);
-		LABEL_ICON = new ImageIcon(labelImg);
-		LABEL_HOVER_ICON = new ImageIcon(labelImgHover);
+		final BufferedImage opacityImg = ImageUtil.loadImageResource(ScreenMarkerPlugin.class, "opacity_icon.png");
+		final BufferedImage opacityImgHover = ImageUtil.luminanceOffset(opacityImg, -150);
+		FULL_OPACITY_ICON = new ImageIcon(opacityImg);
+		FULL_OPACITY_HOVER_ICON = new ImageIcon(opacityImgHover);
 
-		NO_LABEL_ICON = new ImageIcon(labelImgHover);
-		NO_LABEL_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(labelImgHover, -100));
+		NO_OPACITY_ICON = new ImageIcon(opacityImgHover);
+		NO_OPACITY_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(opacityImgHover, -100));
 
 		final BufferedImage visibleImg = ImageUtil.loadImageResource(ScreenMarkerPlugin.class, "visible_icon.png");
 		VISIBLE_ICON = new ImageIcon(visibleImg);
@@ -151,7 +149,6 @@ class ScreenMarkerPanel extends JPanel
 		this.plugin = plugin;
 		this.marker = marker;
 		this.visible = marker.getMarker().isVisible();
-		this.showLabel = marker.getMarker().isLabelled();
 
 		setLayout(new BorderLayout());
 		setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -334,37 +331,50 @@ class ScreenMarkerPanel extends JPanel
 		thicknessSpinner.setValue(marker.getMarker().getBorderThickness());
 		thicknessSpinner.setPreferredSize(new Dimension(50, 20));
 		thicknessSpinner.addChangeListener(ce -> updateThickness(true));
-		thicknessSpinner.setToolTipText("Border thickness");
 
-		labelIndicator.addMouseListener(new MouseAdapter()
+		opacityIndicator.setToolTipText("Toggle background transparency");
+		opacityIndicator.addMouseListener(new MouseAdapter()
 		{
 			@Override
 			public void mousePressed(MouseEvent mouseEvent)
 			{
-				toggleLabelling(!showLabel);
+				final Color fill = marker.getMarker().getFill();
+
+				if (fill.getAlpha() == 0)
+				{
+					marker.getMarker().setFill(new Color(fill.getRed(), fill.getGreen(), fill.getBlue(), DEFAULT_FILL_OPACITY));
+				}
+				else
+				{
+					marker.getMarker().setFill(new Color(fill.getRed(), fill.getGreen(), fill.getBlue(), 0));
+				}
+
+				updateFill();
+				plugin.updateConfig();
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent mouseEvent)
 			{
-				labelIndicator.setIcon(showLabel ? LABEL_HOVER_ICON : NO_LABEL_HOVER_ICON);
+				opacityIndicator.setIcon(marker.getMarker().getFill().getAlpha() == 0 ? NO_OPACITY_HOVER_ICON : FULL_OPACITY_HOVER_ICON);
 			}
 
 			@Override
 			public void mouseExited(MouseEvent mouseEvent)
 			{
-				labelIndicator.setIcon(showLabel ? LABEL_ICON : NO_LABEL_ICON);
+				opacityIndicator.setIcon(marker.getMarker().getFill().getAlpha() == 0 ? NO_OPACITY_ICON : FULL_OPACITY_ICON);
 			}
 		});
 
 		leftActions.add(borderColorIndicator);
 		leftActions.add(fillColorIndicator);
-		leftActions.add(labelIndicator);
+		leftActions.add(opacityIndicator);
 		leftActions.add(thicknessSpinner);
 
 		JPanel rightActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
 		rightActions.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 
+		visibilityLabel.setToolTipText(visible ? "Hide screen marker" : "Show screen marker");
 		visibilityLabel.addMouseListener(new MouseAdapter()
 		{
 			@Override
@@ -429,7 +439,7 @@ class ScreenMarkerPanel extends JPanel
 		updateFill();
 		updateBorder();
 		updateBorder();
-		updateLabelling();
+
 	}
 
 	private void preview(boolean on)
@@ -448,14 +458,6 @@ class ScreenMarkerPanel extends JPanel
 		marker.getMarker().setVisible(visible);
 		plugin.updateConfig();
 		updateVisibility();
-	}
-
-	private void toggleLabelling(boolean on)
-	{
-		showLabel = on;
-		marker.getMarker().setLabelled(showLabel);
-		plugin.updateConfig();
-		updateLabelling();
 	}
 
 	private void save()
@@ -503,13 +505,6 @@ class ScreenMarkerPanel extends JPanel
 	private void updateVisibility()
 	{
 		visibilityLabel.setIcon(visible ? VISIBLE_ICON : INVISIBLE_ICON);
-		visibilityLabel.setToolTipText(visible ? "Hide screen marker" : "Show screen marker");
-	}
-
-	private void updateLabelling()
-	{
-		labelIndicator.setIcon(showLabel ? LABEL_ICON : NO_LABEL_ICON);
-		labelIndicator.setToolTipText(showLabel ? "Hide label" : "Show label");
 	}
 
 	private void updateFill()
@@ -528,6 +523,7 @@ class ScreenMarkerPanel extends JPanel
 		}
 
 		fillColorIndicator.setIcon(isFullyTransparent ? NO_FILL_COLOR_ICON : FILL_COLOR_ICON);
+		opacityIndicator.setIcon(isFullyTransparent ? NO_OPACITY_ICON : FULL_OPACITY_ICON);
 	}
 
 	private void updateBorder()
@@ -547,10 +543,9 @@ class ScreenMarkerPanel extends JPanel
 
 	private void openFillColorPicker()
 	{
-		final Color fillColor = marker.getMarker().getFill();
 		RuneliteColorPicker colorPicker = plugin.getColorPickerManager().create(
 			SwingUtilities.windowForComponent(this),
-			fillColor.getAlpha() == 0 ? ColorUtil.colorWithAlpha(fillColor, DEFAULT_FILL_OPACITY) : fillColor,
+			marker.getMarker().getFill(),
 			marker.getMarker().getName() + " Fill",
 			false);
 		colorPicker.setLocation(getLocationOnScreen());

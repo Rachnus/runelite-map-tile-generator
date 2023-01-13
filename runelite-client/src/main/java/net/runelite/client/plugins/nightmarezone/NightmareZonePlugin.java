@@ -33,7 +33,6 @@ import lombok.Getter;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.Varbits;
-import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.api.events.GameTick;
@@ -120,21 +119,6 @@ public class NightmareZonePlugin extends Plugin
 	NightmareZoneConfig getConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(NightmareZoneConfig.class);
-	}
-
-	@Subscribe
-	public void onBeforeRender(BeforeRender beforeRender)
-	{
-		if (!isInNightmareZone() || !config.moveOverlay())
-		{
-			return;
-		}
-
-		Widget nmzWidget = client.getWidget(WidgetInfo.NIGHTMARE_ZONE);
-		if (nmzWidget != null)
-		{
-			nmzWidget.setHidden(true);
-		}
 	}
 
 	@Subscribe
@@ -244,7 +228,7 @@ public class NightmareZonePlugin extends Plugin
 
 	private void checkAbsorption()
 	{
-		int absorptionPoints = client.getVarbitValue(Varbits.NMZ_ABSORPTION);
+		int absorptionPoints = client.getVar(Varbits.NMZ_ABSORPTION);
 
 		if (!absorptionNotificationSend)
 		{
@@ -266,7 +250,7 @@ public class NightmareZonePlugin extends Plugin
 	private int calculatePointsPerHour()
 	{
 		Instant now = Instant.now();
-		final int currentPoints = client.getVarbitValue(Varbits.NMZ_POINTS);
+		final int currentPoints = client.getVar(Varbits.NMZ_POINTS);
 
 		if (nmzSessionStartTime == null)
 		{

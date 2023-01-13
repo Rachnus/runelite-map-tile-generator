@@ -30,7 +30,6 @@ import java.io.IOException;
 import net.runelite.cache.fs.Store;
 import net.runelite.cache.region.Region;
 import net.runelite.cache.region.RegionLoader;
-import net.runelite.cache.util.KeyProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +48,9 @@ public class HeightMapDumper
 		this.store = store;
 	}
 
-	public void load(KeyProvider keyProvider) throws IOException
+	public void load() throws IOException
 	{
-		regionLoader = new RegionLoader(store, keyProvider);
+		regionLoader = new RegionLoader(store);
 		regionLoader.loadRegions();
 		regionLoader.calculateBounds();
 	}

@@ -31,6 +31,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.inject.Provides;
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,6 +65,8 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GroundObjectDespawned;
 import net.runelite.api.events.GroundObjectSpawned;
 import net.runelite.api.events.MenuEntryAdded;
+import net.runelite.api.events.MenuOptionClicked;
+import net.runelite.api.events.WallObjectChanged;
 import net.runelite.api.events.WallObjectDespawned;
 import net.runelite.api.events.WallObjectSpawned;
 import net.runelite.client.config.ConfigManager;
@@ -131,6 +134,16 @@ public class ObjectIndicatorsPlugin extends Plugin
 	public void onWallObjectSpawned(WallObjectSpawned event)
 	{
 		checkObjectPoints(event.getWallObject());
+	}
+
+	@Subscribe
+	public void onWallObjectChanged(WallObjectChanged event)
+	{
+		WallObject previous = event.getPrevious();
+		WallObject wallObject = event.getWallObject();
+
+		objects.removeIf(o -> o.getTileObject() == previous);
+		checkObjectPoints(wallObject);
 	}
 
 	@Subscribe
@@ -217,26 +230,35 @@ public class ObjectIndicatorsPlugin extends Plugin
 			return;
 		}
 
-		client.createMenuEntry(-1)
-			.setOption(objects.stream().anyMatch(o -> o.getTileObject() == tileObject) ? UNMARK : MARK)
-			.setTarget(event.getTarget())
-			.setParam0(event.getActionParam0())
-			.setParam1(event.getActionParam1())
-			.setIdentifier(event.getIdentifier())
-			.setType(MenuAction.RUNELITE)
-			.onClick(this::markObject);
+		MenuEntry[] menuEntries = client.getMenuEntries();
+		menuEntries = Arrays.copyOf(menuEntries, menuEntries.length + 1);
+		MenuEntry menuEntry = menuEntries[menuEntries.length - 1] = new MenuEntry();
+		menuEntry.setOption(objects.stream().anyMatch(o -> o.getTileObject() == tileObject) ? UNMARK : MARK);
+		menuEntry.setTarget(event.getTarget());
+		menuEntry.setParam0(event.getActionParam0());
+		menuEntry.setParam1(event.getActionParam1());
+		menuEntry.setIdentifier(event.getIdentifier());
+		menuEntry.setType(MenuAction.RUNELITE.getId());
+		client.setMenuEntries(menuEntries);
 	}
 
-	private void markObject(MenuEntry entry)
+	@Subscribe
+	public void onMenuOptionClicked(MenuOptionClicked event)
 	{
+		if (event.getMenuAction() != MenuAction.RUNELITE
+			|| !(event.getMenuOption().equals(MARK) || event.getMenuOption().equals(UNMARK)))
+		{
+			return;
+		}
+
 		Scene scene = client.getScene();
 		Tile[][][] tiles = scene.getTiles();
-		final int x = entry.getParam0();
-		final int y = entry.getParam1();
+		final int x = event.getParam0();
+		final int y = event.getParam1();
 		final int z = client.getPlane();
 		final Tile tile = tiles[z][x][y];
 
-		TileObject object = findTileObject(tile, entry.getIdentifier());
+		TileObject object = findTileObject(tile, event.getId());
 		if (object == null)
 		{
 			return;
@@ -258,12 +280,6 @@ public class ObjectIndicatorsPlugin extends Plugin
 
 	private void checkObjectPoints(TileObject object)
 	{
-		if (object.getPlane() < 0)
-		{
-			// object is under a bridge, which can't be marked anyway
-			return;
-		}
-
 		final WorldPoint worldPoint = WorldPoint.fromLocalInstance(client, object.getLocalLocation(), object.getPlane());
 		final Set<ObjectPoint> objectPoints = points.get(worldPoint.getRegionID());
 

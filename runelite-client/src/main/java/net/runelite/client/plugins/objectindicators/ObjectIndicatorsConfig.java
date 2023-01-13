@@ -67,33 +67,9 @@ public interface ObjectIndicatorsConfig extends Config
 		return false;
 	}
 
-	@ConfigItem(
-		position = 2,
-		keyName = "highlightClickbox",
-		name = "Highlight clickbox",
-		description = "Configures whether the object's clickbox should be highlighted",
-		section = renderStyleSection
-	)
-	default boolean highlightClickbox()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		position = 3,
-		keyName = "highlightTile",
-		name = "Highlight tile",
-		description = "Configures whether the object's tile should be highlighted",
-		section = renderStyleSection
-	)
-	default boolean highlightTile()
-	{
-		return false;
-	}
-
 	@Alpha
 	@ConfigItem(
-		position = 4,
+		position = 2,
 		keyName = "markerColor",
 		name = "Marker color",
 		description = "Configures the color of object marker",
@@ -105,7 +81,7 @@ public interface ObjectIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
-		position = 5,
+		position = 3,
 		keyName = "borderWidth",
 		name = "Border Width",
 		description = "Width of the marked object border",
@@ -117,7 +93,7 @@ public interface ObjectIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
-		position = 6,
+		position = 4,
 		keyName = "outlineFeather",
 		name = "Outline feather",
 		description = "Specify between 0-4 how much of the model outline should be faded",

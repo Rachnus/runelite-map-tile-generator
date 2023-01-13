@@ -135,24 +135,8 @@ public interface Actor extends Renderable
 	 */
 	int getPoseAnimation();
 
-	/**
-	 * Set the idle pose animation.
-	 * @param animation
-	 * @see AnimationID
-	 */
+	@VisibleForDevtools
 	void setPoseAnimation(int animation);
-
-	/**
-	 * Get the frame of the idle animation the actor is performing
-	 * @return
-	 */
-	int getPoseAnimationFrame();
-
-	/**
-	 * Set the frame of the idle animation the actor is performing
-	 * @param frame
-	 */
-	void setPoseAnimationFrame(int frame);
 
 	/**
 	 * The idle pose animation. If the actor is not walking or otherwise animating, this will be used
@@ -285,18 +269,6 @@ public interface Actor extends Renderable
 	void setGraphic(int graphic);
 
 	/**
-	 * Get the height of the graphic/spotanim on the actor
-	 * @return
-	 */
-	int getGraphicHeight();
-
-	/**
-	 * Set the height of the graphic/spotanim on the actor
-	 * @param height
-	 */
-	void setGraphicHeight(int height);
-
-	/**
 	 * Get the frame of the currently playing spotanim
 	 *
 	 * @return
@@ -417,12 +389,4 @@ public interface Actor extends Renderable
 	 * @return
 	 */
 	boolean isDead();
-
-	/**
-	 * Sets the dead status of this actor
-	 *
-	 * @param dead
-	 * @see #isDead()
-	 */
-	void setDead(boolean dead);
 }

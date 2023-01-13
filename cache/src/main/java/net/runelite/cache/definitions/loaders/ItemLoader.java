@@ -52,8 +52,6 @@ public class ItemLoader
 			this.decodeValues(opcode, def, is);
 		}
 
-		post(def);
-
 		return def;
 	}
 
@@ -107,14 +105,6 @@ public class ItemLoader
 		{
 			def.cost = stream.readInt();
 		}
-		else if (opcode == 13)
-		{
-			def.wearPos1 = stream.readByte();
-		}
-		else if (opcode == 14)
-		{
-			def.wearPos2 = stream.readByte();
-		}
 		else if (opcode == 16)
 		{
 			def.members = true;
@@ -136,10 +126,6 @@ public class ItemLoader
 		else if (opcode == 26)
 		{
 			def.femaleModel1 = stream.readUnsignedShort();
-		}
-		else if (opcode == 27)
-		{
-			def.wearPos3 = stream.readByte();
 		}
 		else if (opcode >= 30 && opcode < 35)
 		{
@@ -186,10 +172,6 @@ public class ItemLoader
 		else if (opcode == 65)
 		{
 			def.isTradeable = true;
-		}
-		else if (opcode == 75)
-		{
-			def.weight = stream.readShort();
 		}
 		else if (opcode == 78)
 		{
@@ -310,14 +292,6 @@ public class ItemLoader
 		else
 		{
 			logger.warn("Unrecognized opcode {}", opcode);
-		}
-	}
-
-	private void post(ItemDefinition def)
-	{
-		if (def.stackable == 1)
-		{
-			def.weight = 0;
 		}
 	}
 }

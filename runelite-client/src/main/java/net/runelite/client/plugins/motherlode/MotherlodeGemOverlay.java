@@ -33,6 +33,7 @@ import net.runelite.api.ItemID;
 import static net.runelite.api.MenuAction.RUNELITE_OVERLAY_CONFIG;
 import net.runelite.client.game.ItemManager;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
+import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.ComponentOrientation;
@@ -56,7 +57,7 @@ public class MotherlodeGemOverlay extends OverlayPanel
 		this.motherlodeSession = motherlodeSession;
 		this.config = config;
 		this.itemManager = itemManager;
-		addMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Gem overlay");
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Gem overlay"));
 	}
 
 	@Override

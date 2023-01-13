@@ -24,6 +24,7 @@
  */
 package net.runelite.client.plugins.prayer;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
@@ -88,8 +89,9 @@ class PrayerFlickOverlay extends Overlay
 
 		int yOffset = (orbInnerHeight / 2) - (indicatorHeight / 2);
 
-		graphics.setColor(config.prayerFlickColor());
+		graphics.setColor(Color.cyan);
 		graphics.fillRect(orbInnerX + xOffset, orbInnerY + yOffset, 1, indicatorHeight);
-		return null;
+
+		return new Dimension((int) bounds.getWidth(), (int) bounds.getHeight());
 	}
 }

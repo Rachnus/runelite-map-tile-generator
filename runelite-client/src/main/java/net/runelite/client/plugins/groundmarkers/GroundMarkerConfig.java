@@ -36,6 +36,7 @@ public interface GroundMarkerConfig extends Config
 {
 	String GROUND_MARKER_CONFIG_GROUP = "groundMarker";
 	String SHOW_IMPORT_EXPORT_KEY_NAME = "showImportExport";
+	String SHOW_CLEAR_KEY_NAME = "showClear";
 
 	@Alpha
 	@ConfigItem(
@@ -70,12 +71,22 @@ public interface GroundMarkerConfig extends Config
 
 	@ConfigItem(
 		keyName = SHOW_IMPORT_EXPORT_KEY_NAME,
-		name = "Show Import/Export/Clear options",
-		description = "Show the Import, Export, and Clear options on the world map right-click menu"
+		name = "Show Import/Export options",
+		description = "Show the Import/Export options on the minimap right-click menu"
 	)
 	default boolean showImportExport()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = SHOW_CLEAR_KEY_NAME,
+		name = "Show Clear option",
+		description = "Show the Clear option on the minimap right-click menu, which deletes all currently loaded markers"
+	)
+	default boolean showClear()
+	{
+		return false;
 	}
 
 	@ConfigItem(
@@ -86,15 +97,5 @@ public interface GroundMarkerConfig extends Config
 	default double borderWidth()
 	{
 		return 2;
-	}
-
-	@ConfigItem(
-		keyName = "fillOpacity",
-		name = "Fill Opacity",
-		description = "Opacity of the tile fill color"
-	)
-	default int fillOpacity()
-	{
-		return 50;
 	}
 }

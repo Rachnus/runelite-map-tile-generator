@@ -24,8 +24,6 @@
  */
 package net.runelite.api;
 
-import net.runelite.api.annotations.Varbit;
-
 /**
  * An enumeration of different prayer spells.
  */
@@ -148,10 +146,11 @@ public enum Prayer
 	 */
 	AUGURY(Varbits.PRAYER_AUGURY, 40.0);
 
-	private final int varbit;
+	private final Varbits varbit;
+
 	private final double drainRate;
 
-	Prayer(@Varbit int varbit, double drainRate)
+	Prayer(Varbits varbit, double drainRate)
 	{
 		this.varbit = varbit;
 		this.drainRate = drainRate;
@@ -162,8 +161,7 @@ public enum Prayer
 	 *
 	 * @return the prayer active varbit
 	 */
-	@Varbit
-	public int getVarbit()
+	public Varbits getVarbit()
 	{
 		return varbit;
 	}

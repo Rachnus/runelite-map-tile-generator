@@ -27,6 +27,7 @@ package net.runelite.client.plugins.instancemap;
 import com.google.inject.Binder;
 import javax.inject.Inject;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.WidgetMenuOptionClicked;
 import static net.runelite.api.widgets.WidgetInfo.MINIMAP_WORLDMAP_OPTIONS;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.input.KeyManager;
@@ -71,17 +72,7 @@ public class InstanceMapPlugin extends Plugin
 
 	private void addCustomOptions()
 	{
-		menuManager.addManagedCustomMenu(openMapOption, entry ->
-		{
-			if (overlay.isMapShown())
-			{
-				closeMap();
-			}
-			else
-			{
-				showMap();
-			}
-		});
+		menuManager.addManagedCustomMenu(openMapOption);
 	}
 
 	private void removeCustomOptions()
@@ -114,6 +105,32 @@ public class InstanceMapPlugin extends Plugin
 	public void onGameStateChanged(GameStateChanged event)
 	{
 		overlay.onGameStateChange(event);
+	}
+
+	private boolean clickedOptionEquals(WidgetMenuOptionClicked event, WidgetMenuOption widgetMenuOption)
+	{
+		return event.getMenuOption().equals(widgetMenuOption.getMenuOption()) && event.getMenuTarget().equals(widgetMenuOption.getMenuTarget());
+	}
+
+	@Subscribe
+	public void onWidgetMenuOptionClicked(WidgetMenuOptionClicked event)
+	{
+		if (event.getWidget() != MINIMAP_WORLDMAP_OPTIONS)
+		{
+			return;
+		}
+
+		if (clickedOptionEquals(event, openMapOption))
+		{
+			if (overlay.isMapShown())
+			{
+				closeMap();
+			}
+			else
+			{
+				showMap();
+			}
+		}
 	}
 
 	public void showMap()

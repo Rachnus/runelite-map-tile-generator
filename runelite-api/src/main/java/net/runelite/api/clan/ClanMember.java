@@ -24,18 +24,21 @@
  */
 package net.runelite.api.clan;
 
+import lombok.Value;
+
 /**
  * A member of a clan.
  */
-public interface ClanMember
+@Value
+public class ClanMember
 {
 	/**
 	 * The clan member's name
 	 */
-	String getName();
+	String name;
 
 	/**
 	 * The clan member's rank
 	 */
-	ClanRank getRank();
+	ClanRank rank;
 }

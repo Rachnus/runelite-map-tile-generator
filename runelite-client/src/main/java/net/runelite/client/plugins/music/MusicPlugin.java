@@ -59,10 +59,8 @@ import net.runelite.api.StructID;
 import net.runelite.api.VarClientInt;
 import net.runelite.api.VarPlayer;
 import net.runelite.api.Varbits;
-import net.runelite.api.annotations.Varbit;
 import net.runelite.api.events.AreaSoundEffectPlayed;
 import net.runelite.api.events.BeforeRender;
-import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.PostStructComposition;
 import net.runelite.api.events.ScriptPreFired;
@@ -188,7 +186,7 @@ public class MusicPlugin extends Plugin
 			channels = new Channel[]{musicChannel, effectChannel, areaChannel};
 
 			addMusicButtons();
-			if (client.getGameState() == GameState.LOGGED_IN && musicConfig.granularSliders())
+			if (musicConfig.granularSliders())
 			{
 				updateMusicOptions();
 				resetSettingsWindow();
@@ -222,20 +220,11 @@ public class MusicPlugin extends Plugin
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
-		GameState gameState = gameStateChanged.getGameState();
-		if (gameState == GameState.LOGIN_SCREEN)
+		if (gameStateChanged.getGameState() == GameState.LOGIN_SCREEN)
 		{
 			// Reset music filter on logout
 			currentMusicFilter = MusicState.ALL;
 			tracks = null;
-		}
-		else if (gameState == GameState.LOGGED_IN)
-		{
-			if (musicConfig.muteAmbientSounds())
-			{
-				client.getAmbientSoundEffects()
-					.clear();
-			}
 		}
 	}
 
@@ -318,7 +307,7 @@ public class MusicPlugin extends Plugin
 	@Subscribe
 	public void onConfigChanged(ConfigChanged configChanged)
 	{
-		if (configChanged.getGroup().equals(MusicConfig.GROUP))
+		if ("music".equals(configChanged.getGroup()))
 		{
 			clientThread.invoke(() ->
 			{
@@ -334,14 +323,6 @@ public class MusicPlugin extends Plugin
 						teardownMusicOptions();
 					}
 				}
-				else if (MusicConfig.MUTE_AMBIENT_SOUNDS.equals(configChanged.getKey()))
-				{
-					// Reload the scene to reapply ambient sounds
-					if (client.getGameState() == GameState.LOGGED_IN)
-					{
-						client.setGameState(GameState.LOADING);
-					}
-				}
 				else
 				{
 					updateMusicOptions();
@@ -352,7 +333,7 @@ public class MusicPlugin extends Plugin
 
 	private boolean isOnMusicTab()
 	{
-		return client.getVarcIntValue(VarClientInt.INVENTORY_TAB) == 13;
+		return client.getVar(VarClientInt.INVENTORY_TAB) == 13;
 	}
 
 	private boolean isChatboxOpen()
@@ -404,7 +385,6 @@ public class MusicPlugin extends Plugin
 	{
 		final Widget container = client.getWidget(WidgetInfo.MUSIC_WINDOW);
 		final Widget musicList = client.getWidget(WidgetInfo.MUSIC_TRACK_LIST);
-		final Widget scrollContainer = client.getWidget(WidgetInfo.MUSIC_TRACK_SCROLL_CONTAINER);
 
 		if (container == null || musicList == null)
 		{
@@ -412,15 +392,15 @@ public class MusicPlugin extends Plugin
 		}
 
 		String filter = input.toLowerCase();
-		updateList(scrollContainer, musicList, filter);
+		updateList(musicList, filter);
 	}
 
-	private void updateList(Widget scrollContainer, Widget musicList, String filter)
+	private void updateList(Widget musicList, String filter)
 	{
 		if (tracks == null)
 		{
 			tracks = Arrays.stream(musicList.getDynamicChildren())
-				.sorted(Comparator.comparingInt(Widget::getRelativeY))
+				.sorted(Comparator.comparing(Widget::getRelativeY))
 				.collect(Collectors.toList());
 		}
 
@@ -447,18 +427,18 @@ public class MusicPlugin extends Plugin
 
 		int newHeight = 0;
 
-		if (scrollContainer.getScrollHeight() > 0)
+		if (musicList.getScrollHeight() > 0)
 		{
-			newHeight = (scrollContainer.getScrollY() * y) / scrollContainer.getScrollHeight();
+			newHeight = (musicList.getScrollY() * y) / musicList.getScrollHeight();
 		}
 
-		scrollContainer.setScrollHeight(y);
-		scrollContainer.revalidateScroll();
+		musicList.setScrollHeight(y);
+		musicList.revalidateScroll();
 
 		client.runScript(
 			ScriptID.UPDATE_SCROLLBAR,
 			WidgetInfo.MUSIC_TRACK_SCROLLBAR.getId(),
-			WidgetInfo.MUSIC_TRACK_SCROLL_CONTAINER.getId(),
+			WidgetInfo.MUSIC_TRACK_LIST.getId(),
 			newHeight
 		);
 	}
@@ -785,8 +765,7 @@ public class MusicPlugin extends Plugin
 		@Getter
 		private final String name;
 		private final VarPlayer var;
-		@Varbit
-		private final int mutedVarbitId;
+		private final Varbits mutedVar;
 		private final IntSupplier getter;
 		private final Consumer<Integer> setter;
 		private final IntConsumer volumeChanger;
@@ -800,14 +779,14 @@ public class MusicPlugin extends Plugin
 		private Slider windowSlider;
 
 		Channel(String name,
-			VarPlayer var, @Varbit int mutedVarbitId,
+			VarPlayer var, Varbits mutedVar,
 			IntSupplier getter, Consumer<Integer> setter,
 			IntConsumer volumeChanger, int max,
 			WidgetInfo sideRoot)
 		{
 			this.name = name;
 			this.var = var;
-			this.mutedVarbitId = mutedVarbitId;
+			this.mutedVar = mutedVar;
 			this.getter = getter;
 			this.setter = setter;
 			this.volumeChanger = volumeChanger;
@@ -824,10 +803,10 @@ public class MusicPlugin extends Plugin
 
 				// the varps are known by the engine and it requires they are stored so
 				// 0 = max and 4 = muted
-				int raw = client.getVarpValue(var);
+				int raw = client.getVar(var);
 				if (raw == 0)
 				{
-					raw = -client.getVarbitValue(mutedVarbitId);
+					raw = -client.getVar(mutedVar);
 				}
 				value = raw * this.max / 100;
 
@@ -894,7 +873,7 @@ public class MusicPlugin extends Plugin
 				windowSlider.shutDown();
 			}
 
-			volumeChanger.accept(client.getVarpValue(var) * this.max / 100);
+			volumeChanger.accept(client.getVar(var) * this.max / 100);
 		}
 	}
 
@@ -939,13 +918,8 @@ public class MusicPlugin extends Plugin
 		if (sliderTooltip != null)
 		{
 			tooltipManager.add(sliderTooltip);
+			sliderTooltip = null;
 		}
-	}
-
-	@Subscribe
-	public void onClientTick(ClientTick event)
-	{
-		sliderTooltip = null;
 	}
 
 	@Subscribe

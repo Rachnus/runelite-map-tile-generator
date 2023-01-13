@@ -29,11 +29,9 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-@ConfigGroup(TimestampConfig.GROUP)
+@ConfigGroup("timestamp")
 public interface TimestampConfig extends Config
 {
-	String GROUP = "timestamp";
-
 	@ConfigItem(
 		keyName = "opaqueTimestamp",
 		name = "Timestamps (opaque)",

@@ -24,13 +24,14 @@
  */
 package net.runelite.client.plugins.examine;
 
+import java.time.Instant;
 import lombok.Data;
-import net.runelite.api.ChatMessageType;
 
 @Data
 class PendingExamine
 {
-	private ChatMessageType responseType;
+	private ExamineType type;
 	private int id;
 	private int quantity;
+	private Instant created;
 }

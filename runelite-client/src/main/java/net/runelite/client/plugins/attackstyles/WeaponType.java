@@ -26,7 +26,6 @@ package net.runelite.client.plugins.attackstyles;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
-import lombok.Getter;
 import static net.runelite.client.plugins.attackstyles.AttackStyle.ACCURATE;
 import static net.runelite.client.plugins.attackstyles.AttackStyle.AGGRESSIVE;
 import static net.runelite.client.plugins.attackstyles.AttackStyle.CASTING;
@@ -66,11 +65,8 @@ enum WeaponType
 	TYPE_24(ACCURATE, AGGRESSIVE, CONTROLLED, DEFENSIVE),
 	TYPE_25(CONTROLLED, AGGRESSIVE, null, DEFENSIVE),
 	TYPE_26(AGGRESSIVE, AGGRESSIVE, null, AGGRESSIVE),
-	TYPE_27(ACCURATE, null, null, OTHER),
-	TYPE_28(ACCURATE, ACCURATE, LONGRANGE),
-	TYPE_29(ACCURATE, AGGRESSIVE, AGGRESSIVE, DEFENSIVE);
+	TYPE_27(ACCURATE, null, null, OTHER);
 
-	@Getter
 	private final AttackStyle[] attackStyles;
 
 	private static final Map<Integer, WeaponType> weaponTypes;
@@ -90,6 +86,11 @@ enum WeaponType
 	WeaponType(AttackStyle... attackStyles)
 	{
 		this.attackStyles = attackStyles;
+	}
+
+	public AttackStyle[] getAttackStyles()
+	{
+		return attackStyles;
 	}
 
 	public static WeaponType getWeaponType(int id)

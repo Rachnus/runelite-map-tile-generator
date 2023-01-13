@@ -69,16 +69,13 @@ public class RSTextureProvider
 		TextureDefinition var2 = this.textures[var1];
 		if (var2 != null)
 		{
-			synchronized (var2)
+			if (var2.pixels != null)
 			{
-				if (var2.pixels != null)
-				{
-					return var2.pixels;
-				}
-
-				var2.method2680(this.brightness, this.width, spriteProvider);
 				return var2.pixels;
 			}
+
+			boolean var3 = var2.method2680(this.brightness, this.width, spriteProvider);
+			return var2.pixels;
 		}
 
 		return null;

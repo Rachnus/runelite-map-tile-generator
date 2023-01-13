@@ -38,6 +38,7 @@ import static net.runelite.api.MenuAction.RUNELITE_OVERLAY_CONFIG;
 import net.runelite.api.Skill;
 import net.runelite.client.plugins.xptracker.XpTrackerService;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
+import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
@@ -46,7 +47,7 @@ import net.runelite.client.ui.overlay.components.TitleComponent;
 class SmeltingOverlay extends OverlayPanel
 {
 	private static final int SMELT_TIMEOUT = 7;
-	private static final String SMELTING_RESET = "Reset";
+	static final String SMELTING_RESET = "Reset";
 
 	private final Client client;
 	private final SmeltingPlugin plugin;
@@ -60,8 +61,8 @@ class SmeltingOverlay extends OverlayPanel
 		this.plugin = plugin;
 		this.xpTrackerService = xpTrackerService;
 		setPosition(OverlayPosition.TOP_LEFT);
-		addMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Smelting overlay");
-		addMenuEntry(RUNELITE_OVERLAY, SMELTING_RESET, "Smelting overlay", e -> plugin.setSession(null));
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Smelting overlay"));
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY, SMELTING_RESET, "Smelting overlay"));
 	}
 
 	@Override

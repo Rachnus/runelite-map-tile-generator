@@ -42,9 +42,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class SmeltingPluginTest
 {
-	private static final String SMELT_CANNONBALL_AMMO_MOULD = "The molten metal cools slowly to form 4 cannonballs.";
-	private static final String SMELT_CANNONBALL_DOUBLE_AMMO_MOULD = "The molten metal cools slowly to form 8 cannonballs.";
-	private static final String SMELT_CANNONBALL_DONE_MESSAGE = "You remove the cannonballs from the mould";
+	private static final String SMELT_CANNONBALL = "You remove the cannonballs from the mould";
 	private static final String SMELT_BAR = "You retrieve a bar of steel.";
 
 	@Inject
@@ -69,29 +67,14 @@ public class SmeltingPluginTest
 	}
 
 	@Test
-	public void testCannonballsAmmoMould()
+	public void testCannonballs()
 	{
-		ChatMessage chatMessageAmmoMould = new ChatMessage(null, ChatMessageType.SPAM, "", SMELT_CANNONBALL_AMMO_MOULD, "", 0);
-		smeltingPlugin.onChatMessage(chatMessageAmmoMould);
-		ChatMessage chatMessageDone = new ChatMessage(null, ChatMessageType.SPAM, "", SMELT_CANNONBALL_DONE_MESSAGE, "", 0);
-		smeltingPlugin.onChatMessage(chatMessageDone);
+		ChatMessage chatMessage = new ChatMessage(null, ChatMessageType.SPAM, "", SMELT_CANNONBALL, "", 0);
+		smeltingPlugin.onChatMessage(chatMessage);
 
 		SmeltingSession smeltingSession = smeltingPlugin.getSession();
 		assertNotNull(smeltingSession);
 		assertEquals(4, smeltingSession.getCannonBallsSmelted());
-	}
-
-	@Test
-	public void testCannonballsDoubleAmmoMould()
-	{
-		ChatMessage chatMessageDoubleAmmoMould = new ChatMessage(null, ChatMessageType.SPAM, "", SMELT_CANNONBALL_DOUBLE_AMMO_MOULD, "", 0);
-		smeltingPlugin.onChatMessage(chatMessageDoubleAmmoMould);
-		ChatMessage chatMessageDone = new ChatMessage(null, ChatMessageType.SPAM, "", SMELT_CANNONBALL_DONE_MESSAGE, "", 0);
-		smeltingPlugin.onChatMessage(chatMessageDone);
-
-		SmeltingSession smeltingSession = smeltingPlugin.getSession();
-		assertNotNull(smeltingSession);
-		assertEquals(8, smeltingSession.getCannonBallsSmelted());
 	}
 
 	@Test

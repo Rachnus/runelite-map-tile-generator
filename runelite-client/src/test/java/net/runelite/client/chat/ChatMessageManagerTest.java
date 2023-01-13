@@ -31,18 +31,17 @@ import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import java.awt.Color;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.IterableHashTable;
 import net.runelite.api.MessageNode;
 import net.runelite.api.Player;
+import net.runelite.api.events.ChatMessage;
 import net.runelite.client.config.ChatColorConfig;
 import net.runelite.client.events.ConfigChanged;
-import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.mockito.ArgumentMatchers.anyLong;
 import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -60,40 +59,10 @@ public class ChatMessageManagerTest
 	@Inject
 	private ChatMessageManager chatMessageManager;
 
-	private String[] sstack;
-	private int[] istack;
-
 	@Before
 	public void before()
 	{
 		Guice.createInjector(BoundFieldModule.of(this)).injectMembers(this);
-	}
-
-	private MessageNode setupVm(ChatMessageType type, String name, String message)
-	{
-		MessageNode messageNode = mock(MessageNode.class);
-		when(messageNode.getType()).thenReturn(type);
-
-		IterableHashTable<MessageNode> tbl = mock(IterableHashTable.class);
-		when(tbl.get(anyLong())).thenReturn(messageNode);
-		when(client.getMessages()).thenReturn(tbl);
-
-		sstack = new String[]{
-			"",
-			name,
-			message,
-			""
-		};
-		istack = new int[]{
-			0, // splitpmbox
-			1
-		};
-		when(client.getStringStack()).thenReturn(sstack);
-		when(client.getStringStackSize()).thenReturn(sstack.length);
-		when(client.getIntStack()).thenReturn(istack);
-		when(client.getIntStackSize()).thenReturn(istack.length);
-
-		return messageNode;
 	}
 
 	@Test
@@ -106,10 +75,16 @@ public class ChatMessageManagerTest
 		configChanged.setGroup("textrecolor");
 		chatMessageManager.onConfigChanged(configChanged);
 
-		setupVm(ChatMessageType.GAMEMESSAGE, "", "Your dodgy necklace protects you. It has <col=ff0000>1</col> charge left.");
-		chatMessageManager.colorChatMessage();
+		ChatMessage chatMessage = new ChatMessage();
+		chatMessage.setType(ChatMessageType.GAMEMESSAGE);
 
-		assertEquals("<col=b20000>Your dodgy necklace protects you. It has <col=ff0000>1<col=b20000> charge left.</col>", sstack[2]);
+		MessageNode messageNode = mock(MessageNode.class);
+		chatMessage.setMessageNode(messageNode);
+
+		when(messageNode.getValue()).thenReturn("Your dodgy necklace protects you. It has <col=ff0000>1</col> charge left.");
+		chatMessageManager.onChatMessage(chatMessage);
+
+		verify(messageNode).setValue("<col=b20000>Your dodgy necklace protects you. It has <col=ff0000>1<col=b20000> charge left.</col>");
 	}
 
 	@Test
@@ -120,7 +95,14 @@ public class ChatMessageManagerTest
 
 		when(chatColorConfig.opaquePublicFriendUsernames()).thenReturn(Color.decode("#b20000"));
 
-		setupVm(ChatMessageType.PUBLICCHAT, friendName, "");
+		// Setup message
+		ChatMessage chatMessage = new ChatMessage();
+		chatMessage.setType(ChatMessageType.PUBLICCHAT);
+		chatMessage.setName(friendName);
+
+		MessageNode messageNode = mock(MessageNode.class);
+		chatMessage.setMessageNode(messageNode);
+		when(messageNode.getName()).thenReturn(friendName);
 
 		// Setup friend checking
 		Player localPlayer = mock(Player.class);
@@ -129,9 +111,9 @@ public class ChatMessageManagerTest
 		when(client.getLocalPlayer()).thenReturn(localPlayer);
 		when(localPlayer.getName()).thenReturn(localPlayerName);
 
-		chatMessageManager.colorChatMessage();
+		chatMessageManager.onChatMessage(chatMessage);
 
-		assertEquals("<col=b20000>" + friendName + "</col>", sstack[1]);
+		verify(messageNode).setName("<col=b20000>" + friendName + "</col>");
 	}
 
 	@Test
@@ -143,7 +125,14 @@ public class ChatMessageManagerTest
 
 		when(chatColorConfig.opaquePublicFriendUsernames()).thenReturn(Color.decode("#b20000"));
 
-		setupVm(ChatMessageType.PUBLICCHAT, friendName, "");
+		// Setup message
+		ChatMessage chatMessage = new ChatMessage();
+		chatMessage.setType(ChatMessageType.PUBLICCHAT);
+		chatMessage.setName(friendName);
+
+		MessageNode messageNode = mock(MessageNode.class);
+		chatMessage.setMessageNode(messageNode);
+		when(messageNode.getName()).thenReturn(friendName);
 
 		// Setup friend checking
 		Player localPlayer = mock(Player.class);
@@ -152,9 +141,9 @@ public class ChatMessageManagerTest
 		when(client.getLocalPlayer()).thenReturn(localPlayer);
 		when(localPlayer.getName()).thenReturn(localPlayerName);
 
-		chatMessageManager.colorChatMessage();
+		chatMessageManager.onChatMessage(chatMessage);
 
-		assertEquals("<col=b20000>" + friendName + "</col>", sstack[1]);
+		verify(messageNode).setName("<col=b20000>" + friendName + "</col>");
 	}
 
 	@Test
@@ -185,28 +174,12 @@ public class ChatMessageManagerTest
 			.append("%)")
 			.build();
 
-		String formattedMessage = chatMessageManager.formatRuneLiteMessage(chatMessage, ChatMessageType.FRIENDSCHATNOTIFICATION, false);
+		MessageNode messageNode = mock(MessageNode.class);
+		when(messageNode.getType()).thenReturn(ChatMessageType.FRIENDSCHATNOTIFICATION);
+		when(messageNode.getRuneLiteFormatMessage()).thenReturn(chatMessage);
 
-		assertEquals("<col=000000>Total points: <col=ff0000>42<col=000000>, Personal points: <col=ff0000>43<col=000000> (<col=ff0000>44<col=000000>%)", formattedMessage);
-	}
+		chatMessageManager.update(messageNode);
 
-	@Test
-	public void testGim()
-	{
-		when(chatColorConfig.opaqueClanChatInfo()).thenReturn(Color.RED);
-		when(chatColorConfig.opaqueClanChatInfoHighlight()).thenReturn(Color.BLUE);
-
-		// rebuild color cache
-		ConfigChanged configChanged = new ConfigChanged();
-		configChanged.setGroup("textrecolor");
-		chatMessageManager.onConfigChanged(configChanged);
-
-		MessageNode messageNode = setupVm(ChatMessageType.CLAN_GIM_MESSAGE, "", "rsn received a drop: 8 x Bronze bolts (16 coins).");
-		when(messageNode.getRuneLiteFormatMessage()).thenReturn("<colHIGHLIGHT><u>rsn</u><colNORMAL> received a drop: 8 x Bronze bolts (16 coins).");
-
-		chatMessageManager.colorChatMessage();
-
-		// | <chat color> <highlight color>
-		assertEquals("|<col=ff0000><col=0000ff><u>rsn</u><col=ff0000> received a drop: 8 x Bronze bolts (16 coins).</col>", sstack[2]);
+		verify(messageNode).setValue("<col=000000>Total points: <col=ff0000>42<col=000000>, Personal points: <col=ff0000>43<col=000000> (<col=ff0000>44<col=000000>%)");
 	}
 }

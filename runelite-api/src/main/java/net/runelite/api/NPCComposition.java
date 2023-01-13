@@ -93,9 +93,7 @@ public interface NPCComposition extends ParamHolder
 	int getSize();
 
 	/**
-	 * If the npc is a follower, such as a pet. Is affected by the
-	 * "Move follower options lower down" setting.
-	 * @return
+	 * Gets the displayed overhead icon of the NPC.
 	 */
-	boolean isFollower();
+	HeadIcon getOverheadIcon();
 }

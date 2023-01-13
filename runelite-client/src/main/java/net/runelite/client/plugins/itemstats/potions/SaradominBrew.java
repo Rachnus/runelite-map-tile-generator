@@ -57,8 +57,9 @@ public class SaradominBrew implements Effect
 		SimpleStatBoost hitpoints = new SimpleStatBoost(HITPOINTS, true, perc(percH, deltaB));
 		SimpleStatBoost defence = new SimpleStatBoost(DEFENCE, true, perc(percD, deltaB));
 		BoostedStatBoost calc = new BoostedStatBoost(null, false, perc(percSD, -deltaR));
-		changes.setStatChanges(Stream.of(
+		changes.setStatChanges(Stream.concat(
 			Stream.of(hitpoints.effect(client)),
+			Stream.concat(
 			Stream.of(defence.effect(client)),
 			Stream.of(saradominBrewStats)
 				.filter(stat -> 1 < stat.getValue(client))
@@ -66,13 +67,12 @@ public class SaradominBrew implements Effect
 				{
 					calc.setStat(stat);
 					return calc.effect(client);
-				}))
-			.reduce(Stream::concat)
-			.orElseGet(Stream::empty)
-			.toArray(StatChange[]::new));
+				})
+			)
+		).toArray(StatChange[]::new));
 		changes.setPositivity(Stream.of(changes.getStatChanges())
-			.map(StatChange::getPositivity)
-			.max(Comparator.naturalOrder()).get());
+			.map(sc -> sc.getPositivity())
+			.max(Comparator.comparing(Enum::ordinal)).get());
 		return changes;
 	}
 }

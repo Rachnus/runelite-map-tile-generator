@@ -65,6 +65,7 @@ public class MapDumperTest
 		File base = StoreLocation.LOCATION,
 			outDir = folder.newFolder();
 		XteaKeyManager keyManager = new XteaKeyManager();
+		keyManager.loadKeys();
 
 		try (Store store = new Store(base))
 		{
@@ -75,7 +76,7 @@ public class MapDumperTest
 
 			for (int i = 0; i < MAX_REGIONS; i++)
 			{
-				int[] keys = keyManager.getKey(i);
+				int[] keys = keyManager.getKeys(i);
 
 				int x = i >> 8;
 				int y = i & 0xFF;
@@ -120,6 +121,7 @@ public class MapDumperTest
 		Storage storage = store.getStorage();
 		Index index = store.getIndex(IndexType.MAPS);
 		XteaKeyManager keyManager = new XteaKeyManager();
+		keyManager.loadKeys();
 
 		for (int i = 0; i < MAX_REGIONS; ++i)
 		{
@@ -140,7 +142,7 @@ public class MapDumperTest
 			MapDefinition mapDef = new MapLoader().load(x, y, data);
 			LocationsDefinition locDef = null;
 
-			int[] keys = keyManager.getKey(i);
+			int[] keys = keyManager.getKeys(i);
 			if (keys != null)
 			{
 				try

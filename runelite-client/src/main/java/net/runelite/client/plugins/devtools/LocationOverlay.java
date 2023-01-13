@@ -64,8 +64,6 @@ public class LocationOverlay extends OverlayPanel
 
 		if (client.isInInstancedRegion())
 		{
-			regionID = WorldPoint.fromLocalInstance(client, localPoint).getRegionID();
-
 			panelComponent.getChildren().add(LineComponent.builder()
 				.left("Instance")
 				.build());

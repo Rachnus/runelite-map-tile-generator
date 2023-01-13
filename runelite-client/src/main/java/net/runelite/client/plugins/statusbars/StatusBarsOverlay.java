@@ -29,19 +29,18 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.inject.Inject;
 import net.runelite.api.Client;
-import net.runelite.api.Experience;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.Point;
 import net.runelite.api.Prayer;
 import net.runelite.api.Skill;
 import net.runelite.api.SpriteID;
-import net.runelite.api.VarPlayer;
 import net.runelite.api.Varbits;
+import net.runelite.api.VarPlayer;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.game.AlternateSprites;
@@ -74,7 +73,7 @@ class StatusBarsOverlay extends Overlay
 	private static final int HEIGHT = 252;
 	private static final int RESIZED_BOTTOM_HEIGHT = 272;
 	private static final int IMAGE_SIZE = 17;
-	private static final Dimension ICON_DIMENSIONS = new Dimension(26, 25);
+	private static final int ICON_DIMENSIONS = 26;
 	private static final int RESIZED_BOTTOM_OFFSET_Y = 12;
 	private static final int RESIZED_BOTTOM_OFFSET_X = 10;
 	private static final int MAX_SPECIAL_ATTACK_VALUE = 100;
@@ -87,10 +86,10 @@ class StatusBarsOverlay extends Overlay
 	private final SpriteManager spriteManager;
 
 	private final Image prayerIcon;
-	private final Image heartDisease;
-	private final Image heartPoison;
-	private final Image heartVenom;
 	private Image heartIcon;
+	private Image heartDisease;
+	private Image heartPoison;
+	private Image heartVenom;
 	private Image specialIcon;
 	private Image energyIcon;
 	private final Map<BarMode, BarRenderer> barRenderers = new EnumMap<>(BarMode.class);
@@ -106,11 +105,7 @@ class StatusBarsOverlay extends Overlay
 		this.itemStatService = itemstatservice;
 		this.spriteManager = spriteManager;
 
-		prayerIcon = ImageUtil.resizeCanvas(ImageUtil.resizeImage(skillIconManager.getSkillImage(Skill.PRAYER, true), IMAGE_SIZE, IMAGE_SIZE), ICON_DIMENSIONS.width, ICON_DIMENSIONS.height);
-		heartDisease = ImageUtil.resizeCanvas(ImageUtil.loadImageResource(AlternateSprites.class, AlternateSprites.DISEASE_HEART), ICON_DIMENSIONS.width, ICON_DIMENSIONS.height);
-		heartPoison = ImageUtil.resizeCanvas(ImageUtil.loadImageResource(AlternateSprites.class, AlternateSprites.POISON_HEART), ICON_DIMENSIONS.width, ICON_DIMENSIONS.height);
-		heartVenom = ImageUtil.resizeCanvas(ImageUtil.loadImageResource(AlternateSprites.class, AlternateSprites.VENOM_HEART), ICON_DIMENSIONS.width, ICON_DIMENSIONS.height);
-
+		prayerIcon = ImageUtil.resizeCanvas(ImageUtil.resizeImage(skillIconManager.getSkillImage(Skill.PRAYER, true), IMAGE_SIZE, IMAGE_SIZE), ICON_DIMENSIONS, ICON_DIMENSIONS);
 		initRenderers();
 	}
 
@@ -118,12 +113,12 @@ class StatusBarsOverlay extends Overlay
 	{
 		barRenderers.put(BarMode.DISABLED, null);
 		barRenderers.put(BarMode.HITPOINTS, new BarRenderer(
-			() -> inLms() ? Experience.MAX_REAL_LEVEL : client.getRealSkillLevel(Skill.HITPOINTS),
+			() -> client.getRealSkillLevel(Skill.HITPOINTS),
 			() -> client.getBoostedSkillLevel(Skill.HITPOINTS),
 			() -> getRestoreValue(Skill.HITPOINTS.getName()),
 			() ->
 			{
-				final int poisonState = client.getVarpValue(VarPlayer.IS_POISONED);
+				final int poisonState = client.getVar(VarPlayer.IS_POISONED);
 
 				if (poisonState >= 1000000)
 				{
@@ -135,12 +130,12 @@ class StatusBarsOverlay extends Overlay
 					return POISONED_COLOR;
 				}
 
-				if (client.getVarpValue(VarPlayer.DISEASE_VALUE) > 0)
+				if (client.getVar(VarPlayer.DISEASE_VALUE) > 0)
 				{
 					return DISEASE_COLOR;
 				}
 
-				if (client.getVarbitValue(Varbits.PARASITE) >= 1)
+				if (client.getVar(Varbits.PARASITE) >= 1)
 				{
 					return PARASITE_COLOR;
 				}
@@ -150,7 +145,7 @@ class StatusBarsOverlay extends Overlay
 			() -> HEAL_COLOR,
 			() ->
 			{
-				final int poisonState = client.getVarpValue(VarPlayer.IS_POISONED);
+				final int poisonState = client.getVar(VarPlayer.IS_POISONED);
 
 				if (poisonState > 0 && poisonState < 50)
 				{
@@ -162,7 +157,7 @@ class StatusBarsOverlay extends Overlay
 					return heartVenom;
 				}
 
-				if (client.getVarpValue(VarPlayer.DISEASE_VALUE) > 0)
+				if (client.getVar(VarPlayer.DISEASE_VALUE) > 0)
 				{
 					return heartDisease;
 				}
@@ -171,7 +166,7 @@ class StatusBarsOverlay extends Overlay
 			}
 		));
 		barRenderers.put(BarMode.PRAYER, new BarRenderer(
-			() -> inLms() ? Experience.MAX_REAL_LEVEL : client.getRealSkillLevel(Skill.PRAYER),
+			() -> client.getRealSkillLevel(Skill.PRAYER),
 			() -> client.getBoostedSkillLevel(Skill.PRAYER),
 			() -> getRestoreValue(Skill.PRAYER.getName()),
 			() ->
@@ -194,11 +189,11 @@ class StatusBarsOverlay extends Overlay
 		));
 		barRenderers.put(BarMode.RUN_ENERGY, new BarRenderer(
 			() -> MAX_RUN_ENERGY_VALUE,
-			() -> client.getEnergy() / 100,
+			client::getEnergy,
 			() -> getRestoreValue("Run Energy"),
 			() ->
 			{
-				if (client.getVarbitValue(Varbits.RUN_SLOWED_DEPLETION_ACTIVE) != 0)
+				if (client.getVar(Varbits.RUN_SLOWED_DEPLETION_ACTIVE) != 0)
 				{
 					return RUN_STAMINA_COLOR;
 				}
@@ -212,7 +207,7 @@ class StatusBarsOverlay extends Overlay
 		));
 		barRenderers.put(BarMode.SPECIAL_ATTACK, new BarRenderer(
 			() -> MAX_SPECIAL_ATTACK_VALUE,
-			() -> client.getVarpValue(VarPlayer.SPECIAL_ATTACK_PERCENT) / 10,
+			() -> client.getVar(VarPlayer.SPECIAL_ATTACK_PERCENT) / 10,
 			() -> 0,
 			() -> SPECIAL_ATTACK_COLOR,
 			() -> SPECIAL_ATTACK_COLOR,
@@ -250,21 +245,18 @@ class StatusBarsOverlay extends Overlay
 		final Point offsetLeft = curViewport.getOffsetLeft();
 		final Point offsetRight = curViewport.getOffsetRight();
 		final Point location = curWidget.getCanvasLocation();
-		final int width, height, offsetLeftBarX, offsetLeftBarY, offsetRightBarX, offsetRightBarY;
+		final int height, offsetLeftBarX, offsetLeftBarY, offsetRightBarX, offsetRightBarY;
 
 		if (curViewport == Viewport.RESIZED_BOTTOM)
 		{
-			width = config.barWidth();
 			height = RESIZED_BOTTOM_HEIGHT;
-			final int barWidthOffset = width - BarRenderer.DEFAULT_WIDTH;
-			offsetLeftBarX = (location.getX() + RESIZED_BOTTOM_OFFSET_X - offsetLeft.getX() - 2 * barWidthOffset);
-			offsetLeftBarY = (location.getY() - RESIZED_BOTTOM_OFFSET_Y - offsetLeft.getY());
-			offsetRightBarX = (location.getX() + RESIZED_BOTTOM_OFFSET_X - offsetRight.getX() - barWidthOffset);
+			offsetLeftBarX = (location.getX() + RESIZED_BOTTOM_OFFSET_X - offsetLeft.getX());
+			offsetLeftBarY = (location.getY() - RESIZED_BOTTOM_OFFSET_Y - offsetRight.getY());
+			offsetRightBarX = (location.getX() + RESIZED_BOTTOM_OFFSET_X - offsetRight.getX());
 			offsetRightBarY = (location.getY() - RESIZED_BOTTOM_OFFSET_Y - offsetRight.getY());
 		}
 		else
 		{
-			width = BarRenderer.DEFAULT_WIDTH;
 			height = HEIGHT;
 			offsetLeftBarX = (location.getX() - offsetLeft.getX());
 			offsetLeftBarY = (location.getY() - offsetLeft.getY());
@@ -279,12 +271,12 @@ class StatusBarsOverlay extends Overlay
 
 		if (left != null)
 		{
-			left.renderBar(config, g, offsetLeftBarX, offsetLeftBarY, width, height);
+			left.renderBar(config, g, offsetLeftBarX, offsetLeftBarY, height);
 		}
 
 		if (right != null)
 		{
-			right.renderBar(config, g, offsetRightBarX, offsetRightBarY, width, height);
+			right.renderBar(config, g, offsetRightBarX, offsetRightBarY, height);
 		}
 
 		return null;
@@ -294,18 +286,12 @@ class StatusBarsOverlay extends Overlay
 	{
 		final MenuEntry[] menu = client.getMenuEntries();
 		final int menuSize = menu.length;
-		if (menuSize == 0)
-		{
-			return 0;
-		}
-
-		final MenuEntry entry = menu[menuSize - 1];
-		final Widget widget = entry.getWidget();
+		final MenuEntry entry = menuSize > 0 ? menu[menuSize - 1] : null;
 		int restoreValue = 0;
 
-		if (widget != null && widget.getId() == WidgetInfo.INVENTORY.getId())
+		if (entry != null && entry.getParam1() == WidgetInfo.INVENTORY.getId())
 		{
-			final Effect change = itemStatService.getItemStatChanges(widget.getItemId());
+			final Effect change = itemStatService.getItemStatChanges(entry.getIdentifier());
 
 			if (change != null)
 			{
@@ -326,33 +312,16 @@ class StatusBarsOverlay extends Overlay
 
 	private void buildIcons()
 	{
-		if (heartIcon == null)
+		if (heartIcon != null && heartDisease != null && heartPoison != null && heartVenom != null && energyIcon != null && specialIcon != null)
 		{
-			heartIcon = loadAndResize(SpriteID.MINIMAP_ORB_HITPOINTS_ICON);
-		}
-		if (energyIcon == null)
-		{
-			energyIcon = loadAndResize(SpriteID.MINIMAP_ORB_WALK_ICON);
-		}
-		if (specialIcon == null)
-		{
-			specialIcon = loadAndResize(SpriteID.MINIMAP_ORB_SPECIAL_ICON);
-		}
-	}
-
-	private BufferedImage loadAndResize(int spriteId)
-	{
-		BufferedImage image = spriteManager.getSprite(spriteId, 0);
-		if (image == null)
-		{
-			return null;
+			return;
 		}
 
-		return ImageUtil.resizeCanvas(image, ICON_DIMENSIONS.width, ICON_DIMENSIONS.height);
-	}
-
-	private boolean inLms()
-	{
-		return client.getWidget(WidgetInfo.LMS_KDA) != null;
+		heartIcon = ImageUtil.resizeCanvas(Objects.requireNonNull(spriteManager.getSprite(SpriteID.MINIMAP_ORB_HITPOINTS_ICON, 0)), ICON_DIMENSIONS, ICON_DIMENSIONS);
+		heartDisease = ImageUtil.resizeCanvas(ImageUtil.loadImageResource(AlternateSprites.class, AlternateSprites.DISEASE_HEART), ICON_DIMENSIONS, ICON_DIMENSIONS);
+		heartPoison = ImageUtil.resizeCanvas(ImageUtil.loadImageResource(AlternateSprites.class, AlternateSprites.POISON_HEART), ICON_DIMENSIONS, ICON_DIMENSIONS);
+		heartVenom = ImageUtil.resizeCanvas(ImageUtil.loadImageResource(AlternateSprites.class, AlternateSprites.VENOM_HEART), ICON_DIMENSIONS, ICON_DIMENSIONS);
+		energyIcon = ImageUtil.resizeCanvas(Objects.requireNonNull(spriteManager.getSprite(SpriteID.MINIMAP_ORB_WALK_ICON, 0)), ICON_DIMENSIONS, ICON_DIMENSIONS);
+		specialIcon = ImageUtil.resizeCanvas(Objects.requireNonNull(spriteManager.getSprite(SpriteID.MINIMAP_ORB_SPECIAL_ICON, 0)), ICON_DIMENSIONS, ICON_DIMENSIONS);
 	}
 }

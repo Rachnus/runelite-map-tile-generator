@@ -39,7 +39,6 @@ import lombok.Getter;
 @Getter
 public enum VarPlayer
 {
-	CANNON_AMMO(3),
 	ATTACK_STYLE(43),
 	QUEST_POINTS(101),
 	IS_POISONED(102),
@@ -69,25 +68,10 @@ public enum VarPlayer
 	NMZ_REWARD_POINTS(1060),
 
 	/**
-	 * The poisoned status of the player, with negative values indicating the duration of poison or venom protection and
-	 * positive values representing the amount of poison or venom damage the player will be taking.
-	 *
-	 * <ul>
-	 *     <li>
-	 *         (-inf, -38): Venom immune for a duration of {@code (abs(val) - 38) * 30} game ticks (18 seconds per
-	 *         poison tick), after which point the value will have increased to {@code -38} and be representing poison
-	 *         immunity rather than venom immunity
-	 *     </li>
-	 *     <li>
-	 *         [-38, 0): Poison immune for a duration of {@code abs(val) * 30} game ticks (18 seconds per poison tick)
-	 *     </li>
-	 *     <li>0: Not poisoned or immune to poison</li>
-	 *     <li>[1, 100]: Poisoned for an amount of {@code ceil(val / 5.0f)}</li>
-	 *     <li>
-	 *         [1000000, inf): Venomed for an amount of {@code min(20, (val - 999997) * 2)}, that is, an amount starting
-	 *         at 6 damage, increasing by 2 each time the value increases by one, and capped at 20
-	 *     </li>
-	 * </ul>
+	 * -1 : Poison immune
+	 *  Normal poison damage is ceil( this / 5.0f )
+	 *  If this is greater than or equal to 1000000, the player is envenomed.
+	 *  Venom damage is (this - 999997) * 2
 	 */
 	POISON(102),
 
@@ -171,6 +155,29 @@ public enum VarPlayer
 	SLAYER_UNLOCK_1(1076),
 	SLAYER_UNLOCK_2(1344),
 
+	/**
+	 * Music track unlock bitfields
+	 */
+	MUSIC_TRACKS_UNLOCKED_1(20),
+	MUSIC_TRACKS_UNLOCKED_2(21),
+	MUSIC_TRACKS_UNLOCKED_3(22),
+	MUSIC_TRACKS_UNLOCKED_4(23),
+	MUSIC_TRACKS_UNLOCKED_5(24),
+	MUSIC_TRACKS_UNLOCKED_6(25),
+	MUSIC_TRACKS_UNLOCKED_7(298),
+	MUSIC_TRACKS_UNLOCKED_8(311),
+	MUSIC_TRACKS_UNLOCKED_9(346),
+	MUSIC_TRACKS_UNLOCKED_10(414),
+	MUSIC_TRACKS_UNLOCKED_11(464),
+	MUSIC_TRACKS_UNLOCKED_12(598),
+	MUSIC_TRACKS_UNLOCKED_13(662),
+	MUSIC_TRACKS_UNLOCKED_14(721),
+	MUSIC_TRACKS_UNLOCKED_15(906),
+	MUSIC_TRACKS_UNLOCKED_16(1009),
+	MUSIC_TRACKS_UNLOCKED_17(1338),
+	MUSIC_TRACKS_UNLOCKED_18(1681),
+	MUSIC_TRACKS_UNLOCKED_19(2065),
+
 	MUSIC_VOLUME(168),
 	SOUND_EFFECT_VOLUME(169),
 	AREA_EFFECT_VOLUME(872),
@@ -183,55 +190,7 @@ public enum VarPlayer
 	/**
 	 * {@link NpcID} for the HP HUD
 	 */
-	HP_HUD_NPC_ID(1683),
-
-	/**
-	 * Colors for chat messages
-	 */
-	SETTINGS_OPAQUE_CHAT_PUBLIC(2992),
-	SETTINGS_OPAQUE_CHAT_PRIVATE(2993),
-	SETTINGS_OPAQUE_CHAT_AUTO(2994),
-	SETTINGS_OPAQUE_CHAT_BROADCAST(2995),
-	SETTINGS_OPAQUE_CHAT_FRIEND(2996),
-	SETTINGS_OPAQUE_CHAT_CLAN(2997),
-	SETTINGS_OPAQUE_CHAT_GUEST_CLAN(3060),
-	SETTINGS_OPAQUE_CHAT_CLAN_BROADCAST(3192),
-	SETTINGS_OPAQUE_CHAT_IRON_GROUP_CHAT(3191),
-	SETTINGS_OPAQUE_CHAT_IRON_GROUP_BROADCAST(3193),
-	SETTINGS_OPAQUE_CHAT_TRADE_REQUEST(2998),
-	SETTINGS_OPAQUE_CHAT_CHALLENGE_REQUEST(2999),
-
-	SETTINGS_TRANSPARENT_CHAT_PUBLIC(3000),
-	SETTINGS_TRANSPARENT_CHAT_PRIVATE(3001),
-	SETTINGS_TRANSPARENT_CHAT_AUTO(3002),
-	SETTINGS_TRANSPARENT_CHAT_BROADCAST(3003),
-	SETTINGS_TRANSPARENT_CHAT_FRIEND(3004),
-	SETTINGS_TRANSPARENT_CHAT_CLAN(3005),
-	SETTINGS_TRANSPARENT_CHAT_GUEST_CLAN(3061),
-	SETTINGS_TRANSPARENT_CHAT_CLAN_BROADCAST(3195),
-	SETTINGS_TRANSPARENT_CHAT_IRON_GROUP_CHAT(3194),
-	SETTINGS_TRANSPARENT_CHAT_IRON_GROUP_BROADCAST(3196),
-	SETTINGS_TRANSPARENT_CHAT_TRADE_REQUEST(3006),
-	SETTINGS_TRANSPARENT_CHAT_CHALLENGE_REQUEST(3007),
-
-	/**
-	 * The difference, measured in minutes, between the time home teleport spell was last used and midnight, January 1, 1970 UTC.
-	 */
-	LAST_HOME_TELEPORT(892),
-
-	/**
-	 * Charge spell duration
-	 * Value * 2 = Remaining game ticks on buff
-	 * E.g. value of 50 means buff will expire in 100 ticks.
-	 */
-	CHARGE_GOD_SPELL(272),
-
-	/**
-	 * The difference, measured in minutes, between the time minigame teleport was last used and midnight, January 1, 1970 UTC.
-	 */
-	LAST_MINIGAME_TELEPORT(888),
-
-	;
+	HP_HUD_NPC_ID(1683);
 
 	private final int id;
 }

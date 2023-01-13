@@ -33,6 +33,7 @@ import static net.runelite.api.Varbits.BLAST_FURNACE_COFFER;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
+import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
@@ -55,7 +56,7 @@ class BlastFurnaceCofferOverlay extends OverlayPanel
 		this.client = client;
 		this.plugin = plugin;
 		this.config = config;
-		addMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Coffer overlay");
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Coffer overlay"));
 	}
 
 	@Override
@@ -70,7 +71,7 @@ class BlastFurnaceCofferOverlay extends OverlayPanel
 
 		if (sack != null)
 		{
-			final int coffer = client.getVarbitValue(BLAST_FURNACE_COFFER);
+			final int coffer = client.getVar(BLAST_FURNACE_COFFER);
 
 			sack.setHidden(true);
 

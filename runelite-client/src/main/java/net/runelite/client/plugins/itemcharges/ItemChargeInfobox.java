@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import lombok.Getter;
 import lombok.ToString;
+import net.runelite.api.EquipmentInventorySlot;
 import net.runelite.client.ui.overlay.infobox.Counter;
 
 @Getter
@@ -36,18 +37,21 @@ class ItemChargeInfobox extends Counter
 {
 	private final ItemChargePlugin plugin;
 	private final int item;
+	private final EquipmentInventorySlot slot;
 
 	ItemChargeInfobox(
 		ItemChargePlugin plugin,
 		BufferedImage image,
 		String name,
 		int charges,
-		int item)
+		int item,
+		EquipmentInventorySlot slot)
 	{
 		super(image, plugin, charges);
 		setTooltip(name);
 		this.plugin = plugin;
 		this.item = item;
+		this.slot = slot;
 	}
 
 	@Override

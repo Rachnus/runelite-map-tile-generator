@@ -45,7 +45,7 @@ public class ParamLoader
 					return def;
 				case 1:
 				{
-					int idx = b.readUnsignedByte();
+					int idx = b.readByte();
 					def.setType(ScriptVarType.forCharKey((char) idx));
 					break;
 				}

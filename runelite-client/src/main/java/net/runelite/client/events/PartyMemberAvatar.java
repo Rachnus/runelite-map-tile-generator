@@ -25,11 +25,12 @@
 package net.runelite.client.events;
 
 import java.awt.image.BufferedImage;
+import java.util.UUID;
 import lombok.Value;
 
 @Value
 public class PartyMemberAvatar
 {
-	private final long memberId;
+	private final UUID memberId;
 	private final BufferedImage image;
 }

@@ -31,6 +31,7 @@ import java.awt.Graphics2D;
 import javax.inject.Inject;
 import static net.runelite.api.MenuAction.RUNELITE_OVERLAY_CONFIG;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
+import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
@@ -48,7 +49,7 @@ class WintertodtOverlay extends OverlayPanel
 		this.plugin = plugin;
 		this.wintertodtConfig = wintertodtConfig;
 		setPosition(OverlayPosition.BOTTOM_LEFT);
-		addMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Wintertodt overlay");
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Wintertodt overlay"));
 	}
 
 	@Override

@@ -124,7 +124,7 @@ class XpInfoBox extends JPanel
 		// Create open xp tracker menu
 		final JMenuItem openXpTracker = new JMenuItem("Open Wise Old Man");
 		openXpTracker.addActionListener(e -> LinkBrowser.browse(XpPanel.buildXpTrackerUrl(
-			client.getWorldType(), client.getLocalPlayer(), skill)));
+			client.getLocalPlayer(), skill)));
 
 		// Create reset menu
 		final JMenuItem reset = new JMenuItem("Reset");
@@ -155,7 +155,6 @@ class XpInfoBox extends JPanel
 			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent popupMenuEvent)
 			{
-				openXpTracker.setVisible(xpTrackerConfig.wiseOldManOpenOption());
 				canvasItem.setText(xpTrackerPlugin.hasOverlay(skill) ? REMOVE_STATE : ADD_STATE);
 			}
 

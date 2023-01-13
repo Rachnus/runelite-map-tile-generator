@@ -29,11 +29,14 @@ import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import javax.inject.Named;
 import net.runelite.api.Client;
 import net.runelite.client.RuneLite;
+import net.runelite.client.account.AccountSession;
 import net.runelite.client.eventbus.EventBus;
 import org.junit.Assert;
 import static org.junit.Assert.assertNotNull;
@@ -70,10 +73,6 @@ public class ConfigManagerTest
 	@Bind
 	Client client;
 
-	@Mock
-	@Bind
-	ConfigClient configClient;
-
 	@Inject
 	ConfigManager manager;
 
@@ -86,6 +85,9 @@ public class ConfigManagerTest
 	@Test
 	public void testGetConfig() throws IOException
 	{
+		AccountSession accountSession = new AccountSession(UUID.randomUUID(), Instant.now());
+		accountSession.setUsername("test");
+
 		manager.setConfiguration("test", "key", "moo");
 
 		TestConfig conf = manager.getConfig(TestConfig.class);
@@ -95,6 +97,9 @@ public class ConfigManagerTest
 	@Test
 	public void testGetConfigDefault() throws IOException
 	{
+		AccountSession accountSession = new AccountSession(UUID.randomUUID(), Instant.now());
+		accountSession.setUsername("test");
+
 		TestConfig conf = manager.getConfig(TestConfig.class);
 		Assert.assertEquals("default", conf.key());
 	}
@@ -102,6 +107,9 @@ public class ConfigManagerTest
 	@Test
 	public void testSetConfig() throws IOException
 	{
+		AccountSession accountSession = new AccountSession(UUID.randomUUID(), Instant.now());
+		accountSession.setUsername("test");
+
 		TestConfig conf = manager.getConfig(TestConfig.class);
 		conf.key("new value");
 
@@ -111,6 +119,9 @@ public class ConfigManagerTest
 	@Test
 	public void testGetConfigDescriptor() throws IOException
 	{
+		AccountSession accountSession = new AccountSession(UUID.randomUUID(), Instant.now());
+		accountSession.setUsername("test");
+
 		TestConfig conf = manager.getConfig(TestConfig.class);
 		ConfigDescriptor descriptor = manager.getConfigDescriptor(conf);
 		Assert.assertEquals(2, descriptor.getItems().size());

@@ -24,28 +24,31 @@
  */
 package net.runelite.client.ui.overlay.worldmap;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.runelite.api.Client;
 import net.runelite.api.MenuAction;
+import net.runelite.api.MenuEntry;
 import net.runelite.api.Point;
+import net.runelite.api.RenderOverview;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.widgets.JavaScriptCallback;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
-import net.runelite.api.worldmap.WorldMap;
+import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.JagexColors;
 import net.runelite.client.ui.overlay.Overlay;
@@ -70,7 +73,7 @@ public class WorldMapOverlay extends Overlay
 	private final WorldMapPointManager worldMapPointManager;
 	private final Client client;
 
-	private WorldMapPoint hoveredPoint;
+	private final List<MenuEntry> mapMenuEntries = new ArrayList<>();
 
 	@Inject
 	private WorldMapOverlay(
@@ -104,26 +107,27 @@ public class WorldMapOverlay extends Overlay
 
 		bottomBar.setOnTimerListener((JavaScriptCallback) ev ->
 		{
-			WorldMapPoint worldPoint = hoveredPoint;
-			if (client.isMenuOpen() || worldPoint == null)
+			if (client.isMenuOpen() || mapMenuEntries.isEmpty())
 			{
 				return;
 			}
 
-			client.createMenuEntry(-1)
-				.setTarget(ColorUtil.wrapWithColorTag(worldPoint.getName(), JagexColors.MENU_TARGET))
-				.setOption(FOCUS_ON)
-				.setType(MenuAction.RUNELITE)
-				.onClick(m -> client.getWorldMap().setWorldMapPositionTarget(
-					MoreObjects.firstNonNull(worldPoint.getTarget(), worldPoint.getWorldPoint())));
+			MenuEntry[] entries = client.getMenuEntries();
+			int end = entries.length;
+			entries = Arrays.copyOf(entries, end + mapMenuEntries.size());
+			for (int i = 0; i < mapMenuEntries.size(); i++)
+			{
+				entries[end + i] = mapMenuEntries.get(i);
+			}
+			client.setMenuEntries(entries);
 		});
 		bottomBar.setHasListener(true);
 
 		final Rectangle worldMapRectangle = widget.getBounds();
-		final Shape mapViewArea = getWorldMapClipArea(worldMapRectangle);
+		final Area mapViewArea = getWorldMapClipArea(worldMapRectangle);
 		final Rectangle canvasBounds = new Rectangle(0, 0, client.getCanvasWidth(), client.getCanvasHeight());
-		final Shape canvasViewArea = getWorldMapClipArea(canvasBounds);
-		Shape currentClip = null;
+		final Area canvasViewArea = getWorldMapClipArea(canvasBounds);
+		Area currentClip = null;
 
 		Point mousePos = client.getMouseCanvasPosition();
 		if (!mapViewArea.contains(mousePos.getX(), mousePos.getY()))
@@ -131,7 +135,7 @@ public class WorldMapOverlay extends Overlay
 			mousePos = null;
 		}
 
-		hoveredPoint = null;
+		mapMenuEntries.clear();
 
 		WorldMapPoint tooltipPoint = null;
 
@@ -223,7 +227,19 @@ public class WorldMapOverlay extends Overlay
 					if (worldPoint.isJumpOnClick())
 					{
 						assert worldPoint.getName() != null;
-						hoveredPoint = worldPoint;
+
+						WorldPoint target = worldPoint.getTarget();
+						if (target == null)
+						{
+							target = worldPoint.getWorldPoint();
+						}
+
+						MenuEntry entry = new MenuEntry();
+						entry.setType(MenuAction.RUNELITE.getId());
+						entry.setOption(FOCUS_ON);
+						entry.setTarget(ColorUtil.wrapWithColorTag(worldPoint.getName(), JagexColors.MENU_TARGET));
+						entry.setIdentifier(target.getPlane() << 28 | target.getX() << 14 | target.getY());
+						mapMenuEntries.add(entry);
 					}
 				}
 			}
@@ -243,6 +259,21 @@ public class WorldMapOverlay extends Overlay
 		return null;
 	}
 
+	@Subscribe
+	private void onMenuOptionClicked(MenuOptionClicked ev)
+	{
+		if (ev.getMenuAction() == MenuAction.RUNELITE && FOCUS_ON.equals(ev.getMenuOption()))
+		{
+			int pxy = ev.getId();
+			WorldPoint wp = new WorldPoint(
+				pxy >> 14 & 0x3fff,
+				pxy & 0x3fff,
+				pxy >> 28);
+
+			client.getRenderOverview().setWorldMapPositionTarget(wp);
+		}
+	}
+
 	/**
 	 * Get the screen coordinates for a WorldPoint on the world map
 	 *
@@ -251,14 +282,14 @@ public class WorldMapOverlay extends Overlay
 	 */
 	public Point mapWorldPointToGraphicsPoint(WorldPoint worldPoint)
 	{
-		WorldMap worldMap = client.getWorldMap();
+		RenderOverview ro = client.getRenderOverview();
 
-		if (!worldMap.getWorldMapData().surfaceContainsPosition(worldPoint.getX(), worldPoint.getY()))
+		if (!ro.getWorldMapData().surfaceContainsPosition(worldPoint.getX(), worldPoint.getY()))
 		{
 			return null;
 		}
 
-		float pixelsPerTile = worldMap.getWorldMapZoom();
+		float pixelsPerTile = ro.getWorldMapZoom();
 
 		Widget map = client.getWidget(WidgetInfo.WORLD_MAP_VIEW);
 		if (map != null)
@@ -268,7 +299,7 @@ public class WorldMapOverlay extends Overlay
 			int widthInTiles = (int) Math.ceil(worldMapRect.getWidth() / pixelsPerTile);
 			int heightInTiles = (int) Math.ceil(worldMapRect.getHeight() / pixelsPerTile);
 
-			Point worldMapPosition = worldMap.getWorldMapPosition();
+			Point worldMapPosition = ro.getWorldMapPosition();
 
 			//Offset in tiles from anchor sides
 			int yTileMax = worldMapPosition.getY() - heightInTiles / 2;
@@ -298,29 +329,24 @@ public class WorldMapOverlay extends Overlay
 	 * @return              An {@link Area} representing <code>baseRectangle</code>, with the area
 	 *                      of visible widgets overlaying the world map clipped from it.
 	 */
-	private Shape getWorldMapClipArea(Rectangle baseRectangle)
+	private Area getWorldMapClipArea(Rectangle baseRectangle)
 	{
 		final Widget overview = client.getWidget(WidgetInfo.WORLD_MAP_OVERVIEW_MAP);
 		final Widget surfaceSelector = client.getWidget(WidgetInfo.WORLD_MAP_SURFACE_SELECTOR);
 
 		Area clipArea = new Area(baseRectangle);
-		boolean subtracted = false;
 
 		if (overview != null && !overview.isHidden())
 		{
 			clipArea.subtract(new Area(overview.getBounds()));
-			subtracted = true;
 		}
 
 		if (surfaceSelector != null && !surfaceSelector.isHidden())
 		{
 			clipArea.subtract(new Area(surfaceSelector.getBounds()));
-			subtracted = true;
 		}
 
-		// The sun g2d implementation is much more efficient at applying clips which are subclasses of rectangle2d,
-		// so use that as the clip shape if possible
-		return subtracted ? clipArea : baseRectangle;
+		return clipArea;
 	}
 
 	private void drawTooltip(Graphics2D graphics, WorldMapPoint worldPoint)
@@ -342,7 +368,7 @@ public class WorldMapOverlay extends Overlay
 		drawPoint = new Point(drawPoint.getX() + TOOLTIP_OFFSET_WIDTH, drawPoint.getY() + TOOLTIP_OFFSET_HEIGHT);
 
 		final Rectangle bounds = new Rectangle(0, 0, client.getCanvasWidth(), client.getCanvasHeight());
-		final Shape mapArea = getWorldMapClipArea(bounds);
+		final Area mapArea = getWorldMapClipArea(bounds);
 		graphics.setClip(mapArea);
 		graphics.setColor(JagexColors.TOOLTIP_BACKGROUND);
 		graphics.setFont(FontManager.getRunescapeFont());

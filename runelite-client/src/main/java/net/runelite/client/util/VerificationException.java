@@ -31,11 +31,6 @@ public class VerificationException extends Exception
 		super(message);
 	}
 
-	public VerificationException(Throwable cause)
-	{
-		super(cause);
-	}
-
 	public VerificationException(String message, Throwable cause)
 	{
 		super(message, cause);

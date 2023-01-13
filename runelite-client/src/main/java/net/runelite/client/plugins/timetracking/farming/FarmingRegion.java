@@ -25,6 +25,7 @@
 package net.runelite.client.plugins.timetracking.farming;
 
 import lombok.Getter;
+import net.runelite.api.Varbits;
 import net.runelite.api.coords.WorldPoint;
 
 @Getter
@@ -34,6 +35,7 @@ public class FarmingRegion
 	private final int regionID;
 	private final boolean definite;
 	private final FarmingPatch[] patches;
+	private final Varbits[] varbits;
 
 	FarmingRegion(String name, int regionID, boolean definite, FarmingPatch... patches)
 	{
@@ -41,9 +43,12 @@ public class FarmingRegion
 		this.regionID = regionID;
 		this.definite = definite;
 		this.patches = patches;
-		for (FarmingPatch p : patches)
+		this.varbits = new Varbits[patches.length];
+		for (int i = 0; i < patches.length; i++)
 		{
+			FarmingPatch p = patches[i];
 			p.setRegion(this);
+			varbits[i] = p.getVarbit();
 		}
 	}
 

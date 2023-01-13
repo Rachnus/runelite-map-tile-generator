@@ -34,6 +34,7 @@ import net.runelite.api.MenuAction;
 import net.runelite.api.Skill;
 import net.runelite.client.plugins.xptracker.XpTrackerService;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
+import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
@@ -41,7 +42,7 @@ import net.runelite.client.ui.overlay.components.TitleComponent;
 
 class MiningOverlay extends OverlayPanel
 {
-	private static final String MINING_RESET = "Reset";
+	static final String MINING_RESET = "Reset";
 
 	private final Client client;
 	private final MiningPlugin plugin;
@@ -57,8 +58,8 @@ class MiningOverlay extends OverlayPanel
 		this.plugin = plugin;
 		this.config = config;
 		this.xpTrackerService = xpTrackerService;
-		addMenuEntry(MenuAction.RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Mining overlay");
-		addMenuEntry(MenuAction.RUNELITE_OVERLAY, MINING_RESET, "Mining overlay", e -> plugin.setSession(null));
+		getMenuEntries().add(new OverlayMenuEntry(MenuAction.RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Mining overlay"));
+		getMenuEntries().add(new OverlayMenuEntry(MenuAction.RUNELITE_OVERLAY, MINING_RESET, "Mining overlay"));
 	}
 
 	@Override

@@ -24,10 +24,10 @@
  */
 package net.runelite.client.plugins.cluescrolls.clues;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import static net.runelite.api.ItemID.*;
 import net.runelite.api.ObjectComposition;
@@ -58,7 +58,7 @@ public class MapClue extends ClueScroll implements ObjectClueScroll
 	public static final String WIZARDS_TOWER_DIS = "On the south side of the Wizard's Tower (DIS)";
 	public static final String SOUTH_OF_DRAYNOR_BANK = "South of Draynor Village Bank";
 
-	static final List<MapClue> CLUES = ImmutableList.of(
+	private static final Set<MapClue> CLUES = ImmutableSet.of(
 		new MapClue(CLUE_SCROLL_EASY_12179, new WorldPoint(3300, 3291, 0), "Al Kharid mine"),
 		new MapClue(CLUE_SCROLL_EASY_2713, new WorldPoint(3166, 3361, 0), CHAMPIONS_GUILD),
 		new MapClue(CLUE_SCROLL_EASY_2716, new WorldPoint(3290, 3374, 0), VARROCK_EAST_MINE),
@@ -89,15 +89,18 @@ public class MapClue extends ClueScroll implements ObjectClueScroll
 		new MapClue(CLUE_SCROLL_ELITE_19783, new WorldPoint(2202, 3062, 0), "Zul-Andra. Fairy ring BJS"),
 		new MapClue(CLUE_SCROLL_ELITE_19784, new WorldPoint(1815, 3852, 0), "At the Soul Altar, north-east of the Arceuus essence mine."),
 		new MapClue(CLUE_SCROLL_ELITE_19785, new WorldPoint(3538, 3208, 0), "East of Burgh de Rott."),
-		new MapClue(CLUE_SCROLL_ELITE_19786, new WorldPoint(2703, 2716, 0), CRATE_6616, "The crate in south-western Ape Atoll"),
-		new MapClue(TREASURE_SCROLL_23068, new WorldPoint(3203, 3213, 0), "Behind Lumbridge Castle, just outside the kitchen door"),
-		new MapClue(MYSTERIOUS_ORB_23069, new WorldPoint(3108, 3262, 0), "South-west of the wheat field east of Draynor Village.")
+		new MapClue(CLUE_SCROLL_ELITE_19786, new WorldPoint(2703, 2716, 0), CRATE_6616, "The crate in south-western Ape Atoll")
 	);
 
 	private final int itemId;
 	private final WorldPoint location;
 	private final int objectId;
 	private final String description;
+
+	private MapClue(int itemId, WorldPoint location)
+	{
+		this(itemId, location, -1);
+	}
 
 	private MapClue(int itemId, WorldPoint location, int objectId)
 	{
@@ -156,8 +159,6 @@ public class MapClue extends ClueScroll implements ObjectClueScroll
 				.left(description)
 				.build());
 		}
-
-		renderOverlayNote(panelComponent, plugin);
 	}
 
 	@Override
@@ -210,11 +211,5 @@ public class MapClue extends ClueScroll implements ObjectClueScroll
 	public int[] getObjectIds()
 	{
 		return new int[] {objectId};
-	}
-
-	@Override
-	public int[] getConfigKeys()
-	{
-		return new int[]{location.hashCode()};
 	}
 }

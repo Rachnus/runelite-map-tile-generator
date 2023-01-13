@@ -44,7 +44,6 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.api.widgets.WidgetModalMode;
 import net.runelite.client.config.ConfigManager;
-import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.RuneScapeProfileChanged;
@@ -55,10 +54,8 @@ import static net.runelite.client.plugins.timetracking.TimeTrackingConfig.PREFER
 import static net.runelite.client.plugins.timetracking.TimeTrackingConfig.STOPWATCHES;
 import static net.runelite.client.plugins.timetracking.TimeTrackingConfig.TIMERS;
 import net.runelite.client.plugins.timetracking.clocks.ClockManager;
-import net.runelite.client.plugins.timetracking.farming.CompostTracker;
 import net.runelite.client.plugins.timetracking.farming.FarmingContractManager;
 import net.runelite.client.plugins.timetracking.farming.FarmingTracker;
-import net.runelite.client.plugins.timetracking.farming.PaymentTracker;
 import net.runelite.client.plugins.timetracking.hunter.BirdHouseTracker;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
@@ -79,15 +76,6 @@ public class TimeTrackingPlugin extends Plugin
 
 	@Inject
 	private Client client;
-
-	@Inject
-	private EventBus eventBus;
-
-	@Inject
-	private CompostTracker compostTracker;
-
-	@Inject
-	private PaymentTracker paymentTracker;
 
 	@Inject
 	private FarmingTracker farmingTracker;
@@ -137,9 +125,6 @@ public class TimeTrackingPlugin extends Plugin
 		birdHouseTracker.loadFromConfig();
 		farmingTracker.loadCompletionTimes();
 
-		eventBus.register(compostTracker);
-		eventBus.register(paymentTracker);
-
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "watch.png");
 
 		panel = injector.getInstance(TimeTrackingPanel.class);
@@ -162,9 +147,6 @@ public class TimeTrackingPlugin extends Plugin
 	{
 		lastTickLocation = null;
 		lastTickPostLogin = false;
-
-		eventBus.unregister(paymentTracker);
-		eventBus.unregister(compostTracker);
 
 		if (panelUpdateFuture != null)
 		{
@@ -205,8 +187,8 @@ public class TimeTrackingPlugin extends Plugin
 	{
 		if (commandExecuted.getCommand().equals("resetfarmtick"))
 		{
-			configManager.unsetRSProfileConfiguration(CONFIG_GROUP, TimeTrackingConfig.FARM_TICK_OFFSET_PRECISION);
-			configManager.unsetRSProfileConfiguration(CONFIG_GROUP, TimeTrackingConfig.FARM_TICK_OFFSET);
+			configManager.unsetRSProfileConfiguration(TimeTrackingConfig.CONFIG_GROUP, TimeTrackingConfig.FARM_TICK_OFFSET_PRECISION);
+			configManager.unsetRSProfileConfiguration(TimeTrackingConfig.CONFIG_GROUP, TimeTrackingConfig.FARM_TICK_OFFSET);
 		}
 	}
 

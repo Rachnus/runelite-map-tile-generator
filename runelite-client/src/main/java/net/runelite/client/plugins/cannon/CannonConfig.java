@@ -30,6 +30,7 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.Range;
+import static net.runelite.client.plugins.cannon.CannonPlugin.MAX_CBALLS;
 
 @ConfigGroup("cannon")
 public interface CannonConfig extends Config
@@ -46,7 +47,7 @@ public interface CannonConfig extends Config
 	}
 
 	@Range(
-		max = 60
+		max = MAX_CBALLS
 	)
 	@ConfigItem(
 		keyName = "lowWarningThreshold",

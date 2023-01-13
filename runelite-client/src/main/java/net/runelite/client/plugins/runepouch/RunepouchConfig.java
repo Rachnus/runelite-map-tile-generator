@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2017, Tyler <https://github.com/tylerthardy>
- * Copyright (c) 2022, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,20 +28,11 @@ import java.awt.Color;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.plugins.runepouch.config.RunePouchOverlayMode;
 
 @ConfigGroup("runepouch")
 public interface RunepouchConfig extends Config
 {
-	enum RunepouchOverlayMode
-	{
-		// only show item overlay
-		INVENTORY,
-		// only show tooltip
-		MOUSE_HOVER,
-		// show both tooltip and item overlay
-		BOTH
-	}
-
 	@ConfigItem(
 		keyName = "fontcolor",
 		name = "Font Color",
@@ -55,13 +45,24 @@ public interface RunepouchConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "runeicons",
+		name = "Show Rune Icons",
+		description = "Show the rune icons next to the number of runes in pouch",
+		position = 2
+	)
+	default boolean showIcons()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "runePouchOverlayMode",
 		name = "Display mode",
 		description = "Configures where rune pouch overlay is displayed",
 		position = 3
 	)
-	default RunepouchOverlayMode runePouchOverlayMode()
+	default RunePouchOverlayMode runePouchOverlayMode()
 	{
-		return RunepouchOverlayMode.BOTH;
+		return RunePouchOverlayMode.BOTH;
 	}
 }

@@ -34,22 +34,18 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import net.runelite.api.AnimationID;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
 import net.runelite.api.GameState;
-import net.runelite.api.HintArrowType;
-import static net.runelite.api.ObjectID.DEPLETED_VEIN;
+import static net.runelite.api.HintArrowType.WORLD_POSITION;
+import net.runelite.api.MenuAction;
 import static net.runelite.api.ObjectID.DEPLETED_VEIN_26665;
 import static net.runelite.api.ObjectID.DEPLETED_VEIN_26666;
 import static net.runelite.api.ObjectID.DEPLETED_VEIN_26667;
 import static net.runelite.api.ObjectID.DEPLETED_VEIN_26668;
 import static net.runelite.api.ObjectID.EMPTY_WALL;
-import static net.runelite.api.ObjectID.MINERAL_VEIN;
-import static net.runelite.api.ObjectID.MINERAL_VEIN_5990;
-import static net.runelite.api.ObjectID.MINERAL_VEIN_5991;
 import static net.runelite.api.ObjectID.ORE_VEIN_26661;
 import static net.runelite.api.ObjectID.ORE_VEIN_26662;
 import static net.runelite.api.ObjectID.ORE_VEIN_26663;
@@ -70,11 +66,13 @@ import net.runelite.api.events.GameTick;
 import net.runelite.api.events.WallObjectSpawned;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.OverlayMenuClicked;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.xptracker.XpTrackerPlugin;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.ui.overlay.OverlayMenuEntry;
 
 @PluginDescriptor(
 	name = "Mining",
@@ -110,7 +108,6 @@ public class MiningPlugin extends Plugin
 
 	@Getter
 	@Nullable
-	@Setter(AccessLevel.PACKAGE)
 	private MiningSession session;
 
 	@Getter(AccessLevel.PACKAGE)
@@ -143,6 +140,18 @@ public class MiningPlugin extends Plugin
 		overlayManager.remove(rocksOverlay);
 		respawns.forEach(respawn -> clearHintArrowAt(respawn.getWorldPoint()));
 		respawns.clear();
+	}
+
+	@Subscribe
+	public void onOverlayMenuClicked(OverlayMenuClicked overlayMenuClicked)
+	{
+		OverlayMenuEntry overlayMenuEntry = overlayMenuClicked.getEntry();
+		if (overlayMenuEntry.getMenuAction() == MenuAction.RUNELITE_OVERLAY
+			&& overlayMenuClicked.getEntry().getOption().equals(MiningOverlay.MINING_RESET)
+			&& overlayMenuClicked.getOverlay() == overlay)
+		{
+			session = null;
+		}
 	}
 
 	@Subscribe
@@ -275,7 +284,7 @@ public class MiningPlugin extends Plugin
 
 	private void clearHintArrowAt(WorldPoint worldPoint)
 	{
-		if (client.getHintArrowType() == HintArrowType.COORDINATE && client.getHintArrowPoint().equals(worldPoint))
+		if (client.getHintArrowType() == WORLD_POSITION && client.getHintArrowPoint().equals(worldPoint))
 		{
 			client.clearHintArrow();
 		}
@@ -346,22 +355,12 @@ public class MiningPlugin extends Plugin
 				respawns.add(rockRespawn);
 				break;
 			}
-			case DEPLETED_VEIN: // Depleted gold vein
-			{
-				Rock rock = Rock.MINERAL_VEIN;
-				RockRespawn rockRespawn = new RockRespawn(rock, object.getWorldLocation(), Instant.now(), (int) rock.getRespawnTime(region).toMillis(), rock.getZOffset());
-				respawns.add(rockRespawn);
-				break;
-			}
 			case ORE_VEIN_26661: // Motherlode vein
 			case ORE_VEIN_26662: // Motherlode vein
 			case ORE_VEIN_26663: // Motherlode vein
 			case ORE_VEIN_26664: // Motherlode vein
 			case ROCKS_41547: // Barronite vein
 			case ROCKS_41548: // Barronite vein
-			case MINERAL_VEIN: // Arzinian gold vein
-			case MINERAL_VEIN_5990: // Gold vein
-			case MINERAL_VEIN_5991: // Gold vein
 			{
 				// If the vein respawns before the timer is up, remove it
 				final WorldPoint point = object.getWorldLocation();

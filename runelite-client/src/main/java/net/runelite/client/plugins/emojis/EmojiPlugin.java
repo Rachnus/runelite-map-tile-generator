@@ -37,6 +37,7 @@ import net.runelite.api.IndexedSprite;
 import net.runelite.api.MessageNode;
 import net.runelite.api.Player;
 import net.runelite.api.events.ChatMessage;
+import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.OverheadTextChanged;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.Subscribe;
@@ -66,27 +67,27 @@ public class EmojiPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
-		clientThread.invoke(() ->
+		clientThread.invoke(this::loadEmojiIcons);
+	}
+
+	@Subscribe
+	public void onGameStateChanged(GameStateChanged gameStateChanged)
+	{
+		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
 		{
-			if (client.getModIcons() == null)
-			{
-				return false;
-			}
 			loadEmojiIcons();
-			return true;
-		});
+		}
 	}
 
 	private void loadEmojiIcons()
 	{
-		if (modIconsStart != -1)
+		final IndexedSprite[] modIcons = client.getModIcons();
+		if (modIconsStart != -1 || modIcons == null)
 		{
 			return;
 		}
 
 		final Emoji[] emojis = Emoji.values();
-		final IndexedSprite[] modIcons = client.getModIcons();
-		assert modIcons != null;
 		final IndexedSprite[] newModIcons = Arrays.copyOf(modIcons, modIcons.length + emojis.length);
 		modIconsStart = modIcons.length;
 
@@ -125,7 +126,6 @@ public class EmojiPlugin extends Plugin
 			case FRIENDSCHAT:
 			case CLAN_CHAT:
 			case CLAN_GUEST_CHAT:
-			case CLAN_GIM_CHAT:
 			case PRIVATECHAT:
 			case PRIVATECHATOUT:
 			case MODPRIVATECHAT:

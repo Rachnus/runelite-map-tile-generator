@@ -35,10 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -144,15 +141,6 @@ public class ExternalPluginManager
 			return;
 		}
 
-		Set<String> builtinExternalClasses = new HashSet<>();
-		if (builtinExternals != null)
-		{
-			for (Class<? extends Plugin> pluginClass : builtinExternals)
-			{
-				builtinExternalClasses.add(pluginClass.getName());
-			}
-		}
-
 		Multimap<ExternalPluginManifest, Plugin> loadedExternalPlugins = HashMultimap.create();
 		for (Plugin p : pluginManager.getPlugins())
 		{
@@ -179,9 +167,6 @@ public class ExternalPluginManager
 				SplashScreen.init();
 			}
 
-			Instant now = Instant.now();
-			Instant keepAfter = now.minus(3, ChronoUnit.DAYS);
-
 			SplashScreen.stage(splashStart, null, "Downloading external plugins");
 			Set<ExternalPluginManifest> externalPlugins = new HashSet<>();
 
@@ -202,15 +187,8 @@ public class ExternalPluginManager
 					ExternalPluginManifest manifest = manifests.get(name);
 					if (manifest != null)
 					{
-						if (Arrays.stream(manifest.getPlugins()).anyMatch(builtinExternalClasses::contains))
-						{
-							log.debug("Skipping loading [{}] from hub as a conflicting builtin external is present", manifest.getInternalName());
-							continue;
-						}
-
 						externalPlugins.add(manifest);
 
-						manifest.getJarFile().setLastModified(now.toEpochMilli());
 						if (!manifest.isValid())
 						{
 							needsDownload.add(manifest);
@@ -228,7 +206,7 @@ public class ExternalPluginManager
 				{
 					for (File fi : files)
 					{
-						if (!keep.contains(fi) && fi.lastModified() < keepAfter.toEpochMilli())
+						if (!keep.contains(fi))
 						{
 							fi.delete();
 						}
@@ -446,13 +424,6 @@ public class ExternalPluginManager
 
 	public static void loadBuiltin(Class<? extends Plugin>... plugins)
 	{
-		boolean assertsEnabled = false;
-		assert (assertsEnabled = true);
-		if (!assertsEnabled)
-		{
-			throw new RuntimeException("Assertions are not enabled, add '-ea' to your VM options. Enabling assertions during development catches undefined behavior and incorrect API usage.");
-		}
-
 		builtinExternals = plugins;
 	}
 }

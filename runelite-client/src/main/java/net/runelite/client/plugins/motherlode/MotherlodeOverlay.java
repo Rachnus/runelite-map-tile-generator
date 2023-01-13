@@ -32,24 +32,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import javax.inject.Inject;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_3A;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_ADAMANT;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_BLACK;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_BRONZE;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_CRYSTAL;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_DRAGON;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_DRAGON_OR;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_DRAGON_OR_TRAILBLAZER;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_DRAGON_UPGRADED;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_GILDED;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_INFERNAL;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_IRON;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_MITHRIL;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_RUNE;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_STEEL;
-import static net.runelite.api.AnimationID.MINING_MOTHERLODE_TRAILBLAZER;
+import static net.runelite.api.AnimationID.*;
 import net.runelite.api.Client;
 import static net.runelite.api.MenuAction.RUNELITE_OVERLAY;
+import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
@@ -65,7 +51,7 @@ class MotherlodeOverlay extends OverlayPanel
 		MINING_MOTHERLODE_INFERNAL, MINING_MOTHERLODE_3A, MINING_MOTHERLODE_CRYSTAL,
 		MINING_MOTHERLODE_TRAILBLAZER
 	);
-	private static final String MINING_RESET = "Reset";
+	static final String MINING_RESET = "Reset";
 
 	private final Client client;
 	private final MotherlodePlugin plugin;
@@ -81,7 +67,7 @@ class MotherlodeOverlay extends OverlayPanel
 		this.plugin = plugin;
 		this.motherlodeSession = motherlodeSession;
 		this.config = config;
-		addMenuEntry(RUNELITE_OVERLAY, MINING_RESET, "Motherlode mine overlay", e -> plugin.reset());
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY, MINING_RESET, "Motherlode mine overlay"));
 	}
 
 	@Override

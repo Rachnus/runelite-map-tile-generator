@@ -45,10 +45,11 @@ import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.MenuEntry;
+import net.runelite.api.events.WidgetMenuOptionClicked;
 import static net.runelite.api.widgets.WidgetInfo.MINIMAP_WORLDMAP_OPTIONS;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
+import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.chatbox.ChatboxPanelManager;
 import net.runelite.client.menus.MenuManager;
 import net.runelite.client.menus.WidgetMenuOption;
@@ -81,13 +82,13 @@ class GroundMarkerSharingManager
 
 	void addImportExportMenuOptions()
 	{
-		menuManager.addManagedCustomMenu(EXPORT_MARKERS_OPTION, this::exportGroundMarkers);
-		menuManager.addManagedCustomMenu(IMPORT_MARKERS_OPTION, this::promptForImport);
+		menuManager.addManagedCustomMenu(EXPORT_MARKERS_OPTION);
+		menuManager.addManagedCustomMenu(IMPORT_MARKERS_OPTION);
 	}
 
 	void addClearMenuOption()
 	{
-		menuManager.addManagedCustomMenu(CLEAR_MARKERS_OPTION, this::promptForClear);
+		menuManager.addManagedCustomMenu(CLEAR_MARKERS_OPTION);
 	}
 
 	void removeMenuOptions()
@@ -97,7 +98,36 @@ class GroundMarkerSharingManager
 		menuManager.removeManagedCustomMenu(CLEAR_MARKERS_OPTION);
 	}
 
-	private void exportGroundMarkers(MenuEntry menuEntry)
+	private boolean widgetMenuClickedEquals(final WidgetMenuOptionClicked event, final WidgetMenuOption target)
+	{
+		return event.getMenuTarget().equals(target.getMenuTarget()) &&
+			event.getMenuOption().equals(target.getMenuOption());
+	}
+
+	@Subscribe
+	public void onWidgetMenuOptionClicked(WidgetMenuOptionClicked event)
+	{
+		// ensure that the option clicked is the export markers option
+		if (event.getWidget() != MINIMAP_WORLDMAP_OPTIONS)
+		{
+			return;
+		}
+
+		if (widgetMenuClickedEquals(event, EXPORT_MARKERS_OPTION))
+		{
+			exportGroundMarkers();
+		}
+		else if (widgetMenuClickedEquals(event, IMPORT_MARKERS_OPTION))
+		{
+			promptForImport();
+		}
+		else if (widgetMenuClickedEquals(event, CLEAR_MARKERS_OPTION))
+		{
+			promptForClear();
+		}
+	}
+
+	private void exportGroundMarkers()
 	{
 		int[] regions = client.getMapRegions();
 		if (regions == null)
@@ -126,7 +156,7 @@ class GroundMarkerSharingManager
 		sendChatMessage(activePoints.size() + " ground markers were copied to your clipboard.");
 	}
 
-	private void promptForImport(MenuEntry menuEntry)
+	private void promptForImport()
 	{
 		final String clipboardText;
 		try
@@ -214,7 +244,7 @@ class GroundMarkerSharingManager
 		sendChatMessage(importPoints.size() + " ground markers were imported from the clipboard.");
 	}
 
-	private void promptForClear(MenuEntry entry)
+	private void promptForClear()
 	{
 		int[] regions = client.getMapRegions();
 		if (regions == null)

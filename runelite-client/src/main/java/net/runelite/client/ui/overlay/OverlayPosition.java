@@ -28,9 +28,7 @@ public enum OverlayPosition
 {
 	/**
 	 * Not attached anywhere, but still movable
-	 * Deprecated. Use DYNAMIC and setMovable(true)
 	 */
-	@Deprecated
 	DETACHED,
 	/**
 	 * Overlay places itself where it wants

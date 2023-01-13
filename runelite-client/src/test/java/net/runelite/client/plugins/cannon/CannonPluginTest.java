@@ -31,9 +31,10 @@ import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import javax.inject.Inject;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.VarPlayer;
+import net.runelite.api.InventoryID;
+import net.runelite.api.ItemContainer;
+import net.runelite.api.ItemID;
 import net.runelite.api.events.ChatMessage;
-import net.runelite.api.events.VarbitChanged;
 import net.runelite.client.Notifier;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -41,13 +42,11 @@ import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -90,102 +89,98 @@ public class CannonPluginTest
 	@Bind
 	private OverlayManager overlayManager;
 
-	private final VarbitChanged cannonAmmoChanged = new VarbitChanged();
+	private static final ChatMessage ADD_FURNACE = new ChatMessage();
+
+	@BeforeClass
+	public static void chatMessageSetup()
+	{
+		ADD_FURNACE.setType(ChatMessageType.SPAM);
+		ADD_FURNACE.setMessage("You add the furnace.");
+	}
 
 	@Before
 	public void before()
 	{
 		Guice.createInjector(BoundFieldModule.of(this)).injectMembers(this);
-		cannonAmmoChanged.setVarpId(VarPlayer.CANNON_AMMO.getId());
 	}
 
 	@Test
-	public void testAmmoCountOnPlace()
+	public void addWrongTypeOfCannonballs()
 	{
-		ChatMessage chatMessage = new ChatMessage();
-		chatMessage.setType(ChatMessageType.SPAM);
-		chatMessage.setMessage("You add the furnace.");
+		final ChatMessage message = new ChatMessage();
+		message.setType(ChatMessageType.GAMEMESSAGE);
+		message.setMessage("Your cannon contains 20 x Cannonball.<br>You can only add cannonballs of the same kind.");
 
-		plugin.onChatMessage(chatMessage);
+		plugin.onChatMessage(message);
+
+		assertEquals(20, plugin.getCballsLeft());
+	}
+
+	@Test
+	public void addMaxCannonballs()
+	{
+		final ItemContainer inventory = mock(ItemContainer.class);
+		when(client.getItemContainer(InventoryID.INVENTORY)).thenReturn(inventory);
+		when(inventory.count(ItemID.CANNONBALL)).thenReturn(100);
+		when(inventory.count(ItemID.GRANITE_CANNONBALL)).thenReturn(0);
+
+		plugin.onChatMessage(ADD_FURNACE);
 		assertTrue(plugin.isCannonPlaced());
 
-		plugin.onVarbitChanged(cannonAmmoChanged);
-		assertEquals(0, plugin.getCballsLeft());
+		assertEquals(30, plugin.getCballsLeft());
 
-		// Some time passes...
-
-		cannonAmmoChanged.setValue(30);
-		plugin.onVarbitChanged(cannonAmmoChanged);
+		plugin.onChatMessage(loadCannonballs(30));
 		assertEquals(30, plugin.getCballsLeft());
 	}
 
 	@Test
-	public void testCannonInfoBox()
+	public void addNotMaxCannonballs()
 	{
-		when(config.showInfobox()).thenReturn(true);
+		final ItemContainer inventory = mock(ItemContainer.class);
+		when(client.getItemContainer(InventoryID.INVENTORY)).thenReturn(inventory);
+		when(inventory.count(ItemID.GRANITE_CANNONBALL)).thenReturn(12);
 
-		ChatMessage chatMessage = new ChatMessage();
-		chatMessage.setType(ChatMessageType.SPAM);
-		chatMessage.setMessage("You add the furnace.");
-
-		plugin.onChatMessage(chatMessage);
+		plugin.onChatMessage(ADD_FURNACE);
 		assertTrue(plugin.isCannonPlaced());
 
 		assertEquals(0, plugin.getCballsLeft());
-		verify(infoBoxManager).addInfoBox(any(CannonCounter.class));
+
+		plugin.onChatMessage(loadCannonballs(12));
+		assertEquals(12, plugin.getCballsLeft());
 	}
 
 	@Test
-	public void testThresholdNotificationShouldNotify()
+	public void addReclaimedCannonballs()
 	{
-		when(config.showCannonNotifications()).thenReturn(true);
-		when(config.lowWarningThreshold()).thenReturn(10);
+		final ItemContainer inventory = mock(ItemContainer.class);
+		when(client.getItemContainer(InventoryID.INVENTORY)).thenReturn(inventory);
+		when(inventory.count(ItemID.CANNONBALL)).thenReturn(1250);
 
-		cannonAmmoChanged.setValue(30);
-		plugin.onVarbitChanged(cannonAmmoChanged);
-		cannonAmmoChanged.setValue(10);
-		plugin.onVarbitChanged(cannonAmmoChanged);
+		plugin.onChatMessage(ADD_FURNACE);
+		assertTrue(plugin.isCannonPlaced());
 
-		verify(notifier, times(1)).notify("Your cannon has 10 cannon balls remaining!");
+		assertEquals(30, plugin.getCballsLeft());
+
+		plugin.onChatMessage(loadCannonballs(18));
+		assertEquals(30, plugin.getCballsLeft());
 	}
 
-	@Test
-	public void testThresholdNotificationShouldNotifyOnce()
+	private static ChatMessage loadCannonballs(final int numCannonballs)
 	{
-		when(config.showCannonNotifications()).thenReturn(true);
-		when(config.lowWarningThreshold()).thenReturn(10);
+		final ChatMessage message = new ChatMessage();
+		message.setType(ChatMessageType.GAMEMESSAGE);
 
-		for (int cballs = 15; cballs >= 8; --cballs)
+		// Cannons use the same chat message for loading cannonballs regardless of whether they're normal or granite.
+		if (numCannonballs == 1)
 		{
-			cannonAmmoChanged.setValue(cballs);
-			plugin.onVarbitChanged(cannonAmmoChanged);
+			message.setMessage("You load the cannon with one cannonball.");
+		}
+		else
+		{
+			message.setMessage(String.format("You load the cannon with %s cannonballs.", numCannonballs));
 		}
 
-		verify(notifier, times(1)).notify("Your cannon has 10 cannon balls remaining!");
+		return message;
 	}
 
-	@Test
-	public void testThresholdNotificationsShouldNotNotify()
-	{
-		when(config.showCannonNotifications()).thenReturn(true);
-		when(config.lowWarningThreshold()).thenReturn(0);
-
-		cannonAmmoChanged.setValue(30);
-		plugin.onVarbitChanged(cannonAmmoChanged);
-		cannonAmmoChanged.setValue(10);
-		plugin.onVarbitChanged(cannonAmmoChanged);
-
-		verify(notifier, never()).notify("Your cannon has 10 cannon balls remaining!");
-	}
-
-	@Test
-	public void testCannonOutOfAmmo()
-	{
-		when(config.showCannonNotifications()).thenReturn(true);
-		ChatMessage cannonOutOfAmmo = new ChatMessage(null, ChatMessageType.GAMEMESSAGE, "", "Your cannon is out of ammo!", "", 0);
-
-		plugin.onChatMessage(cannonOutOfAmmo);
-
-		verify(notifier, times(1)).notify("Your cannon is out of ammo!");
-	}
 }

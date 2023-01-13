@@ -44,33 +44,16 @@ public enum AccountType
 	/**
 	 * Hardcore ironman account type.
 	 */
-	HARDCORE_IRONMAN,
-	/**
-	 * Group ironman account type
-	 */
-	GROUP_IRONMAN,
-	/**
-	 * Hardcore group ironman account type
-	 */
-	HARDCORE_GROUP_IRONMAN;
+	HARDCORE_IRONMAN;
 
 	/**
-	 * Checks whether this type is a non-group ironman.
+	 * Checks whether this type is an ironman.
 	 *
-	 * @return {@code true} if the type is any of the non-group ironman types.
+	 * @return {@code true} if the type is any of the ironman types.
 	 */
 	public boolean isIronman()
 	{
 		return this.ordinal() >= IRONMAN.ordinal() && this.ordinal() <= HARDCORE_IRONMAN.ordinal();
 	}
 
-	/**
-	 * Checks whether this type is a group ironman.
-	 *
-	 * @return {@code true} if the type is either of the group ironman types.
-	 */
-	public boolean isGroupIronman()
-	{
-		return this.ordinal() >= GROUP_IRONMAN.ordinal() && this.ordinal() <= HARDCORE_GROUP_IRONMAN.ordinal();
-	}
 }

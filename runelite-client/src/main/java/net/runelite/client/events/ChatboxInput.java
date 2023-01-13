@@ -24,34 +24,13 @@
  */
 package net.runelite.client.events;
 
-import lombok.Value;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-/**
- * An event called when input is placed into the chatbox and sent
- */
-@Value
-public class ChatboxInput extends ChatInput
+@Data
+@EqualsAndHashCode(callSuper = true)
+public abstract class ChatboxInput extends ChatInput
 {
-	/**
-	 * the chatbox input
-	 */
 	private final String value;
-
-	/**
-	 * sent message type
-	 *
-	 * 0 = public
-	 * 1 = cheat
-	 * 2 = friends chat
-	 * 3 = clan chat
-	 * 4 = guest clan
-	 */
 	private final int chatType;
-
-	public ChatboxInput(String value, int chatType, Runnable resume)
-	{
-		super(resume);
-		this.value = value;
-		this.chatType = chatType;
-	}
 }

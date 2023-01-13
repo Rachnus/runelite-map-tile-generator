@@ -61,7 +61,9 @@ import net.runelite.client.ui.overlay.OverlayManager;
 )
 public class AttackStylesPlugin extends Plugin
 {
+	private int attackStyleVarbit = -1;
 	private int equippedWeaponTypeVarbit = -1;
+	private int castingModeVarbit = -1;
 	private AttackStyle attackStyle;
 	private final Set<Skill> warnedSkills = new HashSet<>();
 	private boolean warnedSkillSelected = false;
@@ -102,9 +104,9 @@ public class AttackStylesPlugin extends Plugin
 	private void start()
 	{
 		resetWarnings();
-		int attackStyleVarbit = client.getVarpValue(VarPlayer.ATTACK_STYLE);
-		equippedWeaponTypeVarbit = client.getVarbitValue(Varbits.EQUIPPED_WEAPON_TYPE);
-		int castingModeVarbit = client.getVarbitValue(Varbits.DEFENSIVE_CASTING_MODE);
+		attackStyleVarbit = client.getVar(VarPlayer.ATTACK_STYLE);
+		equippedWeaponTypeVarbit = client.getVar(Varbits.EQUIPPED_WEAPON_TYPE);
+		castingModeVarbit = client.getVar(Varbits.DEFENSIVE_CASTING_MODE);
 		updateAttackStyle(
 			equippedWeaponTypeVarbit,
 			attackStyleVarbit,
@@ -171,20 +173,20 @@ public class AttackStylesPlugin extends Plugin
 	@Subscribe
 	public void onVarbitChanged(VarbitChanged event)
 	{
-		if (event.getVarpId() == VarPlayer.ATTACK_STYLE.getId()
-			|| event.getVarbitId() == Varbits.EQUIPPED_WEAPON_TYPE
-			|| event.getVarbitId() == Varbits.DEFENSIVE_CASTING_MODE)
-		{
-			final int currentAttackStyleVarbit = client.getVarpValue(VarPlayer.ATTACK_STYLE);
-			final int currentEquippedWeaponTypeVarbit = client.getVarbitValue(Varbits.EQUIPPED_WEAPON_TYPE);
-			final int currentCastingModeVarbit = client.getVarbitValue(Varbits.DEFENSIVE_CASTING_MODE);
+		int currentAttackStyleVarbit = client.getVar(VarPlayer.ATTACK_STYLE);
+		int currentEquippedWeaponTypeVarbit = client.getVar(Varbits.EQUIPPED_WEAPON_TYPE);
+		int currentCastingModeVarbit = client.getVar(Varbits.DEFENSIVE_CASTING_MODE);
 
+		if (attackStyleVarbit != currentAttackStyleVarbit || equippedWeaponTypeVarbit != currentEquippedWeaponTypeVarbit || castingModeVarbit != currentCastingModeVarbit)
+		{
 			boolean weaponSwitch = currentEquippedWeaponTypeVarbit != equippedWeaponTypeVarbit;
 
+			attackStyleVarbit = currentAttackStyleVarbit;
 			equippedWeaponTypeVarbit = currentEquippedWeaponTypeVarbit;
+			castingModeVarbit = currentCastingModeVarbit;
 
-			updateAttackStyle(equippedWeaponTypeVarbit, currentAttackStyleVarbit,
-				currentCastingModeVarbit);
+			updateAttackStyle(equippedWeaponTypeVarbit, attackStyleVarbit,
+				castingModeVarbit);
 			updateWarning(weaponSwitch);
 
 			// this isn't required, but will hide styles 1 tick earlier than the script event, which fires

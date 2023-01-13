@@ -34,7 +34,6 @@ import java.time.Instant;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.Perspective;
-import net.runelite.api.Player;
 import net.runelite.api.Point;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.geometry.Geometry;
@@ -71,12 +70,6 @@ class NpcAggroAreaOverlay extends Overlay
 			return null;
 		}
 
-		final Player localPlayer = client.getLocalPlayer();
-		if (localPlayer.getHealthScale() == -1 && config.hideIfOutOfCombat())
-		{
-			return null;
-		}
-
 		GeneralPath lines = plugin.getLinesToDisplay()[client.getPlane()];
 		if (lines == null)
 		{
@@ -84,7 +77,8 @@ class NpcAggroAreaOverlay extends Overlay
 		}
 
 		Color outlineColor = config.unaggroAreaColor();
-		if (outlineColor == null || (plugin.getEndTime() != null && Instant.now().isBefore(plugin.getEndTime())))
+		AggressionTimer timer = plugin.getCurrentTimer();
+		if (outlineColor == null || timer == null || Instant.now().compareTo(timer.getEndTime()) < 0)
 		{
 			outlineColor = config.aggroAreaColor();
 		}

@@ -110,24 +110,20 @@ public class KingdomPlugin extends Plugin
 	@Subscribe
 	public void onVarbitChanged(VarbitChanged event)
 	{
-		if (event.getVarbitId() == Varbits.KINGDOM_COFFER || event.getVarbitId() == Varbits.KINGDOM_APPROVAL)
-		{
-			final int coffer = client.getVarbitValue(Varbits.KINGDOM_COFFER);
-			final int approval = client.getVarbitValue(Varbits.KINGDOM_APPROVAL);
+		final int coffer = client.getVar(Varbits.KINGDOM_COFFER);
+		final int approval = client.getVar(Varbits.KINGDOM_APPROVAL);
 
-			if (isThroneOfMiscellaniaCompleted()
-				&& (isInKingdom() || coffer > 0 && approval > 0)
-				&& (getCoffer() != coffer || getApproval() != approval))
-			{
-				setLastChanged(Instant.now());
-				setCoffer(coffer);
-				setApproval(approval);
-			}
-		}
-		else if (event.getVarpId() == VarPlayer.THRONE_OF_MISCELLANIA.getId())
+		if (client.getGameState() == GameState.LOGGED_IN
+			&& isThroneOfMiscellaniaCompleted()
+			&& (isInKingdom() || coffer > 0 && approval > 0)
+			&& (getCoffer() != coffer || getApproval() != approval))
 		{
-			processInfobox();
+			setLastChanged(Instant.now());
+			setCoffer(coffer);
+			setApproval(approval);
 		}
+
+		processInfobox();
 	}
 
 	@Subscribe
@@ -242,7 +238,7 @@ public class KingdomPlugin extends Plugin
 
 	private boolean isThroneOfMiscellaniaCompleted()
 	{
-		return client.getVarpValue(VarPlayer.THRONE_OF_MISCELLANIA) > 0;
+		return client.getVar(VarPlayer.THRONE_OF_MISCELLANIA) > 0;
 	}
 
 	private boolean isRoyalTroubleCompleted()

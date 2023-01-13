@@ -14,17 +14,17 @@
    istore                 4
    iload                  1
    switch                
+      1745: LABEL145
+      1129: LABEL125
+      1130: LABEL95
       1131: LABEL9
-      1130: LABEL107
-      1129: LABEL149
-      1745: LABEL169
-   jump                   LABEL244
+   jump                   LABEL220
 LABEL9:
-   iconst                 10747996
+   iconst                 10747945
    if_getwidth           
    iconst                 33
    sub                   
-   iconst                 10747996
+   iconst                 10747945
    if_getheight          
    istore                 3
    istore                 2
@@ -33,7 +33,7 @@ LABEL9:
    iconst                 73
    iconst                 73
    iload                  1
-   iconst                 10551390
+   iconst                 10551334
    enum                  
    if_getwidth           
    sub                   
@@ -48,7 +48,7 @@ LABEL9:
 LABEL29:
    iconst                 0
    iload                  3
-   iconst                 10747997
+   iconst                 10747960
    if_getheight          
    add                   
    iconst                 2
@@ -56,14 +56,14 @@ LABEL29:
    iconst                 73
    iconst                 73
    iload                  1
-   iconst                 10747998
+   iconst                 10747977
    enum                  
    if_setposition        
    iconst                 0
    iload                  3
    iconst                 2
    iconst                 2
-   iconst                 10747997
+   iconst                 10747960
    if_setposition        
    jump                   LABEL65
 LABEL49:
@@ -74,14 +74,14 @@ LABEL49:
    iconst                 73
    iconst                 73
    iload                  1
-   iconst                 10747998
+   iconst                 10747977
    enum                  
    if_setposition        
    iload                  2
    iconst                 0
    iconst                 2
    iconst                 2
-   iconst                 10747997
+   iconst                 10747960
    if_setposition        
 LABEL65:
    get_varbit             4084
@@ -93,209 +93,181 @@ LABEL69:
    iconst                 73
    iconst                 73
    iload                  1
-   iconst                 10551325
+   iconst                 10551330
    enum                  
    2122                  
-   jump                   LABEL96
+   jump                   LABEL84
 LABEL77:
-   get_varbit             13037
-   iconst                 1
-   if_icmpeq              LABEL81
-   jump                   LABEL89
-LABEL81:
-   iconst                 3513
-   iconst                 73
-   iconst                 73
-   iload                  1
-   iconst                 10551325
-   enum                  
-   2122                  
-   jump                   LABEL96
-LABEL89:
    iconst                 2154
    iconst                 73
    iconst                 73
    iload                  1
-   iconst                 10551325
+   iconst                 10551330
    enum                  
    2122                  
-LABEL96:
+LABEL84:
    clientclock           
    set_varc_int           384
-   invoke                 1445
+   invoke                 2357
    iconst                 1
-   if_icmpeq              LABEL102
-   jump                   LABEL106
-LABEL102:
+   if_icmpeq              LABEL90
+   jump                   LABEL94
+LABEL90:
    get_varbit             12986
    invoke                 633
-   iconst                 10747925
+   iconst                 10747930
    if_sethide            
-LABEL106:
-   jump                   LABEL244
-LABEL107:
+LABEL94:
+   jump                   LABEL220
+LABEL95:
    get_varbit             4084
    iconst                 1
-   if_icmpeq              LABEL111
-   jump                   LABEL119
-LABEL111:
+   if_icmpeq              LABEL99
+   jump                   LABEL107
+LABEL99:
    iconst                 1178
    iconst                 73
    iconst                 73
    iload                  1
-   iconst                 10551325
+   iconst                 10551330
    enum                  
    2122                  
-   jump                   LABEL138
-LABEL119:
-   get_varbit             13037
-   iconst                 1
-   if_icmpeq              LABEL123
-   jump                   LABEL131
-LABEL123:
-   iconst                 3513
-   iconst                 73
-   iconst                 73
-   iload                  1
-   iconst                 10551325
-   enum                  
-   2122                  
-   jump                   LABEL138
-LABEL131:
+   jump                   LABEL114
+LABEL107:
    iconst                 2154
    iconst                 73
    iconst                 73
    iload                  1
-   iconst                 10551325
+   iconst                 10551330
    enum                  
    2122                  
-LABEL138:
+LABEL114:
    clientclock           
    set_varc_int           384
-   invoke                 1445
+   invoke                 2357
    iconst                 1
-   if_icmpeq              LABEL144
-   jump                   LABEL148
-LABEL144:
+   if_icmpeq              LABEL120
+   jump                   LABEL124
+LABEL120:
    get_varbit             12986
    invoke                 633
-   iconst                 10551317
+   iconst                 10551322
    if_sethide            
-LABEL148:
-   jump                   LABEL244
-LABEL149:
+LABEL124:
+   jump                   LABEL220
+LABEL125:
    invoke                 3297
    iconst                 1
-   if_icmpeq              LABEL153
-   jump                   LABEL161
-LABEL153:
+   if_icmpeq              LABEL129
+   jump                   LABEL137
+LABEL129:
    iconst                 2422
    iconst                 73
    iconst                 73
    iload                  1
-   iconst                 10551325
+   iconst                 10551330
    enum                  
    2122                  
-   jump                   LABEL168
-LABEL161:
+   jump                   LABEL144
+LABEL137:
    iconst                 1200
    iconst                 73
    iconst                 73
    iload                  1
-   iconst                 10551325
+   iconst                 10551330
    enum                  
    2122                  
-LABEL168:
-   jump                   LABEL244
-LABEL169:
+LABEL144:
+   jump                   LABEL220
+LABEL145:
    get_varbit             6257
    iconst                 1
-   if_icmpeq              LABEL176
+   if_icmpeq              LABEL152
    get_varbit             542
    iconst                 1
-   if_icmpeq              LABEL176
-   jump                   LABEL180
-LABEL176:
+   if_icmpeq              LABEL152
+   jump                   LABEL156
+LABEL152:
    iconst                 1
-   iconst                 39387162
+   iconst                 39387175
    if_sethide            
-   jump                   LABEL235
-LABEL180:
+   jump                   LABEL211
+LABEL156:
    iconst                 0
-   iconst                 39387162
+   iconst                 39387175
    if_sethide            
    iconst                 1
-   iconst                 39387162
+   iconst                 39387175
    2308                  
    get_varbit             6255
    switch                
-      2: LABEL189
-      1: LABEL197
-      3: LABEL205
-   jump                   LABEL213
-LABEL189:
+      1: LABEL173
+      2: LABEL165
+      3: LABEL181
+   jump                   LABEL189
+LABEL165:
    iconst                 1718
-   iconst                 39387181
+   iconst                 39387177
    if_setgraphic         
    iconst                 1
    sconst                 "Toggle single-tap mode"
-   iconst                 39387162
+   iconst                 39387175
    if_setop              
-   jump                   LABEL220
-LABEL197:
+   jump                   LABEL196
+LABEL173:
    iconst                 1717
-   iconst                 39387181
+   iconst                 39387177
    if_setgraphic         
    iconst                 1
    sconst                 "Toggle tap-to-drop mode"
-   iconst                 39387162
+   iconst                 39387175
    if_setop              
-   jump                   LABEL220
-LABEL205:
+   jump                   LABEL196
+LABEL181:
    iconst                 1716
-   iconst                 39387181
+   iconst                 39387177
    if_setgraphic         
    iconst                 1
    sconst                 "Show Keyboard"
-   iconst                 39387162
+   iconst                 39387175
    if_setop              
-   jump                   LABEL220
-LABEL213:
+   jump                   LABEL196
+LABEL189:
    iconst                 1715
-   iconst                 39387181
+   iconst                 39387177
    if_setgraphic         
    iconst                 1
    sconst                 ""
-   iconst                 39387162
+   iconst                 39387175
    if_setop              
-LABEL220:
+LABEL196:
    get_varbit             6255
    iconst                 3
-   if_icmpne              LABEL224
-   jump                   LABEL232
-LABEL224:
+   if_icmpne              LABEL200
+   jump                   LABEL208
+LABEL200:
    get_varbit             6256
    iconst                 0
-   if_icmpeq              LABEL228
-   jump                   LABEL232
-LABEL228:
+   if_icmpeq              LABEL204
+   jump                   LABEL208
+LABEL204:
    iconst                 155
-   iconst                 39387181
+   iconst                 39387177
    if_settrans           
-   jump                   LABEL235
-LABEL232:
+   jump                   LABEL211
+LABEL208:
    iconst                 0
-   iconst                 39387181
+   iconst                 39387177
    if_settrans           
-LABEL235:
+LABEL211:
    invoke                 2581
    get_varbit             6254
    invoke                 633
-   iconst                 39387173
+   iconst                 39387166
    if_sethide            
    invoke                 2526
    pop_int               
    clientclock           
    set_varc_int           384
-LABEL244:
+LABEL220:
    return                

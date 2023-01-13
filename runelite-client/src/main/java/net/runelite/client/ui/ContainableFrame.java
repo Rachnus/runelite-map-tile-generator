@@ -51,14 +51,7 @@ public class ContainableFrame extends JFrame
 	}
 
 	private static final int SCREEN_EDGE_CLOSE_DISTANCE = 40;
-	/**
-	 * JDK-8231564 changes Frame#setMaximizedBounds() to apply ui scaling
-	 */
 	private static boolean jdk8231564;
-	/**
-	 * JDK-8243925 changes Toolkit#getScreenInsets() to apply ui scaling
-	 */
-	private static boolean jdk8243925;
 
 	static
 	{
@@ -66,7 +59,6 @@ public class ContainableFrame extends JFrame
 		{
 			String javaVersion = System.getProperty("java.version");
 			jdk8231564 = jdk8231564(javaVersion);
-			jdk8243925 = jdk8243925(javaVersion);
 		}
 		catch (Exception ex)
 		{
@@ -77,49 +69,6 @@ public class ContainableFrame extends JFrame
 	@VisibleForTesting
 	static boolean jdk8231564(String javaVersion)
 	{
-		if (isVersionOrGreater(javaVersion, 15, -1, -1))
-		{
-			return true; // JDK-8231564
-		}
-		if (isVersionOrGreater(javaVersion, 14, -1, -1))
-		{
-			return false; // unpatched
-		}
-		if (isVersionOrGreater(javaVersion, 13, 0, 4))
-		{
-			return true; // JDK-8247209
-		}
-		if (isVersionOrGreater(javaVersion, 12, -1, -1))
-		{
-			return false; // unpatched
-		}
-		return isVersionOrGreater(javaVersion, 11, 0, 8); // JDK-8243374
-	}
-
-	@VisibleForTesting
-	static boolean jdk8243925(String javaVersion)
-	{
-		if (isVersionOrGreater(javaVersion, 15, -1, -1))
-		{
-			return true; // JDK-8243925
-		}
-		if (isVersionOrGreater(javaVersion, 14, -1, -1))
-		{
-			return false; // unpatched
-		}
-		if (isVersionOrGreater(javaVersion, 13, 0, 7))
-		{
-			return true; // JDK-8261342
-		}
-		if (isVersionOrGreater(javaVersion, 12, -1, -1))
-		{
-			return false; // unpatched
-		}
-		return isVersionOrGreater(javaVersion, 11, 0, 9);  // JDK-8246659
-	}
-
-	private static boolean isVersionOrGreater(String javaVersion, int versionMajor, int versionMinor, int versionPatch)
-	{
 		int idx = javaVersion.indexOf('_');
 		if (idx != -1)
 		{
@@ -127,7 +76,7 @@ public class ContainableFrame extends JFrame
 		}
 		String[] s = javaVersion.split("\\.");
 		int major, minor, patch;
-		if (s.length >= 3)
+		if (s.length == 3)
 		{
 			major = Integer.parseInt(s[0]);
 			minor = Integer.parseInt(s[1]);
@@ -139,26 +88,12 @@ public class ContainableFrame extends JFrame
 			minor = -1;
 			patch = -1;
 		}
-
-		int i = Integer.compare(major, versionMajor);
-		if (i != 0)
+		if (major == 12 || major == 13 || major == 14)
 		{
-			return i > 0;
+			// These versions are since EOL & do not include JDK-8231564, except for 13.0.4+
+			return false;
 		}
-
-		i = Integer.compare(minor, versionMinor);
-		if (i != 0)
-		{
-			return i > 0;
-		}
-
-		i = Integer.compare(patch, versionPatch);
-		if (i != 0)
-		{
-			return i > 0;
-		}
-
-		return true;
+		return major > 11 || (major == 11 && minor > 0) || (major == 11 && minor == 0 && patch >= 8);
 	}
 
 	@Setter
@@ -336,7 +271,7 @@ public class ContainableFrame extends JFrame
 	{
 		return Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices())
 			.map(GraphicsDevice::getDefaultConfiguration)
-			.max(Comparator.comparingInt(config ->
+			.max(Comparator.comparing(config ->
 			{
 				Rectangle intersection = config.getBounds().intersection(getBounds());
 				return intersection.width * intersection.height;
@@ -378,13 +313,11 @@ public class ContainableFrame extends JFrame
 			// Prior to JDK-8231564, WFramePeer expects the bounds to be relative to the current monitor instead of the
 			// primary display.
 			bounds.x = bounds.y = 0;
-
-			assert !jdk8243925 : "scaled insets without scaled bounds";
 		}
-		else if (!jdk8243925)
+		else
 		{
-			// The insets from getScreenInsets are not scaled prior to JDK-8243925, we must convert them to DPI scaled
-			// pixels on 11.0.8 due to JDK-8231564 which expects the bounds to be in DPI-aware pixels.
+			// The insets from getScreenInsets are not scaled, we must convert them to DPI scaled pixels on 11.0.8 due
+			// to JDK-8231564 which expects the bounds to be in DPI-aware pixels.
 			double scaleX = config.getDefaultTransform().getScaleX();
 			double scaleY = config.getDefaultTransform().getScaleY();
 			insets.top /= scaleY;

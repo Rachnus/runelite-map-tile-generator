@@ -24,8 +24,8 @@
  */
 package net.runelite.cache.util;
 
-import net.runelite.cache.io.InputStream;
-import net.runelite.cache.io.OutputStream;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 public class Xtea
 {
@@ -42,13 +42,13 @@ public class Xtea
 
 	public byte[] encrypt(byte[] data, int len)
 	{
-		InputStream in = new InputStream(data);
-		OutputStream out = new OutputStream(len);
+		ByteBuf buf = Unpooled.wrappedBuffer(data, 0, len);
+		ByteBuf out = Unpooled.buffer(len);
 		int numBlocks = len / 8;
 		for (int block = 0; block < numBlocks; ++block)
 		{
-			int v0 = in.readInt();
-			int v1 = in.readInt();
+			int v0 = buf.readInt();
+			int v1 = buf.readInt();
 			int sum = 0;
 			for (int i = 0; i < ROUNDS; ++i)
 			{
@@ -59,19 +59,19 @@ public class Xtea
 			out.writeInt(v0);
 			out.writeInt(v1);
 		}
-		out.writeBytes(in.getRemaining());
-		return out.flip();
+		out.writeBytes(buf);
+		return out.array();
 	}
 
 	public byte[] decrypt(byte[] data, int len)
 	{
-		InputStream in = new InputStream(data);
-		OutputStream out = new OutputStream(len);
+		ByteBuf buf = Unpooled.wrappedBuffer(data, 0, len);
+		ByteBuf out = Unpooled.buffer(len);
 		int numBlocks = len / 8;
 		for (int block = 0; block < numBlocks; ++block)
 		{
-			int v0 = in.readInt();
-			int v1 = in.readInt();
+			int v0 = buf.readInt();
+			int v1 = buf.readInt();
 			int sum = GOLDEN_RATIO * ROUNDS;
 			for (int i = 0; i < ROUNDS; ++i)
 			{
@@ -82,7 +82,7 @@ public class Xtea
 			out.writeInt(v0);
 			out.writeInt(v1);
 		}
-		out.writeBytes(in.getRemaining());
-		return out.flip();
+		out.writeBytes(buf);
+		return out.array();
 	}
 }

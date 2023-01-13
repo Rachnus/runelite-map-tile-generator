@@ -26,9 +26,13 @@ package net.runelite.cache.definitions.loaders;
 
 import net.runelite.cache.definitions.TextureDefinition;
 import net.runelite.cache.io.InputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TextureLoader
 {
+	private static final Logger logger = LoggerFactory.getLogger(TextureLoader.class);
+
 	public TextureDefinition load(int id, byte[] b)
 	{
 		TextureDefinition def = new TextureDefinition();
@@ -73,8 +77,8 @@ public class TextureLoader
 			def.field1786[var3] = is.readInt();
 		}
 
-		def.animationDirection = is.readUnsignedByte();
-		def.animationSpeed = is.readUnsignedByte();
+		def.field1783 = is.readUnsignedByte();
+		def.field1782 = is.readUnsignedByte();
 
 		return def;
 	}

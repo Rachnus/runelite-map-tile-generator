@@ -34,13 +34,6 @@ public interface NameableContainer<T extends Nameable>
 	int getCount();
 
 	/**
-	 * Get the maximum size of the container.
-	 *
-	 * @return
-	 */
-	int getSize();
-
-	/**
 	 * Get the members in this container
 	 *
 	 * @return

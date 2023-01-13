@@ -36,6 +36,7 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.game.ItemManager;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
+import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayPriority;
@@ -69,7 +70,7 @@ class NightmareZoneOverlay extends OverlayPanel
 		this.plugin = plugin;
 		this.infoBoxManager = infoBoxManager;
 		this.itemManager = itemManager;
-		addMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "NMZ overlay");
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "NMZ overlay"));
 	}
 
 	@Override
@@ -90,10 +91,17 @@ class NightmareZoneOverlay extends OverlayPanel
 			return null;
 		}
 
+		Widget nmzWidget = client.getWidget(WidgetInfo.NIGHTMARE_ZONE);
+
+		if (nmzWidget != null)
+		{
+			nmzWidget.setHidden(true);
+		}
+
 		renderAbsorptionCounter();
 
-		final int currentPoints = client.getVarbitValue(Varbits.NMZ_POINTS);
-		final int totalPoints = currentPoints + client.getVarpValue(VarPlayer.NMZ_REWARD_POINTS);
+		final int currentPoints = client.getVar(Varbits.NMZ_POINTS);
+		final int totalPoints = currentPoints + client.getVar(VarPlayer.NMZ_REWARD_POINTS);
 
 		panelComponent.getChildren().add(LineComponent.builder()
 			.left("Points: ")
@@ -113,7 +121,7 @@ class NightmareZoneOverlay extends OverlayPanel
 
 	private void renderAbsorptionCounter()
 	{
-		int absorptionPoints = client.getVarbitValue(Varbits.NMZ_ABSORPTION);
+		int absorptionPoints = client.getVar(Varbits.NMZ_ABSORPTION);
 		if (absorptionPoints == 0)
 		{
 			if (absorptionCounter != null)

@@ -25,7 +25,6 @@
 package net.runelite.client.plugins.devtools;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import java.awt.BorderLayout;
@@ -33,7 +32,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -47,7 +45,6 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.IndexDataBase;
 import net.runelite.api.VarClientInt;
@@ -65,7 +62,6 @@ import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.DynamicGridLayout;
 import net.runelite.client.ui.FontManager;
 
-@Slf4j
 class VarInspector extends DevToolsFrame
 {
 	@Getter
@@ -88,42 +84,6 @@ class VarInspector extends DevToolsFrame
 
 	private final static int MAX_LOG_ENTRIES = 10_000;
 	private static final int VARBITS_ARCHIVE_ID = 14;
-	private static final Map<Integer, String> VARBIT_NAMES;
-	private static final Map<Integer, String> VARCINT_NAMES;
-	private static final Map<Integer, String> VARCSTR_NAMES;
-
-	static
-	{
-		ImmutableMap.Builder<Integer, String> varbits = new ImmutableMap.Builder<>();
-		ImmutableMap.Builder<Integer, String> varcint = new ImmutableMap.Builder<>();
-		ImmutableMap.Builder<Integer, String> varcstr = new ImmutableMap.Builder<>();
-
-		try
-		{
-			for (Field f : Varbits.class.getDeclaredFields())
-			{
-				varbits.put(f.getInt(null), f.getName());
-			}
-
-			for (Field f : VarClientInt.class.getDeclaredFields())
-			{
-				varcint.put(f.getInt(null), f.getName());
-			}
-
-			for (Field f : VarClientStr.class.getDeclaredFields())
-			{
-				varcstr.put(f.getInt(null), f.getName());
-			}
-		}
-		catch (IllegalAccessException ex)
-		{
-			log.error("error setting up var names", ex);
-		}
-
-		VARBIT_NAMES = varbits.build();
-		VARCINT_NAMES = varcint.build();
-		VARCSTR_NAMES = varcstr.build();
-	}
 
 	private final Client client;
 	private final ClientThread clientThread;
@@ -258,7 +218,15 @@ class VarInspector extends DevToolsFrame
 				// Example: 4101 collides with 4104-4129
 				client.setVarbitValue(oldVarps2, i, neew);
 
-				final String name = VARBIT_NAMES.getOrDefault(i, Integer.toString(i));
+				String name = Integer.toString(i);
+				for (Varbits varbit : Varbits.values())
+				{
+					if (varbit.getId() == i)
+					{
+						name = String.format("%s(%d)", varbit.name(), i);
+						break;
+					}
+				}
 				addVarLog(VarType.VARBIT, name, old, neew);
 			}
 		}
@@ -294,7 +262,15 @@ class VarInspector extends DevToolsFrame
 
 		if (old != neew)
 		{
-			final String name = VARCINT_NAMES.getOrDefault(idx, Integer.toString(idx));
+			String name = String.format("%d", idx);
+			for (VarClientInt varc : VarClientInt.values())
+			{
+				if (varc.getIndex() == idx)
+				{
+					name = String.format("%s(%d)", varc.name(), idx);
+					break;
+				}
+			}
 			addVarLog(VarType.VARCINT, name, old, neew);
 		}
 	}
@@ -309,7 +285,15 @@ class VarInspector extends DevToolsFrame
 
 		if (!Objects.equals(old, neew))
 		{
-			final String name = VARCSTR_NAMES.getOrDefault(idx, Integer.toString(idx));
+			String name = String.format("%d", idx);
+			for (VarClientStr varc : VarClientStr.values())
+			{
+				if (varc.getIndex() == idx)
+				{
+					name = String.format("%s(%d)", varc.name(), idx);
+					break;
+				}
+			}
 			if (old != null)
 			{
 				old = "\"" + old + "\"";

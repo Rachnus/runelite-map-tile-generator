@@ -37,7 +37,6 @@ import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.Player;
 import net.runelite.api.SpriteID;
-import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.events.WidgetLoaded;
@@ -60,7 +59,6 @@ import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxPriority;
 import net.runelite.client.ui.overlay.infobox.LoopTimer;
 import net.runelite.client.util.QuantityFormatter;
-import org.apache.commons.lang3.ArrayUtils;
 
 @PluginDescriptor(
 	name = "Barrows Brothers",
@@ -77,7 +75,6 @@ public class BarrowsPlugin extends Plugin
 
 	private static final long PRAYER_DRAIN_INTERVAL_MS = 18200;
 	private static final int CRYPT_REGION_ID = 14231;
-	private static final int BARROWS_REGION_ID = 14131;
 
 	private LoopTimer barrowsPrayerDrainTimer;
 
@@ -178,11 +175,6 @@ public class BarrowsPlugin extends Plugin
 		if (event.getGroupId() == WidgetID.BARROWS_REWARD_GROUP_ID && config.showChestValue())
 		{
 			ItemContainer barrowsRewardContainer = client.getItemContainer(InventoryID.BARROWS_REWARD);
-			if (barrowsRewardContainer == null)
-			{
-				return;
-			}
-
 			Item[] items = barrowsRewardContainer.getItems();
 			long chestPrice = 0;
 
@@ -219,26 +211,6 @@ public class BarrowsPlugin extends Plugin
 					break;
 				}
 			}
-		}
-	}
-
-	@Subscribe
-	public void onBeforeRender(BeforeRender beforeRender)
-	{
-		// The barrows brothers and potential overlays have timers to unhide them each tick. Set them
-		// hidden here instead of in the overlay, because if the overlay renders on the ABOVE_WIDGETS
-		// layer due to being moved outside of the snap corner, it will be running after the overlays
-		// had already been rendered.
-		final Widget barrowsBrothers = client.getWidget(WidgetInfo.BARROWS_BROTHERS);
-		if (barrowsBrothers != null)
-		{
-			barrowsBrothers.setHidden(true);
-		}
-
-		final Widget potential = client.getWidget(WidgetInfo.BARROWS_POTENTIAL);
-		if (potential != null)
-		{
-			potential.setHidden(true);
 		}
 	}
 
@@ -283,10 +255,5 @@ public class BarrowsPlugin extends Plugin
 	{
 		Player localPlayer = client.getLocalPlayer();
 		return localPlayer != null && localPlayer.getWorldLocation().getRegionID() == CRYPT_REGION_ID;
-	}
-
-	boolean isBarrowsLoaded()
-	{
-		return ArrayUtils.contains(client.getMapRegions(), BARROWS_REGION_ID);
 	}
 }

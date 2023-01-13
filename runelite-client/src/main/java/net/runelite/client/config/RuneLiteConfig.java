@@ -186,23 +186,10 @@ public interface RuneLiteConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "trayIcon",
-		name = "Enable tray icon",
-		description = "Enables icon in system tray",
-		warning = "Disabling this may limit your ability to receive tray notifications.\nPlease restart your client after changing this setting.",
-		position = 20,
-		section = notificationSettings
-	)
-	default boolean enableTrayIcon()
-	{
-		return true;
-	}
-
-	@ConfigItem(
 		keyName = "notificationTray",
 		name = "Enable tray notifications",
 		description = "Enables tray notifications",
-		position = 21,
+		position = 20,
 		section = notificationSettings
 	)
 	default boolean enableTrayNotifications()
@@ -214,7 +201,7 @@ public interface RuneLiteConfig extends Config
 		keyName = "notificationRequestFocus",
 		name = "Request focus",
 		description = "Configures the window focus request type on notification",
-		position = 22,
+		position = 21,
 		section = notificationSettings
 	)
 	default RequestFocusType notificationRequestFocus()
@@ -226,7 +213,7 @@ public interface RuneLiteConfig extends Config
 		keyName = "notificationSound",
 		name = "Notification sound",
 		description = "Enables the playing of a beep sound when notifications are displayed",
-		position = 23,
+		position = 22,
 		section = notificationSettings
 	)
 	default Notifier.NativeCustomOff notificationSound()
@@ -235,23 +222,10 @@ public interface RuneLiteConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "notificationTimeout",
-		name = "Notification timeout",
-		description = "How long notification will be shown in milliseconds. A value of 0 will make it use the system configuration. (Linux only)",
-		position = 24,
-		section = notificationSettings
-	)
-	@Units(Units.MILLISECONDS)
-	default int notificationTimeout()
-	{
-		return 10000;
-	}
-
-	@ConfigItem(
 		keyName = "notificationGameMessage",
 		name = "Game message notifications",
 		description = "Adds a notification message to the chatbox",
-		position = 25,
+		position = 23,
 		section = notificationSettings
 	)
 	default boolean enableGameMessageNotification()
@@ -263,7 +237,7 @@ public interface RuneLiteConfig extends Config
 		keyName = "flashNotification",
 		name = "Flash",
 		description = "Flashes the game frame as a notification",
-		position = 26,
+		position = 24,
 		section = notificationSettings
 	)
 	default FlashNotification flashNotification()
@@ -275,7 +249,7 @@ public interface RuneLiteConfig extends Config
 		keyName = "notificationFocused",
 		name = "Send notifications when focused",
 		description = "Toggles all notifications for when the client is focused",
-		position = 27,
+		position = 25,
 		section = notificationSettings
 	)
 	default boolean sendNotificationsWhenFocused()
@@ -288,7 +262,7 @@ public interface RuneLiteConfig extends Config
 		keyName = "notificationFlashColor",
 		name = "Notification Flash",
 		description = "Sets the color of the notification flashes.",
-		position = 28,
+		position = 26,
 		section = notificationSettings
 	)
 	default Color notificationFlashColor()
@@ -333,15 +307,15 @@ public interface RuneLiteConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "infoboxFontType",
-		name = "Infobox Font",
-		description = "Configures what font type is used for infoboxes.",
+		keyName = "menuEntryShift",
+		name = "Require Shift for overlay menu",
+		description = "Overlay right-click menu will require shift to be added",
 		position = 33,
 		section = overlaySettings
 	)
-	default FontType infoboxFontType()
+	default boolean menuEntryShift()
 	{
-		return FontType.REGULAR;
+		return true;
 	}
 
 	@ConfigItem(
@@ -451,16 +425,5 @@ public interface RuneLiteConfig extends Config
 	default boolean useWikiItemPrices()
 	{
 		return true;
-	}
-
-	@ConfigItem(
-		keyName = "dragHotkey",
-		name = "Drag Hotkey",
-		description = "Configures the hotkey used to drag UI elements around",
-		position = 52
-	)
-	default Keybind dragHotkey()
-	{
-		return Keybind.ALT;
 	}
 }

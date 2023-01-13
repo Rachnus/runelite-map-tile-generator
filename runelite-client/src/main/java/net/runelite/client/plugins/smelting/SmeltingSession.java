@@ -45,9 +45,9 @@ class SmeltingSession
 		lastItemSmelted = Instant.now();
 	}
 
-	void increaseCannonBallsSmelted(int amount)
+	void increaseCannonBallsSmelted()
 	{
-		cannonBallsSmelted += amount;
+		cannonBallsSmelted += 4;
 		lastItemSmelted = Instant.now();
 	}
 }

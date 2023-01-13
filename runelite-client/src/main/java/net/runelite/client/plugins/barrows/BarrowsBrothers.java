@@ -27,12 +27,10 @@ package net.runelite.client.plugins.barrows;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.runelite.api.Varbits;
-import net.runelite.api.annotations.Varbit;
 import net.runelite.api.coords.WorldPoint;
 
 @RequiredArgsConstructor
-@Getter
-enum BarrowsBrothers
+public enum BarrowsBrothers
 {
 	AHRIM("Ahrim", new WorldPoint(3566, 3289, 0), Varbits.BARROWS_KILLED_AHRIM),
 	DHAROK("Dharok", new WorldPoint(3575, 3298, 0), Varbits.BARROWS_KILLED_DHAROK),
@@ -41,8 +39,10 @@ enum BarrowsBrothers
 	TORAG("Torag", new WorldPoint(3553, 3283, 0), Varbits.BARROWS_KILLED_TORAG),
 	VERAC("Verac", new WorldPoint(3557, 3298, 0), Varbits.BARROWS_KILLED_VERAC);
 
+	@Getter
 	private final String name;
+	@Getter
 	private final WorldPoint location;
-	@Getter(onMethod_ = {@Varbit})
-	private final int killedVarbit;
+	@Getter
+	private final Varbits killedVarbit;
 }

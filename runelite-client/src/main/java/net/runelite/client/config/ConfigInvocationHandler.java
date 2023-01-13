@@ -63,21 +63,6 @@ class ConfigInvocationHandler implements InvocationHandler
 
 		Class<?> iface = proxy.getClass().getInterfaces()[0];
 
-		if ("toString".equals(method.getName()) && args == null)
-		{
-			return iface.getSimpleName();
-		}
-
-		if ("hashCode".equals(method.getName()) && args == null)
-		{
-			return System.identityHashCode(proxy);
-		}
-
-		if ("equals".equals(method.getName()) && args != null && args.length == 1)
-		{
-			return proxy == args[0];
-		}
-
 		ConfigGroup group = iface.getAnnotation(ConfigGroup.class);
 		ConfigItem item = method.getAnnotation(ConfigItem.class);
 
@@ -114,9 +99,11 @@ class ConfigInvocationHandler implements InvocationHandler
 			}
 
 			// Convert value to return type
+			Class<?> returnType = method.getReturnType();
+			
 			try
 			{
-				Object objectValue = manager.stringToObject(value, method.getGenericReturnType());
+				Object objectValue = ConfigManager.stringToObject(value, returnType);
 				cache.put(method, objectValue == null ? NULL : objectValue);
 				return objectValue;
 			}
@@ -168,7 +155,7 @@ class ConfigInvocationHandler implements InvocationHandler
 			}
 			else
 			{
-				String newValueStr = manager.objectToString(newValue);
+				String newValueStr = ConfigManager.objectToString(newValue);
 				manager.setConfiguration(group.value(), item.keyName(), newValueStr);
 			}
 			return null;

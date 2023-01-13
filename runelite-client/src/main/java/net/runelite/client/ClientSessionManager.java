@@ -38,6 +38,7 @@ import net.runelite.api.GameState;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ClientShutdown;
 import net.runelite.client.util.RunnableExceptionLogger;
+import okhttp3.OkHttpClient;
 
 @Singleton
 @Slf4j
@@ -53,27 +54,24 @@ public class ClientSessionManager
 	@Inject
 	ClientSessionManager(ScheduledExecutorService executorService,
 		@Nullable Client client,
-		SessionClient sessionClient)
+		OkHttpClient okHttpClient)
 	{
 		this.executorService = executorService;
 		this.client = client;
-		this.sessionClient = sessionClient;
+		this.sessionClient = new SessionClient(okHttpClient);
 	}
 
 	public void start()
 	{
-		executorService.execute(() ->
+		try
 		{
-			try
-			{
-				sessionId = sessionClient.open();
-				log.debug("Opened session {}", sessionId);
-			}
-			catch (IOException ex)
-			{
-				log.warn("error opening session", ex);
-			}
-		});
+			sessionId = sessionClient.open();
+			log.debug("Opened session {}", sessionId);
+		}
+		catch (IOException ex)
+		{
+			log.warn("error opening session", ex);
+		}
 
 		scheduledFuture = executorService.scheduleWithFixedDelay(RunnableExceptionLogger.wrap(this::ping), 1, 10, TimeUnit.MINUTES);
 	}

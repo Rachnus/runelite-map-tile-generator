@@ -28,6 +28,7 @@
 package net.runelite.client.plugins.friendnotes;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ObjectArrays;
 import com.google.inject.Provides;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -42,9 +43,12 @@ import net.runelite.api.GameState;
 import net.runelite.api.Ignore;
 import net.runelite.api.IndexedSprite;
 import net.runelite.api.MenuAction;
+import net.runelite.api.MenuEntry;
 import net.runelite.api.Nameable;
 import net.runelite.api.ScriptID;
+import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.MenuEntryAdded;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.NameableNameChanged;
 import net.runelite.api.events.RemovedFriend;
 import net.runelite.api.events.ScriptCallbackEvent;
@@ -115,15 +119,7 @@ public class FriendNotesPlugin extends Plugin
 	protected void startUp() throws Exception
 	{
 		overlayManager.add(overlay);
-		clientThread.invoke(() ->
-		{
-			if (client.getModIcons() == null)
-			{
-				return false;
-			}
-			loadIcon();
-			return true;
-		});
+		clientThread.invoke(this::loadIcon);
 		if (client.getGameState() == GameState.LOGGED_IN)
 		{
 			rebuildFriendsList();
@@ -139,6 +135,15 @@ public class FriendNotesPlugin extends Plugin
 		{
 			rebuildFriendsList();
 			rebuildIgnoreList();
+		}
+	}
+
+	@Subscribe
+	public void onGameStateChanged(GameStateChanged event)
+	{
+		if (event.getGameState() == GameState.LOGGED_IN)
+		{
+			loadIcon();
 		}
 	}
 
@@ -240,36 +245,61 @@ public class FriendNotesPlugin extends Plugin
 			setHoveredFriend(Text.toJagexName(Text.removeTags(event.getTarget())));
 
 			// Build "Add Note" or "Edit Note" menu entry
-			client.createMenuEntry(-1)
-				.setOption(hoveredFriend == null || hoveredFriend.getNote() == null ? ADD_NOTE : EDIT_NOTE)
-				.setType(MenuAction.RUNELITE)
-				.setTarget(event.getTarget()) //Preserve color codes here
-				.onClick(e ->
-				{
-					//Friends have color tags
-					final String sanitizedTarget = Text.toJagexName(Text.removeTags(e.getTarget()));
-					final String note = getFriendNote(sanitizedTarget);
+			final MenuEntry addNote = new MenuEntry();
+			addNote.setOption(hoveredFriend == null || hoveredFriend.getNote() == null ? ADD_NOTE : EDIT_NOTE);
+			addNote.setType(MenuAction.RUNELITE.getId());
+			addNote.setTarget(event.getTarget()); //Preserve color codes here
+			addNote.setParam0(event.getActionParam0());
+			addNote.setParam1(event.getActionParam1());
 
-					// Open the new chatbox input dialog
-					chatboxPanelManager.openTextInput(String.format(NOTE_PROMPT_FORMAT, sanitizedTarget, CHARACTER_LIMIT))
-						.value(Strings.nullToEmpty(note))
-						.onDone((content) ->
-						{
-							if (content == null)
-							{
-								return;
-							}
-
-							content = Text.removeTags(content).trim();
-							log.debug("Set note for '{}': '{}'", sanitizedTarget, content);
-							setFriendNote(sanitizedTarget, content);
-						}).build();
-				});
+			// Add menu entry
+			final MenuEntry[] menuEntries = ObjectArrays.concat(client.getMenuEntries(), addNote);
+			client.setMenuEntries(menuEntries);
 		}
 		else if (hoveredFriend != null)
 		{
 			hoveredFriend = null;
 		}
+	}
+
+	@Subscribe
+	public void onMenuOptionClicked(MenuOptionClicked event)
+	{
+		final int groupId = WidgetInfo.TO_GROUP(event.getParam1());
+
+		if (groupId == WidgetInfo.FRIENDS_LIST.getGroupId() || groupId == WidgetInfo.IGNORE_LIST.getGroupId())
+		{
+			if (Strings.isNullOrEmpty(event.getMenuTarget()))
+			{
+				return;
+			}
+
+			// Handle clicks on "Add Note" or "Edit Note"
+			if (event.getMenuOption().equals(ADD_NOTE) || event.getMenuOption().equals(EDIT_NOTE))
+			{
+				event.consume();
+
+				//Friends have color tags
+				final String sanitizedTarget = Text.toJagexName(Text.removeTags(event.getMenuTarget()));
+				final String note = getFriendNote(sanitizedTarget);
+
+				// Open the new chatbox input dialog
+				chatboxPanelManager.openTextInput(String.format(NOTE_PROMPT_FORMAT, sanitizedTarget, CHARACTER_LIMIT))
+					.value(Strings.nullToEmpty(note))
+					.onDone((content) ->
+					{
+						if (content == null)
+						{
+							return;
+						}
+
+						content = Text.removeTags(content).trim();
+						log.debug("Set note for '{}': '{}'", sanitizedTarget, content);
+						setFriendNote(sanitizedTarget, content);
+					}).build();
+			}
+		}
+
 	}
 
 	@Subscribe
@@ -378,7 +408,8 @@ public class FriendNotesPlugin extends Plugin
 
 	private void loadIcon()
 	{
-		if (iconIdx != -1)
+		final IndexedSprite[] modIcons = client.getModIcons();
+		if (iconIdx != -1 || modIcons == null)
 		{
 			return;
 		}
@@ -391,8 +422,6 @@ public class FriendNotesPlugin extends Plugin
 
 		final BufferedImage resized = ImageUtil.resizeImage(iconImg, ICON_WIDTH, ICON_HEIGHT);
 
-		final IndexedSprite[] modIcons = client.getModIcons();
-		assert modIcons != null;
 		final IndexedSprite[] newIcons = Arrays.copyOf(modIcons, modIcons.length + 1);
 		newIcons[newIcons.length - 1] = ImageUtil.getImageIndexedSprite(resized, client);
 

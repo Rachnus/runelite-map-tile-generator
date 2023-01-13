@@ -25,8 +25,6 @@
 package net.runelite.api.events;
 
 import lombok.Value;
-import net.runelite.api.widgets.WidgetModalMode;
-import org.intellij.lang.annotations.MagicConstant;
 
 /**
  * Posted when an interface is about to be closed
@@ -42,7 +40,6 @@ public class WidgetClosed
 	/**
 	 * @see net.runelite.api.widgets.WidgetModalMode
 	 */
-	@MagicConstant(valuesFromClass = WidgetModalMode.class)
 	private final int modalMode;
 
 	/**

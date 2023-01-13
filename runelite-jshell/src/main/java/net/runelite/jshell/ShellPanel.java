@@ -117,7 +117,7 @@ public abstract class ShellPanel extends JPanel
 		topPanel.add(run);
 
 		JButton clear = new JButton("🗑");
-		clear.setToolTipText("Clear console");
+		run.setToolTipText("Clear console");
 		clear.addActionListener(ev -> console.setText(""));
 		topPanel.add(clear);
 

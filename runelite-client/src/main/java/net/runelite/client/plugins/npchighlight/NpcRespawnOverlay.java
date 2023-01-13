@@ -35,7 +35,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.util.Locale;
-import java.util.Map;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.Constants;
@@ -78,13 +77,11 @@ class NpcRespawnOverlay extends Overlay
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		Map<Integer, MemorizedNpc> deadNpcsToDisplay = plugin.getDeadNpcsToDisplay();
-		if (deadNpcsToDisplay.isEmpty() || !config.showRespawnTimer())
+		if (config.showRespawnTimer())
 		{
-			return null;
+			plugin.getDeadNpcsToDisplay().forEach((id, npc) -> renderNpcRespawn(npc, graphics));
 		}
 
-		deadNpcsToDisplay.forEach((id, npc) -> renderNpcRespawn(npc, graphics));
 		return null;
 	}
 

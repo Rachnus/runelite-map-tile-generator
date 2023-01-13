@@ -33,17 +33,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +50,6 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.swing.AbstractAction;
@@ -116,83 +112,6 @@ class PluginHubPanel extends PluginPanel
 		BufferedImage configureIcon = ImageUtil.loadImageResource(PluginHubPanel.class, "pluginhub_configure.png");
 		CONFIGURE_ICON = new ImageIcon(configureIcon);
 		CONFIGURE_ICON_HOVER = new ImageIcon(ImageUtil.alphaOffset(configureIcon, -100));
-	}
-
-	private class PluginIcon extends JLabel
-	{
-		@Nullable
-		private final ExternalPluginManifest manifest;
-		private boolean loadingStarted;
-		private boolean loaded;
-
-		PluginIcon(ExternalPluginManifest manifest)
-		{
-			setIcon(MISSING_ICON);
-
-			this.manifest = manifest.hasIcon() ? manifest : null;
-			this.loaded = !manifest.hasIcon();
-		}
-
-		@Override
-		public void paint(Graphics g)
-		{
-			super.paint(g);
-
-			if (!loaded && !loadingStarted)
-			{
-				loadingStarted = true;
-				synchronized (iconLoadQueue)
-				{
-					iconLoadQueue.add(this);
-					if (iconLoadQueue.size() == 1)
-					{
-						executor.submit(PluginHubPanel.this::pumpIconQueue);
-					}
-				}
-			}
-		}
-
-		private void load()
-		{
-			try
-			{
-				BufferedImage img = externalPluginClient.downloadIcon(manifest);
-
-				loaded = true;
-				SwingUtilities.invokeLater(() -> setIcon(new ImageIcon(img)));
-			}
-			catch (IOException e)
-			{
-				log.info("Cannot download icon for plugin \"{}\"", manifest.getInternalName(), e);
-			}
-		}
-	}
-
-	private void pumpIconQueue()
-	{
-		PluginIcon pi;
-		synchronized (iconLoadQueue)
-		{
-			pi = iconLoadQueue.poll();
-		}
-
-		if (pi == null)
-		{
-			return;
-		}
-
-		pi.load();
-
-		synchronized (iconLoadQueue)
-		{
-			if (iconLoadQueue.isEmpty())
-			{
-				return;
-			}
-		}
-
-		// re add ourselves to the executor queue so we don't block the executor for a long time
-		executor.submit(this::pumpIconQueue);
 	}
 
 	private class PluginItem extends JPanel implements SearchablePlugin
@@ -268,8 +187,25 @@ class PluginHubPanel extends PluginPanel
 			description.setVerticalAlignment(JLabel.TOP);
 			description.setToolTipText(descriptionText);
 
-			JLabel icon = new PluginIcon(manifest);
+			JLabel icon = new JLabel();
 			icon.setHorizontalAlignment(JLabel.CENTER);
+			icon.setIcon(MISSING_ICON);
+			if (manifest.hasIcon())
+			{
+				executor.submit(() ->
+				{
+					try
+					{
+						BufferedImage img = externalPluginClient.downloadIcon(manifest);
+
+						SwingUtilities.invokeLater(() -> icon.setIcon(new ImageIcon(img)));
+					}
+					catch (IOException e)
+					{
+						log.info("Cannot download icon for plugin \"{}\"", manifest.getInternalName(), e);
+					}
+				});
+			}
 
 			JButton help = new JButton(HELP_ICON);
 			help.setRolloverIcon(HELP_ICON_HOVER);
@@ -424,8 +360,6 @@ class PluginHubPanel extends PluginPanel
 	private final PluginManager pluginManager;
 	private final ExternalPluginClient externalPluginClient;
 	private final ScheduledExecutorService executor;
-
-	private final Deque<PluginIcon> iconLoadQueue = new ArrayDeque<>();
 
 	private final IconTextField searchBar;
 	private final JLabel refreshing;
@@ -622,11 +556,6 @@ class PluginHubPanel extends PluginPanel
 
 		SwingUtilities.invokeLater(() ->
 		{
-			if (!refreshing.isVisible())
-			{
-				return;
-			}
-
 			plugins = Sets.union(manifests.keySet(), loadedPlugins.keySet())
 				.stream()
 				.map(id -> new PluginItem(manifests.get(id), loadedPlugins.get(id),
@@ -640,7 +569,7 @@ class PluginHubPanel extends PluginPanel
 
 	void filter()
 	{
-		if (refreshing.isVisible() || plugins == null)
+		if (refreshing.isVisible())
 		{
 			return;
 		}
@@ -673,25 +602,9 @@ class PluginHubPanel extends PluginPanel
 	public void onActivate()
 	{
 		revalidate();
-		reloadPluginList();
 		searchBar.setText("");
+		reloadPluginList();
 		searchBar.requestFocusInWindow();
-	}
-
-	@Override
-	public void onDeactivate()
-	{
-		mainPanel.removeAll();
-		refreshing.setVisible(false);
-		plugins = null;
-
-		synchronized (iconLoadQueue)
-		{
-			for (PluginIcon pi; (pi = iconLoadQueue.poll()) != null; )
-			{
-				pi.loadingStarted = false;
-			}
-		}
 	}
 
 	@Subscribe
@@ -704,10 +617,6 @@ class PluginHubPanel extends PluginPanel
 				.collect(Collectors.toMap(pi -> pi.manifest.getInternalName(), PluginItem::getUserCount));
 		}
 
-		if (!refreshing.isVisible())
-		{
-			refreshing.setVisible(true);
-			reloadPluginList(ev.getLoadedManifest(), pluginCounts);
-		}
+		reloadPluginList(ev.getLoadedManifest(), pluginCounts);
 	}
 }

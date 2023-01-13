@@ -24,14 +24,14 @@
  */
 package net.runelite.api.events;
 
-import lombok.Value;
+import lombok.Data;
 import net.runelite.api.ItemComposition;
 
 /**
  * An event called after a new {@link ItemComposition} is created and
  * its data is initialized.
  */
-@Value
+@Data
 public class PostItemComposition
 {
 	/**

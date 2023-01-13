@@ -29,17 +29,22 @@ import java.awt.image.BufferedImage;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import lombok.Getter;
+import lombok.Setter;
+import net.runelite.client.plugins.Plugin;
 import net.runelite.client.ui.overlay.infobox.Timer;
 
 class AggressionTimer extends Timer
 {
-	private final NpcAggroAreaPlugin plugin;
+	@Getter
+	@Setter
+	private boolean visible;
 
-	AggressionTimer(Duration duration, BufferedImage image, NpcAggroAreaPlugin plugin)
+	AggressionTimer(Duration duration, BufferedImage image, Plugin plugin, boolean visible)
 	{
 		super(duration.toMillis(), ChronoUnit.MILLIS, image, plugin);
 		setTooltip("Time until NPCs become unaggressive");
-		this.plugin = plugin;
+		this.visible = visible;
 	}
 
 	@Override
@@ -58,6 +63,6 @@ class AggressionTimer extends Timer
 	@Override
 	public boolean render()
 	{
-		return plugin.shouldDisplayTimer() && super.render();
+		return visible && super.render();
 	}
 }

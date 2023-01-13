@@ -102,21 +102,10 @@ public interface BankConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "rightClickPlaceholders",
-		name = "Disable left click placeholders button",
-		description = "Configures whether the placeholders button will be toggled on left click",
-		position = 7
-	)
-	default boolean rightClickPlaceholders()
-	{
-		return false;
-	}
-
-	@ConfigItem(
 		keyName = "seedVaultValue",
 		name = "Show seed vault value",
 		description = "Adds the total value of all seeds inside the seed vault to the title",
-		position = 8
+		position = 7
 	)
 	default boolean seedVaultValue()
 	{
@@ -127,7 +116,7 @@ public interface BankConfig extends Config
 		keyName = "bankPinKeyboard",
 		name = "Keyboard Bankpin",
 		description = "Allows using the keyboard keys for bank pin input",
-		position = 9
+		position = 8
 	)
 	default boolean bankPinKeyboard()
 	{
@@ -138,7 +127,7 @@ public interface BankConfig extends Config
 		keyName = "searchKeybind",
 		name = "Search Shortcut",
 		description = "Keyboard shortcut for initiating a bank search",
-		position = 10
+		position = 9
 	)
 	default Keybind searchKeybind()
 	{

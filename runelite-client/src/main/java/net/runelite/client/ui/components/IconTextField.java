@@ -285,11 +285,6 @@ public class IconTextField extends JPanel
 		iconWrapperLabel.setIcon(imageIcon);
 	}
 
-	public void setIcon(ImageIcon imageIcon)
-	{
-		iconWrapperLabel.setIcon(imageIcon);
-	}
-
 	public String getText()
 	{
 		return textField.getText();

@@ -85,20 +85,29 @@ public class ItemStatOverlay extends Overlay
 
 		final MenuEntry[] menu = client.getMenuEntries();
 		final int menuSize = menu.length;
+
 		if (menuSize <= 0)
 		{
 			return null;
 		}
 
 		final MenuEntry entry = menu[menuSize - 1];
-		final Widget widget = entry.getWidget();
-		if (widget == null)
+		final int group = WidgetInfo.TO_GROUP(entry.getParam1());
+		final int child = WidgetInfo.TO_CHILD(entry.getParam1());
+		final Widget widget = client.getWidget(group, child);
+
+		if (widget == null
+			|| !(group == WidgetInfo.INVENTORY.getGroupId()
+				|| group == WidgetInfo.EQUIPMENT.getGroupId()
+				|| group == WidgetInfo.EQUIPMENT_INVENTORY_ITEMS_CONTAINER.getGroupId()
+				|| (config.showStatsInBank()
+					&& ((group == WidgetInfo.BANK_ITEM_CONTAINER.getGroupId() && child == WidgetInfo.BANK_ITEM_CONTAINER.getChildId())
+						|| group == WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getGroupId()))))
 		{
 			return null;
 		}
 
-		final int group = WidgetInfo.TO_GROUP(widget.getId());
-		int itemId = -1;
+		int itemId = entry.getIdentifier();
 
 		if (group == WidgetInfo.EQUIPMENT.getGroupId() ||
 			// For bank worn equipment, check widget parent to differentiate from normal bank items
@@ -110,17 +119,19 @@ public class ItemStatOverlay extends Overlay
 				itemId = widgetItem.getItemId();
 			}
 		}
-		else if (widget.getId() == WidgetInfo.INVENTORY.getId()
-			|| group == WidgetInfo.EQUIPMENT_INVENTORY_ITEMS_CONTAINER.getGroupId()
-			|| widget.getId() == WidgetInfo.BANK_ITEM_CONTAINER.getId() && config.showStatsInBank()
-			|| group == WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getGroupId() && config.showStatsInBank())
+		else if (group == WidgetInfo.EQUIPMENT_INVENTORY_ITEMS_CONTAINER.getGroupId()
+			|| group == WidgetInfo.BANK_ITEM_CONTAINER.getGroupId()
+			|| group == WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getGroupId())
 		{
-			itemId = widget.getItemId();
-		}
-
-		if (itemId == -1)
-		{
-			return null;
+			int index = entry.getParam0();
+			if (index > -1)
+			{
+				final Widget widgetItem = widget.getChild(index);
+				if (widgetItem != null)
+				{
+					itemId = widgetItem.getItemId();
+				}
+			}
 		}
 
 		if (config.consumableStats())
@@ -173,7 +184,7 @@ public class ItemStatOverlay extends Overlay
 						Duration highestDuration = durationRange.getHighestDuration();
 						if (lowestDuration != highestDuration)
 						{
-							sb.append('~');
+							sb.append("~");
 							sb.append(DurationFormatUtils.formatDuration(highestDuration.toMillis(), "m:ss"));
 						}
 					}
@@ -381,7 +392,7 @@ public class ItemStatOverlay extends Overlay
 		{
 			if (config.relative())
 			{
-				b.append('/');
+				b.append("/");
 			}
 			b.append(c.getFormattedTheoretical());
 		}
@@ -397,9 +408,9 @@ public class ItemStatOverlay extends Overlay
 
 		if (config.absolute() && (config.relative() || config.theoretical()))
 		{
-			b.append(')');
+			b.append(")");
 		}
-		b.append(' ').append(c.getStat().getName());
+		b.append(" ").append(c.getStat().getName());
 		b.append("</br>");
 
 		return b.toString();

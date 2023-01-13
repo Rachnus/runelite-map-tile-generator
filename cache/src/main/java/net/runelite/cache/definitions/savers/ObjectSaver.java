@@ -176,14 +176,14 @@ public class ObjectSaver
 			out.writeShort(obj.getAmbientSoundId());
 			out.writeByte(obj.getAnInt2083());
 		}
-		if (obj.getAmbientSoundIds() != null)
+		if (obj.getAnIntArray2084() != null)
 		{
 			out.writeByte(79);
 			out.writeShort(obj.getAnInt2112());
 			out.writeShort(obj.getAnInt2113());
 			out.writeByte(obj.getAnInt2083());
-			out.writeByte(obj.getAmbientSoundIds().length);
-			for (int i : obj.getAmbientSoundIds())
+			out.writeByte(obj.getAnIntArray2084().length);
+			for (int i : obj.getAnIntArray2084())
 			{
 				out.writeShort(i);
 			}

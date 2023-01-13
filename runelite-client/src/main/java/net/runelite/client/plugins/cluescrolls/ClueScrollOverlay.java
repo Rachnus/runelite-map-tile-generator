@@ -42,9 +42,9 @@ import net.runelite.client.plugins.cluescrolls.clues.item.ItemRequirement;
 import static net.runelite.client.plugins.cluescrolls.clues.item.ItemRequirements.item;
 import net.runelite.client.plugins.cluescrolls.clues.item.SingleItemRequirement;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
+import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPriority;
-import net.runelite.client.ui.overlay.components.ComponentConstants;
 import net.runelite.client.ui.overlay.components.LineComponent;
 
 public class ClueScrollOverlay extends OverlayPanel
@@ -70,20 +70,7 @@ public class ClueScrollOverlay extends OverlayPanel
 		item(KANDARIN_HEADGEAR_4),
 		item(BRUMA_TORCH),
 		item(MAX_CAPE),
-		item(MAX_CAPE_13342),
-		item(ABYSSAL_LANTERN_NORMAL_LOGS),
-		item(ABYSSAL_LANTERN_BLUE_LOGS),
-		item(ABYSSAL_LANTERN_RED_LOGS),
-		item(ABYSSAL_LANTERN_WHITE_LOGS),
-		item(ABYSSAL_LANTERN_PURPLE_LOGS),
-		item(ABYSSAL_LANTERN_GREEN_LOGS),
-		item(ABYSSAL_LANTERN_OAK_LOGS),
-		item(ABYSSAL_LANTERN_WILLOW_LOGS),
-		item(ABYSSAL_LANTERN_MAPLE_LOGS),
-		item(ABYSSAL_LANTERN_YEW_LOGS),
-		item(ABYSSAL_LANTERN_BLISTERWOOD_LOGS),
-		item(ABYSSAL_LANTERN_MAGIC_LOGS),
-		item(ABYSSAL_LANTERN_REDWOOD_LOGS));
+		item(MAX_CAPE_13342));
 
 	public static final Color TITLED_CONTENT_COLOR = new Color(190, 190, 190);
 
@@ -97,8 +84,8 @@ public class ClueScrollOverlay extends OverlayPanel
 		this.plugin = plugin;
 		this.client = client;
 		setPriority(OverlayPriority.LOW);
-		addMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Clue Scroll overlay");
-		addMenuEntry(RUNELITE_OVERLAY, "Reset", "Clue Scroll overlay", e -> plugin.resetClue(true));
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Clue Scroll overlay"));
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY, "Reset", "Clue Scroll overlay"));
 	}
 
 	@Override
@@ -111,7 +98,6 @@ public class ClueScrollOverlay extends OverlayPanel
 			return null;
 		}
 
-		panelComponent.setPreferredSize(new Dimension(ComponentConstants.STANDARD_WIDTH, 0));
 		clue.makeOverlayHint(panelComponent, plugin);
 
 		final Item[] inventoryItems = plugin.getInventoryItems();
@@ -127,7 +113,7 @@ public class ClueScrollOverlay extends OverlayPanel
 		}
 
 		if (clue.isRequiresLight()
-			&& ((clue.getFirePitVarbitId() == -1 || client.getVarbitValue(clue.getFirePitVarbitId()) != 1)
+			&& ((clue.getHasFirePit() == null || client.getVar(clue.getHasFirePit()) != 1)
 				&& (inventoryItems == null || !HAS_LIGHT.fulfilledBy(inventoryItems))
 					&& (equippedItems == null || !HAS_LIGHT.fulfilledBy(equippedItems))))
 		{

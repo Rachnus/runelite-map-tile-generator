@@ -45,7 +45,6 @@ import net.runelite.api.Player;
 import net.runelite.api.SpriteID;
 import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.clan.ClanChannelMember;
-import net.runelite.api.clan.ClanID;
 import net.runelite.api.events.ClanChannelChanged;
 import net.runelite.api.events.ClanMemberJoined;
 import net.runelite.api.events.ClanMemberLeft;
@@ -291,7 +290,7 @@ public class TeamPlugin extends Plugin
 	@Subscribe
 	public void onClanChannelChanged(ClanChannelChanged event)
 	{
-		if (event.getClanId() == ClanID.CLAN)
+		if (!event.isGuest())
 		{
 			removeClanChatCounter();
 			clanChatCount = 0;

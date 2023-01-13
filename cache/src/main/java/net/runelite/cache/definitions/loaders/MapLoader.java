@@ -57,7 +57,7 @@ public class MapLoader
 					Tile tile = tiles[z][x][y] = new Tile();
 					while (true)
 					{
-						int attribute = in.readUnsignedShort();
+						int attribute = in.readUnsignedByte();
 						if (attribute == 0)
 						{
 							break;
@@ -71,7 +71,7 @@ public class MapLoader
 						else if (attribute <= 49)
 						{
 							tile.attrOpcode = attribute;
-							tile.overlayId = in.readShort();
+							tile.overlayId = in.readByte();
 							tile.overlayPath = (byte) ((attribute - 2) / 4);
 							tile.overlayRotation = (byte) (attribute - 2 & 3);
 						}
@@ -81,7 +81,7 @@ public class MapLoader
 						}
 						else
 						{
-							tile.underlayId = (short) (attribute - 81);
+							tile.underlayId = (byte) (attribute - 81);
 						}
 					}
 				}

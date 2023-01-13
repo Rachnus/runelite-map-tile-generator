@@ -34,7 +34,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -69,9 +68,7 @@ class WorldSwitcherPanel extends PluginPanel
 	@Setter(AccessLevel.PACKAGE)
 	private SubscriptionFilterMode subscriptionFilterMode;
 	@Setter(AccessLevel.PACKAGE)
-	private Set<RegionFilterMode> regionFilterMode;
-	@Setter(AccessLevel.PACKAGE)
-	private Set<WorldTypeFilter> worldTypeFilters;
+	private RegionFilterMode regionFilterMode;
 
 	WorldSwitcherPanel(WorldHopperPlugin plugin)
 	{
@@ -252,22 +249,9 @@ class WorldSwitcherPanel extends PluginPanel
 					break;
 			}
 
-			if (!regionFilterMode.isEmpty() && !regionFilterMode.contains(RegionFilterMode.of(world.getRegion())))
+			if (regionFilterMode.getRegion() != null && !regionFilterMode.getRegion().equals(world.getRegion()))
 			{
 				continue;
-			}
-
-			if (!worldTypeFilters.isEmpty())
-			{
-				boolean matches = false;
-				for (WorldTypeFilter worldTypeFilter : worldTypeFilters)
-				{
-					matches |= worldTypeFilter.matches(world.getTypes());
-				}
-				if (!matches)
-				{
-					continue;
-				}
 			}
 
 			rows.add(buildRow(world, i % 2 == 0, world.getId() == plugin.getCurrentWorld() && plugin.getLastWorld() != 0, plugin.isFavorite(world)));

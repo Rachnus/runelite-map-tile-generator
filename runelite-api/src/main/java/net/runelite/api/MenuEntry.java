@@ -24,137 +24,46 @@
  */
 package net.runelite.api;
 
-import java.util.function.Consumer;
-import javax.annotation.Nullable;
-import net.runelite.api.widgets.Widget;
+import lombok.Data;
 
 /**
  * A menu entry in a right-click menu.
  */
-public interface MenuEntry
+@Data
+public class MenuEntry
 {
 	/**
 	 * The option text added to the menu. (ie. "Walk here", "Use")
 	 */
-	String getOption();
-	MenuEntry setOption(String option);
-
+	private String option;
 	/**
 	 * The target of the action. (ie. Item or Actor name)
 	 * <p>
 	 * If the option does not apply to any target, this field
 	 * will be set to empty string.
 	 */
-	String getTarget();
-	MenuEntry setTarget(String target);
-
+	private String target;
 	/**
 	 * An identifier value for the target of the action.
 	 */
-	int getIdentifier();
-	MenuEntry setIdentifier(int identifier);
-
+	private int identifier;
 	/**
 	 * The action the entry will trigger.
 	 */
-	MenuAction getType();
-	MenuEntry setType(MenuAction type);
-
+	private int type;
 	/**
 	 * An additional parameter for the action.
 	 */
-	int getParam0();
-	MenuEntry setParam0(int param0);
-
+	private int param0;
 	/**
 	 * A second additional parameter for the action.
 	 */
-	int getParam1();
-	MenuEntry setParam1(int param1);
-
+	private int param1;
 	/**
-	 * If this is true and you have single mouse button on and this entry is
+	 * If this field is true and you have single mouse button on and this entry is
 	 * the top entry the right click menu will not be opened when you left click
 	 *
 	 * This is used  for shift click
 	 */
-	boolean isForceLeftClick();
-	MenuEntry setForceLeftClick(boolean forceLeftClick);
-
-	/**
-	 * Deprioritized menus are sorted in the menu to be below the other menu entries.
-	 * @return
-	 */
-	boolean isDeprioritized();
-	MenuEntry setDeprioritized(boolean deprioritized);
-
-	/**
-	 * Set a callback to be called when this menu option is clicked
-	 * @param callback
-	 * @return
-	 */
-	MenuEntry onClick(Consumer<MenuEntry> callback);
-
-	/**
-	 * Set the parent for the menu entry. This makes this menu entry part of the sub-menu off of the parent.
-	 * @param parent
-	 * @return
-	 */
-	MenuEntry setParent(MenuEntry parent);
-
-	/**
-	 * Get the parent for the menu entry.
-	 * @return
-	 */
-	@Nullable
-	MenuEntry getParent();
-
-	/**
-	 * Test if this menu entry is an item op. "Use" and "Examine" are not considered item ops.
-	 * @return
-	 */
-	boolean isItemOp();
-
-	/**
-	 * If this menu entry is an item op, get the item op id
-	 * @return 1-5
-	 */
-	int getItemOp();
-
-	/**
-	 * Get the item id
-	 * @return
-	 * @see ItemID
-	 * @see NullItemID
-	 */
-	int getItemId();
-
-	/**
-	 * Get the widget this menu entry is on, if this is a menu entry
-	 * with an associated widget. Such as eg, CC_OP.
-	 * @return
-	 */
-	@Nullable
-	Widget getWidget();
-
-	/**
-	 * Get the {@link NPC} this menu entry is targeting, if any.
-	 * @return
-	 */
-	@Nullable
-	NPC getNpc();
-
-	/**
-	 * Get the {@link Player} this menu entry is targeting, if any.
-	 * @return
-	 */
-	@Nullable
-	Player getPlayer();
-
-	/**
-	 * Get the {@link Actor} this menu entry is targeting, if any.
-	 * @return
-	 */
-	@Nullable
-	Actor getActor();
+	private boolean forceLeftClick;
 }

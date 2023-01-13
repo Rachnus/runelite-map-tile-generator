@@ -42,13 +42,12 @@ public class InfoPlugin extends Plugin
 	@Inject
 	private ClientToolbar clientToolbar;
 
-	private InfoPanel panel;
 	private NavigationButton navButton;
 
 	@Override
 	protected void startUp() throws Exception
 	{
-		panel = injector.getInstance(InfoPanel.class);
+		final InfoPanel panel = injector.getInstance(InfoPanel.class);
 		panel.init();
 
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "info_icon.png");
@@ -66,9 +65,6 @@ public class InfoPlugin extends Plugin
 	@Override
 	protected void shutDown()
 	{
-		panel.deinit();
 		clientToolbar.removeNavigation(navButton);
-		panel = null;
-		navButton = null;
 	}
 }

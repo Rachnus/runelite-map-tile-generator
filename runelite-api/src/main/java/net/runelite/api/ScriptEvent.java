@@ -54,12 +54,6 @@ public interface ScriptEvent
 	ScriptEvent setSource(Widget widget);
 
 	/**
-	 * Arguments passed to the script. Index 0 is the script being run and is not an argument.
-	 * @return
-	 */
-	Object[] getArguments();
-
-	/**
 	 * Gets the menu index of the event
 	 *
 	 * @return the index
@@ -78,11 +72,6 @@ public interface ScriptEvent
 	 * Parent relative x coordinate for mouse related events
 	 */
 	int getMouseX();
-
-	/**
-	 * Parent relative y coordinate for mouse related events
-	 */
-	int getMouseY();
 
 	/**
 	 * Jagex typed keycode

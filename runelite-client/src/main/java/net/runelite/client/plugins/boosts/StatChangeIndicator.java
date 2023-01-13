@@ -29,7 +29,7 @@ import java.awt.image.BufferedImage;
 import net.runelite.client.ui.overlay.infobox.InfoBox;
 import net.runelite.client.ui.overlay.infobox.InfoBoxPriority;
 
-class StatChangeIndicator extends InfoBox
+public class StatChangeIndicator extends InfoBox
 {
 	private final boolean up;
 	private final BoostsPlugin plugin;
@@ -61,6 +61,6 @@ class StatChangeIndicator extends InfoBox
 	public boolean render()
 	{
 		final int time = up ? plugin.getChangeUpTicks() : plugin.getChangeDownTicks();
-		return time != -1 && config.displayInfoboxes();
+		return config.displayInfoboxes() && time != -1;
 	}
 }

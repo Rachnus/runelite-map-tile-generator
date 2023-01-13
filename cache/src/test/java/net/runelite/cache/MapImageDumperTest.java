@@ -31,7 +31,6 @@ import javax.imageio.ImageIO;
 import net.runelite.cache.fs.Store;
 import net.runelite.cache.region.Region;
 import net.runelite.cache.region.RegionLoader;
-import net.runelite.cache.util.XteaKeyManager;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,10 +56,7 @@ public class MapImageDumperTest
 		{
 			store.load();
 
-			XteaKeyManager keyManager = new XteaKeyManager();
-			keyManager.loadKeys(null);
-
-			MapImageDumper dumper = new MapImageDumper(store, keyManager);
+			MapImageDumper dumper = new MapImageDumper(store);
 			dumper.load();
 
 			for (int i = 0; i < Region.Z; ++i)
@@ -86,13 +82,10 @@ public class MapImageDumperTest
 		{
 			store.load();
 
-			XteaKeyManager keyManager = new XteaKeyManager();
-			keyManager.loadKeys(null);
-
-			RegionLoader regionLoader = new RegionLoader(store, keyManager);
+			RegionLoader regionLoader = new RegionLoader(store);
 			regionLoader.loadRegions();
 
-			MapImageDumper dumper = new MapImageDumper(store, regionLoader);
+			MapImageDumper dumper = new MapImageDumper(store);
 			dumper.load();
 
 			int z = 0;

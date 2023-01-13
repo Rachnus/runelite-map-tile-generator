@@ -128,8 +128,8 @@ public class ArdougneDiaryRequirement extends GenericDiaryRequirement
 			new SkillRequirement(Skill.FARMING, 85));
 		add("Complete a lap of Ardougne's rooftop agility course.",
 			new SkillRequirement(Skill.AGILITY, 90));
-		add("Cast Ice Barrage on another player within Castle Wars.",
+		add("Cast Ice Barrage on another player within Castlewars.",
 			new SkillRequirement(Skill.MAGIC, 94),
-			new QuestRequirement(Quest.DESERT_TREASURE_I));
+			new QuestRequirement(Quest.DESERT_TREASURE));
 	}
 }

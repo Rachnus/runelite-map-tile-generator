@@ -26,14 +26,12 @@ package net.runelite.client.plugins.discord;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import net.runelite.client.party.messages.PartyMemberMessage;
+import net.runelite.http.api.ws.messages.party.PartyMemberMessage;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
 class DiscordUserInfo extends PartyMemberMessage
 {
 	private final String userId;
-	private final String username;
-	private final String discriminator;
 	private final String avatarId;
 }

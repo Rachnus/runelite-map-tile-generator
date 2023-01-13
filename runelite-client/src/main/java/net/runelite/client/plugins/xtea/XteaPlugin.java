@@ -24,6 +24,7 @@
  */
 package net.runelite.client.plugins.xtea;
 
+import com.google.inject.Provides;
 import java.util.HashSet;
 import java.util.Set;
 import javax.inject.Inject;
@@ -34,8 +35,10 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.http.api.xtea.XteaClient;
 import net.runelite.http.api.xtea.XteaKey;
 import net.runelite.http.api.xtea.XteaRequest;
+import okhttp3.OkHttpClient;
 
 @PluginDescriptor(
 	name = "Xtea",
@@ -51,6 +54,12 @@ public class XteaPlugin extends Plugin
 
 	@Inject
 	private XteaClient xteaClient;
+
+	@Provides
+	XteaClient provideXteaClient(OkHttpClient okHttpClient)
+	{
+		return new XteaClient(okHttpClient);
+	}
 
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged)

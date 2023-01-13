@@ -30,7 +30,6 @@ import net.runelite.api.ItemID;
 
 @AllArgsConstructor
 @Getter
-@Deprecated
 enum Pet
 {
 	ABYSSAL_ORPHAN("Abyssal orphan", ItemID.ABYSSAL_ORPHAN),
@@ -68,7 +67,7 @@ enum Pet
 	HERON("Heron", ItemID.HERON),
 	ROCK_GOLEM("Rock golem", ItemID.ROCK_GOLEM),
 	BEAVER("Beaver", ItemID.BEAVER),
-	BABY_CHINCHOMPA("Baby chinchompa", ItemID.BABY_CHINCHOMPA_13324),
+	BABY_CHINCHOMPA("Baby chinchompa", ItemID.BABY_CHINCHOMPA),
 	GIANT_SQUIRREL("Giant squirrel", ItemID.GIANT_SQUIRREL),
 	TANGLEROOT("Tangleroot", ItemID.TANGLEROOT),
 	ROCKY("Rocky", ItemID.ROCKY),
@@ -80,10 +79,7 @@ enum Pet
 	YOUNGLLEF("Youngllef", ItemID.YOUNGLLEF),
 	LITTLE_NIGHTMARE("Little nightmare", ItemID.LITTLE_NIGHTMARE),
 	LIL_CREATOR("Lil' creator", ItemID.LIL_CREATOR),
-	TINY_TEMPOR("Tiny tempor", ItemID.TINY_TEMPOR),
-	NEXLING("Nexling", ItemID.NEXLING),
-	ABYSSAL_PROTECTOR("Abyssal protector", ItemID.ABYSSAL_PROTECTOR),
-	;
+	TINY_TEMPOR("Tiny tempor", ItemID.TINY_TEMPOR);
 
 	private final String name;
 	private final Integer iconID;

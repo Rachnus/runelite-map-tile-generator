@@ -32,13 +32,6 @@ import javax.annotation.Nullable;
  */
 public interface Player extends Actor
 {
-	/**
-	 * Get the ID of the player
-	 *
-	 * @return
-	 */
-	int getId();
-
 	@Override
 	int getCombatLevel();
 

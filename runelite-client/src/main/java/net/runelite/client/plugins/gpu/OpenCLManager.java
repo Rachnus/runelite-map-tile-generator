@@ -25,15 +25,24 @@
 package net.runelite.client.plugins.gpu;
 
 import com.google.common.base.Charsets;
+import com.jogamp.nativewindow.NativeSurface;
+import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GLContext;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 import javax.inject.Singleton;
+import jogamp.opengl.GLContextImpl;
+import jogamp.opengl.GLDrawableImpl;
+import jogamp.opengl.egl.EGLContext;
+import jogamp.opengl.macosx.cgl.CGL;
+import jogamp.opengl.windows.wgl.WindowsWGLContext;
+import jogamp.opengl.x11.glx.X11GLXContext;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.plugins.gpu.template.Template;
 import net.runelite.client.util.OSType;
-import net.runelite.rlawt.AWTContext;
+import org.jocl.CL;
 import static org.jocl.CL.*;
 import org.jocl.CLException;
 import org.jocl.Pointer;
@@ -86,9 +95,9 @@ class OpenCLManager
 	private cl_kernel kernelSmall;
 	private cl_kernel kernelLarge;
 
-	void init(AWTContext awtContext)
+	void init(GL4 gl)
 	{
-		setExceptionsEnabled(true);
+		CL.setExceptionsEnabled(true);
 
 		switch (OSType.getOSType())
 		{
@@ -96,10 +105,10 @@ class OpenCLManager
 			case Linux:
 				initPlatform();
 				initDevice();
-				initContext(awtContext);
+				initContext(gl);
 				break;
 			case MacOS:
-				initMacOS(awtContext);
+				initMacOS(gl);
 				break;
 			default:
 				throw new RuntimeException("Unsupported OS Type " + OSType.getOSType().name());
@@ -113,55 +122,55 @@ class OpenCLManager
 	{
 		if (programUnordered != null)
 		{
-			clReleaseProgram(programUnordered);
+			CL.clReleaseProgram(programUnordered);
 			programUnordered = null;
 		}
 
 		if (programSmall != null)
 		{
-			clReleaseProgram(programSmall);
+			CL.clReleaseProgram(programSmall);
 			programSmall = null;
 		}
 
 		if (programLarge != null)
 		{
-			clReleaseProgram(programLarge);
+			CL.clReleaseProgram(programLarge);
 			programLarge = null;
 		}
 
 		if (kernelUnordered != null)
 		{
-			clReleaseKernel(kernelUnordered);
+			CL.clReleaseKernel(kernelUnordered);
 			kernelUnordered = null;
 		}
 
 		if (kernelSmall != null)
 		{
-			clReleaseKernel(kernelSmall);
+			CL.clReleaseKernel(kernelSmall);
 			kernelSmall = null;
 		}
 
 		if (kernelLarge != null)
 		{
-			clReleaseKernel(kernelLarge);
+			CL.clReleaseKernel(kernelLarge);
 			kernelLarge = null;
 		}
 
 		if (commandQueue != null)
 		{
-			clReleaseCommandQueue(commandQueue);
+			CL.clReleaseCommandQueue(commandQueue);
 			commandQueue = null;
 		}
 
 		if (context != null)
 		{
-			clReleaseContext(context);
+			CL.clReleaseContext(context);
 			context = null;
 		}
 
 		if (device != null)
 		{
-			clReleaseDevice(device);
+			CL.clReleaseDevice(device);
 			device = null;
 		}
 	}
@@ -227,17 +236,13 @@ class OpenCLManager
 			logPlatformInfo(platform, CL_PLATFORM_NAME);
 			logPlatformInfo(platform, CL_PLATFORM_VENDOR);
 			String[] extensions = logPlatformInfo(platform, CL_PLATFORM_EXTENSIONS).split(" ");
-			if (Arrays.stream(extensions).anyMatch(s -> s.equals(GL_SHARING_PLATFORM_EXT)))
+			if (Arrays.stream(extensions).noneMatch(s -> s.equals(GL_SHARING_PLATFORM_EXT)))
 			{
-				this.platform = platform;
+				throw new RuntimeException("Platform does not support OpenGL buffer sharing");
 			}
 		}
 
-		if (this.platform == null)
-		{
-			throw new RuntimeException("Platform does not support OpenGL buffer sharing");
-		}
-
+		platform = platforms[0];
 		log.debug("Selected cl_platform_id {}", platform);
 	}
 
@@ -269,20 +274,43 @@ class OpenCLManager
 		log.debug("Selected cl_device_id {}", device);
 	}
 
-	private void initContext(AWTContext awtContext)
+	private void initContext(GL4 gl)
 	{
 		// set computation platform
 		cl_context_properties contextProps = new cl_context_properties();
 		contextProps.addProperty(CL_CONTEXT_PLATFORM, platform);
-		contextProps.addProperty(CL_GL_CONTEXT_KHR, awtContext.getGLContext());
 
-		if (OSType.getOSType() == OSType.Linux)
+		// pull gl context
+		GLContext glContext = gl.getContext();
+		log.debug("Got GLContext of type {}", glContext.getClass().getSimpleName());
+		if (!glContext.isCurrent())
 		{
-			contextProps.addProperty(CL_GLX_DISPLAY_KHR, awtContext.getGLXDisplay());
+			throw new RuntimeException("Can't create OpenCL context from inactive GL Context");
 		}
-		else if (OSType.getOSType() == OSType.Windows)
+
+		// get correct props based on os
+		long glContextHandle = glContext.getHandle();
+		GLContextImpl glContextImpl = (GLContextImpl) glContext;
+		GLDrawableImpl glDrawableImpl = glContextImpl.getDrawableImpl();
+		NativeSurface nativeSurface = glDrawableImpl.getNativeSurface();
+
+		if (glContext instanceof X11GLXContext)
 		{
-			contextProps.addProperty(CL_WGL_HDC_KHR, awtContext.getWGLHDC());
+			long displayHandle = nativeSurface.getDisplayHandle();
+			contextProps.addProperty(CL_GL_CONTEXT_KHR, glContextHandle);
+			contextProps.addProperty(CL_GLX_DISPLAY_KHR, displayHandle);
+		}
+		else if (glContext instanceof WindowsWGLContext)
+		{
+			long surfaceHandle = nativeSurface.getSurfaceHandle();
+			contextProps.addProperty(CL_GL_CONTEXT_KHR, glContextHandle);
+			contextProps.addProperty(CL_WGL_HDC_KHR, surfaceHandle);
+		}
+		else if (glContext instanceof EGLContext)
+		{
+			long displayHandle = nativeSurface.getDisplayHandle();
+			contextProps.addProperty(CL_GL_CONTEXT_KHR, glContextHandle);
+			contextProps.addProperty(CL_EGL_DISPLAY_KHR, displayHandle);
 		}
 
 		log.debug("Creating context with props: {}", contextProps);
@@ -290,11 +318,16 @@ class OpenCLManager
 		log.debug("Created compute context {}", context);
 	}
 
-	private void initMacOS(AWTContext awtContext)
+	private void initMacOS(GL4 gl)
 	{
-		long cglContext = awtContext.getGLContext();
-		long cglShareGroup = awtContext.getCGLShareGroup();
-		log.info("{} {}", cglContext, cglShareGroup);
+		// get sharegroup from gl context
+		GLContext glContext = gl.getContext();
+		if (!glContext.isCurrent())
+		{
+			throw new RuntimeException("Can't create context from inactive GL");
+		}
+		long cglContext = CGL.CGLGetCurrentContext();
+		long cglShareGroup = CGL.CGLGetShareGroup(cglContext);
 
 		// build context props
 		cl_context_properties contextProps = new cl_context_properties();

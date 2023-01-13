@@ -62,23 +62,23 @@ public class NpcSaver
 			out.writeByte(14);
 			out.writeShort(npc.walkingAnimation);
 		}
-		if (npc.idleRotateLeftAnimation != -1)
+		if (npc.rotateLeftAnimation != -1)
 		{
 			out.writeByte(15);
-			out.writeShort(npc.idleRotateLeftAnimation);
+			out.writeShort(npc.rotateLeftAnimation);
 		}
-		if (npc.idleRotateRightAnimation != -1)
+		if (npc.rotateRightAnimation != -1)
 		{
 			out.writeByte(16);
-			out.writeShort(npc.idleRotateRightAnimation);
+			out.writeShort(npc.rotateRightAnimation);
 		}
-		if (npc.rotate180Animation != -1 || npc.rotateLeftAnimation != -1 || npc.rotateRightAnimation != -1)
+		if (npc.rotate180Animation != -1 || npc.rotate90LeftAnimation != -1 || npc.rotate90RightAnimation != -1)
 		{
 			out.writeByte(17);
 			out.writeShort(npc.walkingAnimation);
 			out.writeShort(npc.rotate180Animation);
-			out.writeShort(npc.rotateLeftAnimation);
-			out.writeShort(npc.rotateRightAnimation);
+			out.writeShort(npc.rotate90RightAnimation);
+			out.writeShort(npc.rotate90LeftAnimation);
 		}
 		for (int i = 0; i < 5; ++i)
 		{
@@ -138,6 +138,11 @@ public class NpcSaver
 		out.writeByte(npc.ambient);
 		out.writeByte(101);
 		out.writeByte(npc.contrast);
+		if (npc.headIcon != -1)
+		{
+			out.writeByte(102);
+			out.writeShort(npc.headIcon);
+		}
 		out.writeByte(103);
 		out.writeShort(npc.rotationSpeed);
 		if (!npc.isInteractable)

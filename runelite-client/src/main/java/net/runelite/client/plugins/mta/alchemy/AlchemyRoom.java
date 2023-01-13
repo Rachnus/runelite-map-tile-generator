@@ -63,6 +63,7 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
+import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
@@ -447,15 +448,28 @@ public class AlchemyRoom extends MTARoom
 
 
 	@Override
-	public void renderItemOverlay(Graphics2D graphics, int itemId, WidgetItem widgetItem)
+	public void over(Graphics2D graphics)
 	{
-		assert inside();
-		if (best == null || best.getId() != itemId || !config.alchemy())
+		if (!inside() || !config.alchemy() || best == null)
 		{
 			return;
 		}
 
-		drawItem(graphics, widgetItem, Color.GREEN);
+		Widget inventory = client.getWidget(WidgetInfo.INVENTORY);
+		if (inventory.isHidden())
+		{
+			return;
+		}
+
+		for (WidgetItem item : inventory.getWidgetItems())
+		{
+			if (item.getId() != best.getId())
+			{
+				continue;
+			}
+
+			drawItem(graphics, item, Color.GREEN);
+		}
 	}
 
 	private void drawItem(Graphics2D graphics, WidgetItem item, Color border)

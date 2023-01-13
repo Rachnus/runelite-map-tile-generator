@@ -36,6 +36,7 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.game.ItemManager;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
+import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.ComponentOrientation;
@@ -56,7 +57,7 @@ class BlastMineOreCountOverlay extends OverlayPanel
 		this.config = config;
 		this.itemManager = itemManager;
 		panelComponent.setOrientation(ComponentOrientation.HORIZONTAL);
-		addMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Blast mine overlay");
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Blast mine overlay"));
 	}
 
 	@Override
@@ -72,11 +73,11 @@ class BlastMineOreCountOverlay extends OverlayPanel
 		if (config.showOreOverlay())
 		{
 			blastMineWidget.setHidden(true);
-			panelComponent.getChildren().add(new ImageComponent(getImage(ItemID.COAL, client.getVarbitValue(Varbits.BLAST_MINE_COAL))));
-			panelComponent.getChildren().add(new ImageComponent(getImage(ItemID.GOLD_ORE, client.getVarbitValue(Varbits.BLAST_MINE_GOLD))));
-			panelComponent.getChildren().add(new ImageComponent(getImage(ItemID.MITHRIL_ORE, client.getVarbitValue(Varbits.BLAST_MINE_MITHRIL))));
-			panelComponent.getChildren().add(new ImageComponent(getImage(ItemID.ADAMANTITE_ORE, client.getVarbitValue(Varbits.BLAST_MINE_ADAMANTITE))));
-			panelComponent.getChildren().add(new ImageComponent(getImage(ItemID.RUNITE_ORE, client.getVarbitValue(Varbits.BLAST_MINE_RUNITE))));
+			panelComponent.getChildren().add(new ImageComponent(getImage(ItemID.COAL, client.getVar(Varbits.BLAST_MINE_COAL))));
+			panelComponent.getChildren().add(new ImageComponent(getImage(ItemID.GOLD_ORE, client.getVar(Varbits.BLAST_MINE_GOLD))));
+			panelComponent.getChildren().add(new ImageComponent(getImage(ItemID.MITHRIL_ORE, client.getVar(Varbits.BLAST_MINE_MITHRIL))));
+			panelComponent.getChildren().add(new ImageComponent(getImage(ItemID.ADAMANTITE_ORE, client.getVar(Varbits.BLAST_MINE_ADAMANTITE))));
+			panelComponent.getChildren().add(new ImageComponent(getImage(ItemID.RUNITE_ORE, client.getVar(Varbits.BLAST_MINE_RUNITE))));
 		}
 		else
 		{

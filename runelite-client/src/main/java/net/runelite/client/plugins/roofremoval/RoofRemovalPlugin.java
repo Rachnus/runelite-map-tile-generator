@@ -34,10 +34,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -88,7 +86,6 @@ public class RoofRemovalPlugin extends Plugin
 	private RoofRemovalConfig config;
 
 	private final Map<Integer, long[]> overrides = new HashMap<>();
-	private final Set<Integer> configOverrideRegions = new HashSet<>();
 
 	@Provides
 	RoofRemovalConfig getConfig(ConfigManager configManager)
@@ -99,7 +96,6 @@ public class RoofRemovalPlugin extends Plugin
 	@Override
 	public void startUp() throws IOException
 	{
-		buildConfigOverrides();
 		loadRoofOverrides();
 		clientThread.invoke(() ->
 		{
@@ -143,21 +139,7 @@ public class RoofRemovalPlugin extends Plugin
 			return;
 		}
 
-		if (e.getKey().startsWith("remove"))
-		{
-			client.getScene().setRoofRemovalMode(buildRoofRemovalFlags());
-		}
-		else if (e.getKey().startsWith("override"))
-		{
-			buildConfigOverrides();
-			clientThread.invoke(() ->
-			{
-				if (client.getGameState() == GameState.LOGGED_IN)
-				{
-					client.setGameState(GameState.LOADING);
-				}
-			});
-		}
+		client.getScene().setRoofRemovalMode(buildRoofRemovalFlags());
 	}
 
 	private int buildRoofRemovalFlags()
@@ -180,18 +162,6 @@ public class RoofRemovalPlugin extends Plugin
 			roofRemovalMode |= ROOF_FLAG_BETWEEN;
 		}
 		return roofRemovalMode;
-	}
-
-	private void buildConfigOverrides()
-	{
-		configOverrideRegions.clear();
-		for (RoofRemovalConfigOverride configOverride : RoofRemovalConfigOverride.values())
-		{
-			if (configOverride.getEnabled().test(config))
-			{
-				configOverrideRegions.addAll(configOverride.getRegions());
-			}
-		}
 	}
 
 	private void performRoofRemoval()
@@ -248,11 +218,6 @@ public class RoofRemovalPlugin extends Plugin
 		outer:
 		for (int regionID : client.getMapRegions())
 		{
-			if (configOverrideRegions.contains(regionID))
-			{
-				regionsHaveOverrides = true;
-				break;
-			}
 			for (int z = 0; z < Constants.MAX_Z; z++)
 			{
 				if (overrides.containsKey(regionID << 2 | z))
@@ -285,20 +250,18 @@ public class RoofRemovalPlugin extends Plugin
 					// Properly account for instances shifting worldpoints around
 					final WorldPoint wp = WorldPoint.fromLocalInstance(client, tile.getLocalLocation(), tile.getPlane());
 
-					int regionAndPlane = wp.getRegionID() << 2 | wp.getPlane();
-					if (configOverrideRegions.contains(wp.getRegionID()))
+					int regionID = wp.getRegionID() << 2 | z;
+					if (!overrides.containsKey(regionID))
+					{
+						continue;
+					}
+
+					int rx = wp.getRegionX();
+					int ry = wp.getRegionY();
+					long[] region = overrides.get(regionID);
+					if ((region[ry] & (1L << rx)) != 0)
 					{
 						settings[z][x][y] |= Constants.TILE_FLAG_UNDER_ROOF;
-					}
-					else if (overrides.containsKey(regionAndPlane))
-					{
-						int rx = wp.getRegionX();
-						int ry = wp.getRegionY();
-						long[] region = overrides.get(regionAndPlane);
-						if ((region[ry] & (1L << rx)) != 0)
-						{
-							settings[z][x][y] |= Constants.TILE_FLAG_UNDER_ROOF;
-						}
 					}
 				}
 			}

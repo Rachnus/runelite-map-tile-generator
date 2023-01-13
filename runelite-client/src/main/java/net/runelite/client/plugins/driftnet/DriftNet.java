@@ -27,11 +27,10 @@ package net.runelite.client.plugins.driftnet;
 
 import java.util.Set;
 import lombok.Data;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.runelite.api.GameObject;
-import net.runelite.api.annotations.Varbit;
+import net.runelite.api.Varbits;
 import net.runelite.api.coords.WorldPoint;
 
 @Data
@@ -39,10 +38,8 @@ import net.runelite.api.coords.WorldPoint;
 class DriftNet
 {
 	private final int objectId;
-	@Getter(onMethod_ = {@Varbit})
-	private final int statusVarbit;
-	@Getter(onMethod_ = {@Varbit})
-	private final int countVarbit;
+	private final Varbits statusVarbit;
+	private final Varbits countVarbit;
 	private final Set<WorldPoint> adjacentTiles;
 
 	private GameObject net;

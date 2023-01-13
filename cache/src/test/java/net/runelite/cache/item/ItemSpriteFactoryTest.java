@@ -67,7 +67,6 @@ public class ItemSpriteFactoryTest
 
 			ItemManager itemManager = new ItemManager(store);
 			itemManager.load();
-			itemManager.link();
 
 			ModelProvider modelProvider = new ModelProvider()
 			{

@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
-import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.RuneLiteProperties;
 import net.runelite.client.util.VerificationException;
@@ -63,17 +62,12 @@ public class ExternalPluginClient
 {
 	private final OkHttpClient okHttpClient;
 	private final Gson gson;
-	private final HttpUrl apiBase;
 
 	@Inject
-	private ExternalPluginClient(OkHttpClient okHttpClient,
-		Gson gson,
-		@Named("runelite.api.base") HttpUrl apiBase
-	)
+	private ExternalPluginClient(OkHttpClient okHttpClient, Gson gson)
 	{
 		this.okHttpClient = okHttpClient;
 		this.gson = gson;
-		this.apiBase = apiBase;
 	}
 
 	public List<ExternalPluginManifest> downloadManifest() throws IOException, VerificationException
@@ -111,7 +105,7 @@ public class ExternalPluginClient
 		}
 		catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e)
 		{
-			throw new VerificationException(e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -159,7 +153,7 @@ public class ExternalPluginClient
 			return;
 		}
 
-		HttpUrl url = apiBase.newBuilder()
+		HttpUrl url = RuneLiteAPI.getApiBase().newBuilder()
 			.addPathSegment("pluginhub")
 			.build();
 
@@ -187,7 +181,7 @@ public class ExternalPluginClient
 
 	public Map<String, Integer> getPluginCounts() throws IOException
 	{
-		HttpUrl url = apiBase
+		HttpUrl url = RuneLiteAPI.getApiBase()
 			.newBuilder()
 			.addPathSegments("pluginhub")
 			.build();

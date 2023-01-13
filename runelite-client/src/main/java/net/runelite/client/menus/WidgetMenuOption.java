@@ -25,11 +25,9 @@
 package net.runelite.client.menus;
 
 import java.awt.Color;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.Setter;
-import net.runelite.api.MenuEntry;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.ui.JagexColors;
 import net.runelite.client.util.ColorUtil;
@@ -66,8 +64,6 @@ public final class WidgetMenuOption
 	 */
 	@Getter
 	private final int widgetId;
-
-	Consumer<MenuEntry> callback;
 
 	/**
 	 * Creates a menu to be added to right click menus. The menu will only be added if match is found within the menu options

@@ -31,22 +31,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.runelite.client.ui.overlay.components.PanelComponent;
 import net.runelite.client.ui.overlay.worldmap.WorldMapPoint;
+import net.runelite.client.ws.PartyMember;
 
 @Setter
 @Getter
 @RequiredArgsConstructor
 public class PartyData
 {
-	private final long memberId;
+	private final PartyMember member;
 	private final WorldMapPoint worldMapPoint;
 	private final PanelComponent panel = new PanelComponent();
-	private Color color = Color.WHITE;
+	private final Color color;
 
 	private int hitpoints;
 	private int maxHitpoints;
 	private int prayer;
 	private int maxPrayer;
-	private int runEnergy;
-	private int specEnergy;
-	private boolean vengeanceActive;
+	private String characterName = "";
+	private boolean showOverlay;
 }

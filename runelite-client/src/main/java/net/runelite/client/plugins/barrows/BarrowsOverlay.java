@@ -31,7 +31,6 @@ import java.awt.Rectangle;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.Perspective;
-import net.runelite.api.Point;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.ui.overlay.Overlay;
@@ -57,12 +56,13 @@ class BarrowsOverlay extends Overlay
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		if (plugin.isBarrowsLoaded() && config.showBrotherLoc())
+		Widget puzzleAnswer = plugin.getPuzzleAnswer();
+
+		if (config.showBrotherLoc())
 		{
 			renderBarrowsBrothers(graphics);
 		}
 
-		Widget puzzleAnswer = plugin.getPuzzleAnswer();
 		if (puzzleAnswer != null && config.showPuzzleAnswer() && !puzzleAnswer.isHidden())
 		{
 			Rectangle answerRect = puzzleAnswer.getBounds();
@@ -78,21 +78,22 @@ class BarrowsOverlay extends Overlay
 		for (BarrowsBrothers brother : BarrowsBrothers.values())
 		{
 			LocalPoint localLocation = LocalPoint.fromWorld(client, brother.getLocation());
+
 			if (localLocation == null)
 			{
 				continue;
 			}
 
 			String brotherLetter = Character.toString(brother.getName().charAt(0));
-			Point miniMapLocation = Perspective.getCanvasTextMiniMapLocation(client, graphics,
+			net.runelite.api.Point minimapText = Perspective.getCanvasTextMiniMapLocation(client, graphics,
 				localLocation, brotherLetter);
 
-			if (miniMapLocation != null)
+			if (minimapText != null)
 			{
 				graphics.setColor(Color.black);
-				graphics.drawString(brotherLetter, miniMapLocation.getX() + 1, miniMapLocation.getY() + 1);
+				graphics.drawString(brotherLetter, minimapText.getX() + 1, minimapText.getY() + 1);
 
-				if (client.getVarbitValue(brother.getKilledVarbit()) > 0)
+				if (client.getVar(brother.getKilledVarbit()) > 0)
 				{
 					graphics.setColor(config.deadBrotherLocColor());
 				}
@@ -101,7 +102,7 @@ class BarrowsOverlay extends Overlay
 					graphics.setColor(config.brotherLocColor());
 				}
 
-				graphics.drawString(brotherLetter, miniMapLocation.getX(), miniMapLocation.getY());
+				graphics.drawString(brotherLetter, minimapText.getX(), minimapText.getY());
 			}
 		}
 	}

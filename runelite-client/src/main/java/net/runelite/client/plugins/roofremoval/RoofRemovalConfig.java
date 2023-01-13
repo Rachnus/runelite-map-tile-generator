@@ -27,32 +27,16 @@ package net.runelite.client.plugins.roofremoval;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
-import net.runelite.client.config.ConfigSection;
 
 @ConfigGroup(RoofRemovalConfig.CONFIG_GROUP)
 public interface RoofRemovalConfig extends Config
 {
 	String CONFIG_GROUP = "roofremoval";
 
-	@ConfigSection(
-		name = "Modes",
-		description = "In what situations should roofs be removed",
-		position = 0
-	)
-	String modesSection = "modes";
-
-	@ConfigSection(
-		name = "Area Overrides",
-		description = "Always remove roofs in specific areas",
-		position = 1
-	)
-	String overridesSection = "overrides";
-
 	@ConfigItem(
 		keyName = "removePosition",
 		name = "Player's position",
-		description = "Remove roofs above the player's position",
-		section = modesSection
+		description = "Remove roofs above the player's position"
 	)
 	default boolean removePosition()
 	{
@@ -62,8 +46,7 @@ public interface RoofRemovalConfig extends Config
 	@ConfigItem(
 		keyName = "removeHovered",
 		name = "Hovered tile",
-		description = "Remove roofs above the hovered tile",
-		section = modesSection
+		description = "Remove roofs above the hovered tile"
 	)
 	default boolean removeHovered()
 	{
@@ -73,8 +56,7 @@ public interface RoofRemovalConfig extends Config
 	@ConfigItem(
 		keyName = "removeDestination",
 		name = "Destination tile",
-		description = "Remove roofs above the destination tile",
-		section = modesSection
+		description = "Remove roofs above the destination tile"
 	)
 	default boolean removeDestination()
 	{
@@ -84,22 +66,10 @@ public interface RoofRemovalConfig extends Config
 	@ConfigItem(
 		keyName = "removeBetween",
 		name = "Between camera & player",
-		description = "Remove roofs between the camera and the player at low camera angles",
-		section = modesSection
+		description = "Remove roofs between the camera and the player at low camera angles"
 	)
 	default boolean removeBetween()
 	{
 		return true;
-	}
-
-	@ConfigItem(
-		keyName = "overridePOH",
-		name = "Player Owned House",
-		description = "Always remove roofs while in the Player Owned House",
-		section = overridesSection
-	)
-	default boolean overridePOH()
-	{
-		return false;
 	}
 }

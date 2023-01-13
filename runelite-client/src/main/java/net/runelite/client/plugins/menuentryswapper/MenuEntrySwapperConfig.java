@@ -66,14 +66,6 @@ public interface MenuEntrySwapperConfig extends Config
 	)
 	String uiSection = "ui";
 
-	@ConfigSection(
-		name = "Ground Item Swaps",
-		description = "All options that swap ground item menu entries",
-		position = 4,
-		closedByDefault = true
-	)
-	String groundItemSection = "groundItems";
-
 	enum ArdougneCloakMode
 	{
 		WEAR,
@@ -122,18 +114,6 @@ public interface MenuEntrySwapperConfig extends Config
 	}
 
 	@ConfigItem(
-		position = -3,
-		keyName = "leftClickCustomization",
-		name = "Customizable left-click",
-		description = "Allows customization of left-clicks on items",
-		section = itemSection
-	)
-	default boolean leftClickCustomization()
-	{
-		return true;
-	}
-
-	@ConfigItem(
 		position = -2,
 		keyName = "shiftClickCustomization",
 		name = "Customizable shift-click",
@@ -143,54 +123,6 @@ public interface MenuEntrySwapperConfig extends Config
 	default boolean shiftClickCustomization()
 	{
 		return true;
-	}
-
-	@ConfigItem(
-		position = -2,
-		keyName = "objectLeftClickCustomization",
-		name = "Customizable left and shift click",
-		description = "Allows customization of left-clicks on objects",
-		section = objectSection
-	)
-	default boolean objectCustomization()
-	{
-		return true;
-	}
-
-	@ConfigItem(
-		position = -2,
-		keyName = "objectShiftClickWalkHere",
-		name = "Shift click Walk here",
-		description = "Swaps Walk here on shift click on all objects",
-		section = objectSection
-	)
-	default boolean objectShiftClickWalkHere()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		position = -3,
-		keyName = "npcLeftClickCustomization",
-		name = "Customizable left and shift click",
-		description = "Allows customization of left-clicks on NPCs",
-		section = npcSection
-	)
-	default boolean npcCustomization()
-	{
-		return true;
-	}
-
-	@ConfigItem(
-		position = -2,
-		keyName = "npcShiftClickWalkHere",
-		name = "Shift click Walk here",
-		description = "Swaps Walk here on shift click on all NPCs",
-		section = npcSection
-	)
-	default boolean npcShiftClickWalkHere()
-	{
-		return false;
 	}
 
 	@ConfigItem(
@@ -260,6 +192,39 @@ public interface MenuEntrySwapperConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "swapBattlestaves",
+		name = "Battlestaff",
+		description = "Swap Wield with Use on Battlestaves without orbs",
+		section = itemSection
+	)
+	default boolean swapBattlestaves()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "swapPrayerBook",
+		name = "Recite-Prayer",
+		description = "Swap Read with Recite-prayer on the Prayer Book from The Great Brain Robbery quest",
+		section = itemSection
+	)
+	default boolean swapPrayerBook()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "swapContract",
+		name = "Contract",
+		description = "Swap Talk-to with Contract on Guildmaster Jane",
+		section = npcSection
+	)
+	default boolean swapContract()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "swapChase",
 		name = "Chase",
 		description = "Allows to left click your cat to chase",
@@ -268,6 +233,50 @@ public interface MenuEntrySwapperConfig extends Config
 	default boolean swapChase()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = "claimSlime",
+		name = "Claim Slime",
+		description = "Swap Talk-to with Claim Slime from Morytania diaries",
+		section = npcSection
+	)
+	default boolean claimSlime()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "swapDarkMage",
+		name = "Repairs",
+		description = "Swap Talk-to with Repairs for Dark Mage",
+		section = npcSection
+	)
+	default boolean swapDarkMage()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "swapCaptainKhaled",
+		name = "Task",
+		description = "Swap Talk-to with Task for Captain Khaled in Port Piscarilius",
+		section = npcSection
+	)
+	default boolean swapCaptainKhaled()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "swapDecant",
+		name = "Decant",
+		description = "Swap Talk-to with Decant for Bob Barter and Murky Matt at the Grand Exchange.",
+		section = npcSection
+	)
+	default boolean swapDecant()
+	{
+		return false;
 	}
 
 	@ConfigItem(
@@ -290,6 +299,28 @@ public interface MenuEntrySwapperConfig extends Config
 	default FairyRingMode swapFairyRing()
 	{
 		return FairyRingMode.LAST_DESTINATION;
+	}
+
+	@ConfigItem(
+		keyName = "swapHardWoodGrove",
+		name = "Hardwood Grove Quick-Pay",
+		description = "Swap Quick-Pay(100) at the Hardwood Grove",
+		section = objectSection
+	)
+	default boolean swapHardWoodGrove()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "swapHardWoodGroveParcel",
+		name = "Hardwood Grove Send-Parcel",
+		description = "Swap Send-Parcel at the Hardwood Grove",
+		section = npcSection
+	)
+	default boolean swapHardWoodGroveParcel()
+	{
+		return true;
 	}
 
 	@ConfigItem(
@@ -334,6 +365,17 @@ public interface MenuEntrySwapperConfig extends Config
 	default HouseMode swapHomePortal()
 	{
 		return HouseMode.HOME;
+	}
+
+	@ConfigItem(
+		keyName = "swapHouseAdvertisement",
+		name = "House Advertisement",
+		description = "Swap View with Add-House or Visit-Last on House Advertisement board",
+		section = objectSection
+	)
+	default HouseAdvertisementMode swapHouseAdvertisement()
+	{
+		return HouseAdvertisementMode.VIEW;
 	}
 
 	@ConfigItem(
@@ -524,6 +566,50 @@ public interface MenuEntrySwapperConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "swapEnchant",
+		name = "Enchant",
+		description = "Swap Talk-to with Enchant for Eluned",
+		section = npcSection
+	)
+	default boolean swapEnchant()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "swapTeleportSpell",
+		name = "Shift-click teleport spells",
+		description = "Swap teleport spells that have a second destination on shift",
+		section = uiSection
+	)
+	default boolean swapTeleportSpell()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "swapStartMinigame",
+		name = "Pyramid Plunder Start-minigame",
+		description = "Swap Talk-to with Start-minigame at the Guardian Mummy",
+		section = npcSection
+	)
+	default boolean swapStartMinigame()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "swapQuickleave",
+		name = "Quick-Leave",
+		description = "Swap Leave Tomb with Quick-Leave at Pyramid Plunder",
+		section = objectSection
+	)
+	default boolean swapQuickLeave()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "swapGEItemCollect",
 		name = "GE Item Collect",
 		description = "Swap Collect-notes, Collect-items, or Bank options from GE offer",
@@ -537,7 +623,8 @@ public interface MenuEntrySwapperConfig extends Config
 	@ConfigItem(
 		keyName = "swapGEAbort",
 		name = "GE Abort",
-		description = "Swap abort offer on Grand Exchange offers when shift-clicking",
+		description = "Swap abort offer on Grand Exchange offers when shift-clicking"
+		,
 		section = uiSection
 	)
 	default boolean swapGEAbort()
@@ -546,10 +633,21 @@ public interface MenuEntrySwapperConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "swapNpcContact",
+		name = "NPC Contact",
+		description = "Swap NPC Contact with last contacted NPC when shift-clicking",
+		section = uiSection
+	)
+	default boolean swapNpcContact()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "bankWithdrawShiftClick",
 		name = "Bank Withdraw Shift-Click",
 		description = "Swaps the behavior of shift-click when withdrawing from bank.",
-		section = uiSection
+		section = itemSection
 	)
 	default ShiftWithdrawMode bankWithdrawShiftClick()
 	{
@@ -560,7 +658,7 @@ public interface MenuEntrySwapperConfig extends Config
 		keyName = "bankDepositShiftClick",
 		name = "Bank Deposit Shift-Click",
 		description = "Swaps the behavior of shift-click when depositing to bank.",
-		section = uiSection
+		section = itemSection
 	)
 	default ShiftDepositMode bankDepositShiftClick()
 	{
@@ -601,12 +699,45 @@ public interface MenuEntrySwapperConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "swapNets",
+		name = "Nets",
+		description = "Swap Talk-to with Nets on Annette",
+		section = npcSection
+	)
+	default boolean swapNets()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "swapGauntlet",
+		name = "Corrupted Gauntlet",
+		description = "Swap Enter with Enter-corrupted when entering The Gauntlet",
+		section = objectSection
+	)
+	default boolean swapGauntlet()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "swapTan",
 		name = "Tan",
 		description = "Swap Tan 1 with Tan All",
 		section = uiSection
 	)
 	default boolean swapTan()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "swapCollectMiscellania",
+		name = "Miscellania",
+		description = "Swap Talk-to with Collect for Advisor Ghrim",
+		section = npcSection
+	)
+	default boolean swapCollectMiscellania()
 	{
 		return false;
 	}
@@ -622,33 +753,26 @@ public interface MenuEntrySwapperConfig extends Config
 		return false;
 	}
 
-	enum StairsMode
+	@ConfigItem(
+		keyName = "swapRockCake",
+		name = "Dwarven rock cake",
+		description = "Swap Eat with Guzzle on the Dwarven rock cake",
+		section = itemSection
+	)
+	default boolean swapRockCake()
 	{
-		CLIMB,
-		CLIMB_UP,
-		CLIMB_DOWN,
+		return false;
 	}
 
 	@ConfigItem(
-		keyName = "swapStairsLeftClick",
-		name = "Stairs left-click",
-		description = "Swap this option when left-clicking stairs. Also works on ladders.",
+		keyName = "swapRowboatDive",
+		name = "Fossil Island Rowboat Dive",
+		description = "Swap Travel with Dive on the rowboat found on the small island north-east of Fossil Island",
 		section = objectSection
 	)
-	default StairsMode swapStairsLeftClick()
+	default boolean swapRowboatDive()
 	{
-		return StairsMode.CLIMB;
-	}
-
-	@ConfigItem(
-		keyName = "swapStairsShiftClick",
-		name = "Stairs shift-click",
-		description = "Swap this option when shift-clicking stairs. Also works on ladders.",
-		section = objectSection
-	)
-	default StairsMode swapStairsShiftClick()
-	{
-		return StairsMode.CLIMB;
+		return false;
 	}
 
 	@ConfigItem(
@@ -658,29 +782,6 @@ public interface MenuEntrySwapperConfig extends Config
 		section = npcSection
 	)
 	default boolean swapTemporossLeave()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "removeDeadNpcMenus",
-		name = "Remove dead npc menus",
-		description = "Remove menu options such as Attack and Talk-to from dead npcs",
-		section = npcSection
-	)
-	default boolean removeDeadNpcMenus()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		position = -1,
-		keyName = "groundItemShiftClickWalkHere",
-		name = "Shift click Walk here",
-		description = "Swaps Walk here on shift click on all ground items",
-		section = groundItemSection
-	)
-	default boolean groundItemShiftClickWalkHere()
 	{
 		return false;
 	}

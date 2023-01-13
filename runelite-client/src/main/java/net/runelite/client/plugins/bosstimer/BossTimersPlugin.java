@@ -31,7 +31,6 @@ import net.runelite.api.NPC;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
-import net.runelite.client.game.NpcUtil;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
@@ -50,9 +49,6 @@ public class BossTimersPlugin extends Plugin
 	@Inject
 	private ItemManager itemManager;
 
-	@Inject
-	private NpcUtil npcUtil;
-
 	@Override
 	protected void shutDown() throws Exception
 	{
@@ -64,7 +60,7 @@ public class BossTimersPlugin extends Plugin
 	{
 		NPC npc = npcDespawned.getNpc();
 
-		if (!npcUtil.isDying(npc))
+		if (!npc.isDead())
 		{
 			return;
 		}

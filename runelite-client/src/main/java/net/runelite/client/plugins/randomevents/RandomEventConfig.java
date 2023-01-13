@@ -52,68 +52,13 @@ public interface RandomEventConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "notifyAll",
-		name = "Notify for all events",
-		description = "",
-		position = -2,
-		section = notificationSection
+			keyName = "notifyAll",
+			name = "Notify for all events",
+			description = "",
+			position = -2,
+			section = notificationSection
 	)
 	default boolean notifyAllEvents()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyArnav",
-		name = "Notify on Capt' Arnav's Chest",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyArnav()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyBeekeeper",
-		name = "Notify on Beekeeper",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyBeekeeper()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyBob",
-		name = "Notify on Evil Bob",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyBob()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyCerters",
-		name = "Notify on Certers",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyCerters()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyDemon",
-		name = "Notify on Drill Demon",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyDemon()
 	{
 		return false;
 	}
@@ -130,12 +75,23 @@ public interface RandomEventConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "notifyDwarf",
-		name = "Notify on Drunken Dwarf",
+		keyName = "notifyGenie",
+		name = "Notify on Genie",
 		description = "",
 		section = notificationSection
 	)
-	default boolean notifyDwarf()
+	default boolean notifyGenie()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "notifyDemon",
+		name = "Notify on Drill Demon",
+		description = "",
+		section = notificationSection
+	)
+	default boolean notifyDemon()
 	{
 		return false;
 	}
@@ -152,34 +108,12 @@ public interface RandomEventConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "notifyFlippa",
-		name = "Notify on Pinball",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyFlippa()
-	{
-		return false;
-	}
-
-	@ConfigItem(
 		keyName = "notifyFrog",
 		name = "Notify on Kiss the Frog",
 		description = "",
 		section = notificationSection
 	)
 	default boolean notifyFrog()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyGenie",
-		name = "Notify on Genie",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyGenie()
 	{
 		return false;
 	}
@@ -196,39 +130,6 @@ public interface RandomEventConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "notifyJekyll",
-		name = "Notify on Jekyll & Hyde",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyJekyll()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyMaze",
-		name = "Notify on Maze",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyMaze()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyMime",
-		name = "Notify on Mime",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyMime()
-	{
-		return false;
-	}
-
-	@ConfigItem(
 		keyName = "notifyMoM",
 		name = "Notify on Mysterious Old Man",
 		description = "",
@@ -240,23 +141,12 @@ public interface RandomEventConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "notifyPillory",
-		name = "Notify on Pillory",
+		keyName = "notifyBob",
+		name = "Notify on Evil Bob",
 		description = "",
 		section = notificationSection
 	)
-	default boolean notifyPillory()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyPrison",
-		name = "Notify on Prison Pete",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyPrison()
+	default boolean notifyBob()
 	{
 		return false;
 	}
@@ -273,34 +163,34 @@ public interface RandomEventConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "notifyJekyll",
+		name = "Notify on Jekyll & Hyde",
+		description = "",
+		section = notificationSection
+	)
+	default boolean notifyJekyll()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "notifyBeekeeper",
+		name = "Notify on Beekeeper",
+		description = "",
+		section = notificationSection
+	)
+	default boolean notifyBeekeeper()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "notifySandwich",
 		name = "Notify on Sandwich Lady",
 		description = "",
 		section = notificationSection
 	)
 	default boolean notifySandwich()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyTurpentine",
-		name = "Notify on Rick Turpentine",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyTurpentine()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		keyName = "notifyTwin",
-		name = "Notify on Evil twin",
-		description = "",
-		section = notificationSection
-	)
-	default boolean notifyTwin()
 	{
 		return false;
 	}
